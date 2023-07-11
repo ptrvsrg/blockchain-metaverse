@@ -14,6 +14,7 @@ public class CDataExtractor {
      */
     public static void getBlockChange(){
         Block block = getBlockChangeC();
+        if (block == null) return;
         //TODO отправить на запись блок
     }
 
@@ -22,6 +23,7 @@ public class CDataExtractor {
      */
     public static void getStateChange(){
         State state = getStateChangeC();
+        if (state == null) return;
         //TODO отправить на запись положение
     }
 }

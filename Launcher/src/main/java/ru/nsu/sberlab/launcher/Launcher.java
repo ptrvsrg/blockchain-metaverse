@@ -1,7 +1,7 @@
 package ru.nsu.sberlab.launcher;
 
 import lombok.extern.log4j.Log4j2;
-import ru.nsu.sberlab.cprogramintegration.BlockchainHandler;
+import ru.nsu.sberlab.cprogramintegration.DataChangeRequestTask;
 
 @Log4j2
 public class Launcher {
@@ -11,8 +11,8 @@ public class Launcher {
         log.info("LAUNCHING GAME ...");
         start();
 
-        log.info("SENDING PREVIOUS STATE...");
-        BlockchainHandler.sendStateChange();
+        log.info("START DATA CHANGE REQUEST TASK...");
+        new DataChangeRequestTask();
 
         log.info("END SESSION");
     }
