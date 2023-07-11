@@ -12,14 +12,6 @@ static sqlite3_stmt *update_chunk_stmt;
 
 int db_init() {
     static const char *create_query =
-        "attach database 'auth.db' as auth;"
-        "create table if not exists auth.identity_token ("
-        "   username text not null,"
-        "   token text not null,"
-        "   selected int not null"
-        ");"
-        "create unique index if not exists auth.identity_token_username_idx"
-        "   on identity_token (username);"
         "create table if not exists state ("
         "   x float not null,"
         "   y float not null,"
