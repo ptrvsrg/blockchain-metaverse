@@ -34,59 +34,24 @@ int db_init() {
     static const char *insert_block_query =
         "insert or replace into block (p, q, x, y, z, w) "
         "values (?, ?, ?, ?, ?, ?);";
-    static const char *insert_light_query =
-        "insert or replace into light (p, q, x, y, z, w) "
-        "values (?, ?, ?, ?, ?, ?);";
-    static const char *insert_sign_query =
-        "insert or replace into sign (p, q, x, y, z, face, text) "
-        "values (?, ?, ?, ?, ?, ?, ?);";
-    static const char *delete_sign_query =
-        "delete from sign where x = ? and y = ? and z = ? and face = ?;";
-    static const char *delete_signs_query =
-        "delete from sign where x = ? and y = ? and z = ?;";
-    static const char *load_blocks_query =
+
+    static const char *select_block_query =
+        "select w from block where x = ? and y = ? and z = ?;";
+
+    static const char *update_chunk_query =
         "select x, y, z, w from block where p = ? and q = ?;";
-    static const char *load_lights_query =
-        "select x, y, z, w from light where p = ? and q = ?;";
-    static const char *load_signs_query =
-        "select x, y, z, face, text from sign where p = ? and q = ?;";
-    static const char *get_key_query =
-        "select key from key where p = ? and q = ?;";
-    static const char *set_key_query =
-        "insert or replace into key (p, q, key) "
-        "values (?, ?, ?);";
+
     int rc;
-    rc = sqlite3_open(path, &db);
+    rc = sqlite3_open(DB_NAME, &db);
     if (rc) return rc;
     rc = sqlite3_exec(db, create_query, NULL, NULL, NULL);
     if (rc) return rc;
-    rc = sqlite3_prepare_v2(
-        db, insert_block_query, -1, &insert_block_stmt, NULL);
+    rc = sqlite3_prepare_v2(db, insert_block_query, -1, &insert_block_stmt, NULL);
     if (rc) return rc;
-    rc = sqlite3_prepare_v2(
-        db, insert_light_query, -1, &insert_light_stmt, NULL);
+    rc = sqlite3_prepare_v2(db, select_block_query, -1, &select_block_stmt, NULL);
     if (rc) return rc;
-    rc = sqlite3_prepare_v2(
-        db, insert_sign_query, -1, &insert_sign_stmt, NULL);
+    rc = sqlite3_prepare_v2(db, update_chunk_query, -1, &update_chunk_stmt, NULL);
     if (rc) return rc;
-    rc = sqlite3_prepare_v2(
-        db, delete_sign_query, -1, &delete_sign_stmt, NULL);
-    if (rc) return rc;
-    rc = sqlite3_prepare_v2(
-        db, delete_signs_query, -1, &delete_signs_stmt, NULL);
-    if (rc) return rc;
-    rc = sqlite3_prepare_v2(db, load_blocks_query, -1, &load_blocks_stmt, NULL);
-    if (rc) return rc;
-    rc = sqlite3_prepare_v2(db, load_lights_query, -1, &load_lights_stmt, NULL);
-    if (rc) return rc;
-    rc = sqlite3_prepare_v2(db, load_signs_query, -1, &load_signs_stmt, NULL);
-    if (rc) return rc;
-    rc = sqlite3_prepare_v2(db, get_key_query, -1, &get_key_stmt, NULL);
-    if (rc) return rc;
-    rc = sqlite3_prepare_v2(db, set_key_query, -1, &set_key_stmt, NULL);
-    if (rc) return rc;
-    sqlite3_exec(db, "begin;", NULL, NULL, NULL);
-    db_worker_start();
     return 0;
 }
 
