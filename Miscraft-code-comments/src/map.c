@@ -1,8 +1,6 @@
-#include <stdlib.h>
-#include <string.h>
 #include "map.h"
 
-// This file contains code for a hash map that maps (x, y, z) locations to w block ids
+#include <stdlib.h>
 
 int hash_int(int key) {
     key = ~key + (key << 15);
