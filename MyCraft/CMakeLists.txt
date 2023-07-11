@@ -9,17 +9,22 @@ add_executable(
     ${SOURCE_FILES})
 
 # GLEW library
+find_package(OpenGL REQUIRED)
+find_package(X11 REQUIRED)
 FILE(GLOB GLEW_SOURCE_FILES deps/glew/src/*.c)
 SET(GLEW_INCLUDE_DIR deps/glew/include)
-add_library(glew STATIC
+add_library(glew SHARED
         ${GLEW_SOURCE_FILES})
 target_include_directories(glew
         PUBLIC ${GLEW_INCLUDE_DIR})
+target_link_libraries(glew
+        PUBLIC ${OPENGL_LIBRARIES}
+        PUBLIC ${X11_LIBRARIES})
 
 # LodePNG library
 FILE(GLOB LODEPNG_SOURCE_FILES deps/lodepng/*.c)
 SET(LODEPNG_INCLUDE_DIR deps/lodepng)
-add_library(lodepng STATIC
+add_library(lodepng SHARED
         ${LODEPNG_SOURCE_FILES})
 target_include_directories(lodepng
         PUBLIC ${LODEPNG_INCLUDE_DIR})
@@ -27,7 +32,7 @@ target_include_directories(lodepng
 # noise library
 FILE(GLOB NOISE_SOURCE_FILES deps/noise/*.c)
 SET(NOISE_INCLUDE_DIR deps/noise)
-add_library(noise STATIC
+add_library(noise SHARED
         ${NOISE_SOURCE_FILES})
 target_include_directories(noise
         PUBLIC ${NOISE_INCLUDE_DIR})
@@ -35,7 +40,7 @@ target_include_directories(noise
 # SQLite library
 FILE(GLOB SQLITE_SOURCE_FILES deps/sqlite/*.c)
 SET(SQLITE_INCLUDE_DIR deps/sqlite)
-add_library(sqlite STATIC
+add_library(sqlite SHARED
         ${SQLITE_SOURCE_FILES})
 target_include_directories(sqlite
         PUBLIC ${SQLITE_INCLUDE_DIR})
