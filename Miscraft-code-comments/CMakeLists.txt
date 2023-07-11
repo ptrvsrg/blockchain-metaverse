@@ -40,30 +40,11 @@ add_library(sqlite STATIC
 target_include_directories(sqlite
         PUBLIC ${SQLITE_INCLUDE_DIR})
 
-# TinycThread library
-FILE(GLOB TINYCTHREAD_SOURCE_FILES deps/tinycthread/*.c)
-SET(TINYCTHREAD_INCLUDE_DIR deps/tinycthread)
-add_library(tinycthread STATIC
-        ${TINYCTHREAD_SOURCE_FILES})
-target_include_directories(tinycthread
-        PUBLIC ${TINYCTHREAD_INCLUDE_DIR})
-
 # GLFW library
 SET(GLFW_INCLUDE_DIR deps/glfw/include)
 add_subdirectory(deps/glfw)
 target_include_directories(craft
         PRIVATE ${GLFW_INCLUDE_DIR})
-
-# cURL library
-if(MINGW)
-    set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
-        "C:/Program Files/CURL/lib" "C:/Program Files (x86)/CURL/lib")
-    set(CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}
-        "C:/Program Files/CURL/include" "C:/Program Files (x86)/CURL/include")
-endif()
-find_package(CURL REQUIRED)
-target_include_directories(craft
-        PRIVATE ${CURL_INCLUDE_DIR})
 
 # Linking
 if(APPLE)
@@ -73,7 +54,6 @@ if(APPLE)
             PRIVATE lodepng
             PRIVATE noise
             PRIVATE sqlite
-            PRIVATE tinycthread
             PRIVATE ${GLFW_LIBRARIES}
             PRIVATE ${CURL_LIBRARIES})
 elseif (UNIX)
@@ -84,9 +64,7 @@ elseif (UNIX)
             PRIVATE lodepng
             PRIVATE noise
             PRIVATE sqlite
-            PRIVATE tinycthread
-            PRIVATE ${GLFW_LIBRARIES}
-            PRIVATE ${CURL_LIBRARIES})
+            PRIVATE ${GLFW_LIBRARIES})
 elseif (MINGW)
     target_link_libraries(craft
             PRIVATE ws2_32.lib
@@ -95,7 +73,5 @@ elseif (MINGW)
             PRIVATE lodepng
             PRIVATE noise
             PRIVATE sqlite
-            PRIVATE tinycthread
-            PRIVATE ${GLFW_LIBRARIES}
-            PRIVATE ${CURL_LIBRARIES})
+            PRIVATE ${GLFW_LIBRARIES})
 endif()
