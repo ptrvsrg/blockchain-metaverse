@@ -35,12 +35,6 @@ GLuint make_buffer(GLenum target, GLsizei size, const void *data) {
     return buffer;
 }
 
-// Create a shader program from its source code
-// Arguments:
-// - type: vertex or fragment shader
-// - source: program source code string
-// Returns:
-// - OpenGL shader handle
 GLuint make_shader(GLenum type, const char *source) {
     GLuint shader = glCreateShader(type);
     glShaderSource(shader, 1, &source, NULL);
@@ -59,12 +53,6 @@ GLuint make_shader(GLenum type, const char *source) {
     return shader;
 }
 
-// Load a shader program from a file
-// Arguments:
-// - type: vertex or fragment shader
-// - path: file path to load the shader program from
-// Returns:
-// - OpenGL shader handle
 GLuint load_shader(GLenum type, const char *path) {
     char *data = load_file(path);
     GLuint result = make_shader(type, data);
@@ -72,13 +60,6 @@ GLuint load_shader(GLenum type, const char *path) {
     return result;
 }
 
-
-// Arguments:
-// - shader1: a shader handle to attach
-// - shader2: a shader handle to attach
-// Returns:
-// - returns OpenGL program handle
-// - deletes shader1 and shader2 from the context
 GLuint make_program(GLuint shader1, GLuint shader2) {
     GLuint program = glCreateProgram();
     glAttachShader(program, shader1);
@@ -101,12 +82,6 @@ GLuint make_program(GLuint shader1, GLuint shader2) {
     return program;
 }
 
-// Loads a shader program from files.
-// Arguments:
-// - path1 : vertex shader file path
-// - path2 : fragment shader file path
-// Returns:
-// - OpenGL program handle
 GLuint load_program(const char *path1, const char *path2) {
     GLuint shader1 = load_shader(GL_VERTEX_SHADER, path1);
     GLuint shader2 = load_shader(GL_FRAGMENT_SHADER, path2);
@@ -763,12 +738,6 @@ void flip_image_vertical(
     free(new_data);
 }
 
-// Loads a PNG file as a 2D texture for the current OpenGL texture context.
-// Arguments:
-// - file_name: the png file to load the texture from
-// Returns:
-// - no return value
-// - modifies OpenGL state by loading the image data into the current 2D texture
 void load_png_texture(const char *file_name) {
     unsigned int error;
     unsigned char *data;
