@@ -1,4 +1,4 @@
-package ru.nsu.sberlab.c_program_integration;
+package ru.nsu.sberlab.cprogramintegration;
 
 /**
  * Класс BlockchainHandler обрабатывает изменения в блокчейне и отправляет уведомления

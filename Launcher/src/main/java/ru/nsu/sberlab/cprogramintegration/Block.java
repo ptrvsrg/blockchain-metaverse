@@ -1,4 +1,4 @@
-package ru.nsu.sberlab.c_program_integration;
+package ru.nsu.sberlab.cprogramintegration;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
