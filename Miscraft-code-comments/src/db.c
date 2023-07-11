@@ -55,25 +55,10 @@ int db_init() {
     return 0;
 }
 
-// Close the database and save pending commits
-// Arguments: none
-// Returns: none
 void db_close() {
-    if (!db_enabled) {
-        return;
-    }
-    db_worker_stop();
-    sqlite3_exec(db, "commit;", NULL, NULL, NULL);
     sqlite3_finalize(insert_block_stmt);
-    sqlite3_finalize(insert_light_stmt);
-    sqlite3_finalize(insert_sign_stmt);
-    sqlite3_finalize(delete_sign_stmt);
-    sqlite3_finalize(delete_signs_stmt);
-    sqlite3_finalize(load_blocks_stmt);
-    sqlite3_finalize(load_lights_stmt);
-    sqlite3_finalize(load_signs_stmt);
-    sqlite3_finalize(get_key_stmt);
-    sqlite3_finalize(set_key_stmt);
+    sqlite3_finalize(select_block_stmt);
+    sqlite3_finalize(update_chunk_stmt);
     sqlite3_close(db);
 }
 
