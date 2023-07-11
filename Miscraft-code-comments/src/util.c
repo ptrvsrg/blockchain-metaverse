@@ -1,10 +1,8 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
+
 #include "lodepng.h"
-#include "matrix.h"
-#include "util.h"
 
 // Return pseudo-random number between 0 and "n".
 // Arguments:
