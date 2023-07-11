@@ -1,18 +1,14 @@
 #ifndef _map_h_
 #define _map_h_
 
-#define EMPTY_ENTRY(entry) ((entry)->value == 0)
+#define EMPTY_ENTRY(e) (!(e)->x && !(e)->y && !(e)->z && !(e)->w)
 
-#define MAP_FOR_EACH(map, ex, ey, ez, ew) \
+#define MAP_FOR_EACH(map, entry) \
     for (unsigned int i = 0; i <= map->mask; i++) { \
         MapEntry *entry = map->data + i; \
         if (EMPTY_ENTRY(entry)) { \
             continue; \
-        } \
-        int ex = entry->e.x + map->dx; \
-        int ey = entry->e.y + map->dy; \
-        int ez = entry->e.z + map->dz; \
-        int ew = entry->e.w;
+        }
 
 #define END_MAP_FOR_EACH }
 
