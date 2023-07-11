@@ -63,9 +63,6 @@ void db_close() {
 }
 
 void db_save_state(float x, float y, float z, float rx, float ry) {
-    if (!db_enabled) {
-        return;
-    }
     static const char *query =
         "insert into state (x, y, z, rx, ry) values (?, ?, ?, ?, ?);";
     sqlite3_stmt *stmt;
@@ -80,19 +77,7 @@ void db_save_state(float x, float y, float z, float rx, float ry) {
     sqlite3_finalize(stmt);
 }
 
-// Load the player state from the database.
-// Arguments:
-// - x: pointer to x position to load value into
-// - y: pointer to y position to load value into
-// - z: pointer to z position to load value into
-// - rx: pointer to rotation x to load value into
-// - ry: pointer to rotation y to load value into
-// Returns:
-// - non-zero if the state entry was successfully found and loaded
 int db_load_state(float *x, float *y, float *z, float *rx, float *ry) {
-    if (!db_enabled) {
-        return 0;
-    }
     static const char *query =
         "select x, y, z, rx, ry from state;";
     int result = 0;
@@ -110,33 +95,7 @@ int db_load_state(float *x, float *y, float *z, float *rx, float *ry) {
     return result;
 }
 
-// Let one of the workers insert a block into the database.
-// Arguments:
-// - p: chunk x position
-// - q: chunk z position
-// - x: block x position
-// - y: block y position
-// - z: block z position
-// - w: block id
 void db_insert_block(int p, int q, int x, int y, int z, int w) {
-    if (!db_enabled) {
-        return;
-    }
-    mtx_lock(&mtx);
-    ring_put_block(&ring, p, q, x, y, z, w);
-    cnd_signal(&cnd);
-    mtx_unlock(&mtx);
-}
-
-// Actually insert a block into the database.
-// Arguments:
-// - p: chunk x position
-// - q: chunk z position
-// - x: block x position
-// - y: block y position
-// - z: block z position
-// - w: block id value
-void _db_insert_block(int p, int q, int x, int y, int z, int w) {
     sqlite3_reset(insert_block_stmt);
     sqlite3_bind_int(insert_block_stmt, 1, p);
     sqlite3_bind_int(insert_block_stmt, 2, q);
