@@ -11,17 +11,6 @@
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-// Frames-per-second context
-// - fps: frames per second
-// - frames: number of frames collected (since last time)
-// - since: the last time the frames per second was updated
-typedef struct {
-    unsigned int fps;
-    unsigned int frames;
-    double since;
-} FPS;
-
-int rand_int(int n);
 double rand_double();
 void update_fps(FPS *fps);
 
