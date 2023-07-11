@@ -34,6 +34,9 @@ void mat_perspective(
 void mat_ortho(
     float *matrix,
     float left, float right, float bottom, float top, float near, float far);
+void make_plant(
+        float *vertex, float *normal, float *texture,
+        float x, float y, float z, float n, int w, float rotation);
 
 void make_cube(
     float *vertex, float *normal, float *texture,
