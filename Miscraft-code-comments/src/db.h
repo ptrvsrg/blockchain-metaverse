@@ -2,7 +2,6 @@
 #define _db_h_
 
 #include "map.h"
-#include "sign.h"
 
 int db_init();
 void db_close();
