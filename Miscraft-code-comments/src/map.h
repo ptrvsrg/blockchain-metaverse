@@ -20,9 +20,6 @@ typedef struct {
 } MapEntry;
 
 typedef struct {
-    int dx;
-    int dy;
-    int dz;
     unsigned int mask;
     unsigned int size;
     MapEntry *data;
