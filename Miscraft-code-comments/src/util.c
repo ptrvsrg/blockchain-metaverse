@@ -1,6 +1,10 @@
+#include "util.h"
+
+#include <errno.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "lodepng.h"
 
@@ -21,6 +25,12 @@ char *load_file(const char *path) {
     rewind(file);
     // Allocate space and read in the data
     char *data = calloc(length + 1, sizeof(char));
+    if (!data) {
+        fclose(file);
+        fprintf(stderr, "calloc failed: %d %s\n",
+                errno, strerror(errno));
+        exit(1);
+    }
     fread(data, 1, length, file);
     fclose(file);
     return data;
