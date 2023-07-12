@@ -1,13 +1,9 @@
 package blockchain;
 
-import blockchain.BlockInformation;
-
-import blockchain.smartContract.MapChangesSmartContract;
 import io.neow3j.compiler.CompilationUnit;
 import io.neow3j.compiler.Compiler;
 import io.neow3j.contract.ContractManagement;
 import io.neow3j.contract.SmartContract;
-import io.neow3j.devpack.List;
 import io.neow3j.protocol.Neow3j;
 import io.neow3j.protocol.core.response.NeoApplicationLog;
 import io.neow3j.protocol.core.response.NeoGetApplicationLog;
@@ -23,7 +19,6 @@ import io.neow3j.types.NeoVMStateType;
 import io.neow3j.utils.Await;
 import io.neow3j.wallet.Account;
 
-
 import static java.lang.String.format;
 
 
@@ -32,7 +27,7 @@ public class NodeInteraction {
 
     private Account account;
 
-    private AccountSigner signerOwner;
+    private final AccountSigner signerOwner;
 
 
     public NodeInteraction(String httpUrl, Account account) {
@@ -41,12 +36,12 @@ public class NodeInteraction {
         signerOwner = AccountSigner.none(account);
     }
 
-    public Hash160 deployContract(String contractClassName) throws Throwable {
+    public Hash160 deployContract(String contractClassName, ContractParameter parameter) throws Throwable {
         CompilationUnit res = new Compiler().compile(contractClassName);
 
 
         Transaction transaction = new ContractManagement(node)
-                .deploy(res.getNefFile(), res.getManifest())
+                .deploy(res.getNefFile(), res.getManifest(), parameter)
                 .signers(signerOwner)
                 .sign();
         NeoSendRawTransaction response = transaction.send();
@@ -85,7 +80,7 @@ public class NodeInteraction {
 
         if (response.hasError()) {
             throw new Exception(format("Can't invoke function: \"%s\"  on contract: \"%s\". Cause: %s", function,
-                    contactHash.toString(),
+                    contactHash,
                     response.getError().getMessage()));
         }
 
@@ -104,7 +99,7 @@ public class NodeInteraction {
             throw new Exception("Invocation failed");
         }
         // Get the result stack.
-        java.util.List<StackItem>stack = execution.getStack();
+        java.util.List<StackItem> stack = execution.getStack();
         return stack.get(0);
     }
 

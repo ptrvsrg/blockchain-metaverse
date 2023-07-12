@@ -1,10 +1,6 @@
 package blockchain;
 
-import io.neow3j.devpack.Helper;
 import io.neow3j.devpack.annotations.Struct;
-
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 import static java.lang.Math.min;
 import static java.lang.String.format;
