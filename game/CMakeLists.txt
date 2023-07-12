@@ -2,11 +2,20 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(craft)
 
-# Executable file
-FILE(GLOB SOURCE_FILES src/*.c JNI/*.c)
+# JNATIVE library
+FILE(GLOB JNATIVE_SOURCE_FILES JNI/*.c)
+add_library(jnative SHARED ${JNATIVE_SOURCE_FILES})
+
+# JNI
+find_package(JNI REQUIRED)
+target_include_directories(jnative PUBLIC ${JNI_INCLUDE_DIRS})
+
+# CRAFT library
+FILE(GLOB SOURCE_FILES src/*.c)
 add_library(
     craft SHARED
     ${SOURCE_FILES})
+target_include_directories(jnative PUBLIC src)
 
 # GLEW library
 find_package(OpenGL REQUIRED)
@@ -42,7 +51,7 @@ FILE(GLOB TINYCTHREAD_SOURCE_FILES deps/tinycthread/*.c)
         SET(TINYCTHREAD_INCLUDE_DIR deps/tinycthread)
 add_library(tinycthread SHARED
         ${TINYCTHREAD_SOURCE_FILES})
-target_include_directories(noise
+target_include_directories(craft
         PUBLIC ${TINYCTHREAD_INCLUDE_DIR})
 
 # SQLite library
@@ -58,11 +67,6 @@ SET(GLFW_INCLUDE_DIR deps/glfw/include)
 add_subdirectory(deps/glfw)
 target_include_directories(craft
         PRIVATE ${GLFW_INCLUDE_DIR})
-
-# JNI
-find_package(JNI REQUIRED)
-include_directories(${JNI_INCLUDE_DIRS})
-include_directories(src)
 
 # Linking
 if(APPLE)
@@ -96,3 +100,7 @@ elseif (MINGW)
             PRIVATE sqlite
             PRIVATE ${GLFW_LIBRARIES})
 endif()
+
+target_link_libraries(jnative
+            PRIVATE craft
+)
