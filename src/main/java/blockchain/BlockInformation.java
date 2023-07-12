@@ -5,6 +5,8 @@ import io.neow3j.devpack.annotations.Struct;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+import static blockchain.Utils.byteToInt;
+import static blockchain.Utils.intToByte;
 import static java.lang.Math.min;
 import static java.lang.String.format;
 
@@ -20,25 +22,6 @@ public class BlockInformation implements Serializable {
     private static final int integerSize = 4;
 
     public static final int BlockInformationByteSize = integerSize * 6;
-
-    private static int byteToInt(byte[] bytes, int st) {
-        int res = 0;
-        for (int i = 0; i < min(4, bytes.length - st); i++) {
-            res |= ((Byte.toUnsignedInt(bytes[st + i])) << 8 * i);
-        }
-
-        return res;
-    }
-
-    private static void intToByte(byte[] resultBytes, int st, int number) {
-
-        int oneByte = ~((byte) 0);
-
-        for (int i = 0; i < min(4, resultBytes.length - st); i++) {
-            resultBytes[st + i] = (byte) ((number >> i * 8) & oneByte);
-        }
-
-    }
 
 
     /**
