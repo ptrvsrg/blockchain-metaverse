@@ -9,7 +9,7 @@
     <version>1.0.0</version>
 
     <modules>
-    <module>game-integration</module>
+        <module>game-integration</module>
     </modules>
 
     <properties>
