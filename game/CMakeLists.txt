@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.22.1)
 project(craft)
 
 # Executable file
-FILE(GLOB SOURCE_FILES src/*.c)
-add_executable(
-    craft
+FILE(GLOB SOURCE_FILES src/*.c src/JNI/*.c)
+add_library(
+    craft SHARED
     ${SOURCE_FILES})
 
 # GLEW library
@@ -58,6 +58,10 @@ SET(GLFW_INCLUDE_DIR deps/glfw/include)
 add_subdirectory(deps/glfw)
 target_include_directories(craft
         PRIVATE ${GLFW_INCLUDE_DIR})
+
+# JNI
+find_package(JNI REQUIRED)
+include_directories(${JNI_INCLUDE_DIRS})
 
 # Linking
 if(APPLE)
