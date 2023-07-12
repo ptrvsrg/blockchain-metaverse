@@ -1,6 +1,8 @@
 #ifndef _sync_queue_h_
 #define _sync_queue_h_
 
+#include "tinycthread.h"
+
 /**
  * @brief Структура, представляющая запись в синхронизированной очереди.
  */
@@ -14,9 +16,24 @@ typedef struct sync_queue_entry_t {
 } sync_queue_entry_t;
 
 /**
+ * @brief Структура, представляющая узел в синхронизированной очереди.
+ */
+typedef struct sync_queue_node_t sync_queue_node_t;
+struct sync_queue_node_t {
+    sync_queue_entry_t data;
+    sync_queue_node_t *next;
+};
+
+/**
  * @brief Структура, представляющая синхронизированную очередь.
  */
-typedef struct sync_queue_t sync_queue_t;
+typedef struct sync_queue_t {
+    sync_queue_node_t *front;
+    sync_queue_node_t *rear;
+
+    mtx_t mutex;
+    cnd_t cond;
+} sync_queue_t;
 
 /**
  * @brief Инициализирует синхронизированную очередь.
