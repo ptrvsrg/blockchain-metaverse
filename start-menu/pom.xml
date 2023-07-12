@@ -11,7 +11,7 @@
     </parent>
 
     <groupId>ru.nsu.sberlab.startmenu</groupId>
-    <artifactId>startmenu</artifactId>
+    <artifactId>start-menu</artifactId>
     <version>1.0.0</version>
 
     <dependencies>
