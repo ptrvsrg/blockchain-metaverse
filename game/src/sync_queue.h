@@ -2,7 +2,18 @@
 #define _sync_queue_h_
 
 /**
- * @struct sync_queue_t
+ * @brief Структура, представляющая запись в синхронизированной очереди.
+ */
+typedef struct sync_queue_entry_t {
+    int m_chunk_x;
+    int m_chunk_z;
+    int m_block_x;
+    int m_block_y;
+    int m_block_z;
+    int m_block_id;
+} sync_queue_entry_t;
+
+/**
  * @brief Структура, представляющая синхронизированную очередь.
  */
 typedef struct sync_queue_t sync_queue_t;
@@ -25,16 +36,16 @@ void queue_destroy(sync_queue_t *queue);
  * @brief Добавляет элемент в конец синхронизированной очереди.
  *
  * @param queue Указатель на синхронизированную очередь.
- * @param data Указатель на данные, которые нужно добавить в очередь.
+ * @param entry Запись, которую нужно добавить в очередь.
  */
-void enqueue(sync_queue_t *queue, void *data);
+void enqueue(sync_queue_t *queue, sync_queue_entry_t entry);
 
 /**
  * @brief Удаляет и возвращает первый элемент из синхронизированной очереди.
  *
  * @param queue Указатель на синхронизированную очередь.
- * @return Указатель на данные, которые были удалены из очереди.
+ * @return Запись, которая была удалена из очереди.
  */
-void *dequeue(sync_queue_t *queue);
+sync_queue_entry_t dequeue(sync_queue_t *queue);
 
 #endif

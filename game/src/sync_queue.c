@@ -6,7 +6,7 @@
 
 typedef struct sync_queue_node_t sync_queue_node_t;
 struct sync_queue_node_t {
-    void *data;
+    sync_queue_entry_t data;
     sync_queue_node_t *next;
 };
 
@@ -38,7 +38,7 @@ void destroy_queue(sync_queue_t *queue) {
     cnd_destroy(&queue->cond);
 }
 
-void enqueue(sync_queue_t *queue, void *data) {
+void enqueue(sync_queue_t *queue, sync_queue_entry_t data) {
     sync_queue_node_t *new_node = (sync_queue_node_t *) malloc(sizeof(sync_queue_node_t));
     new_node->data = data;
     new_node->next = NULL;
@@ -54,13 +54,13 @@ void enqueue(sync_queue_t *queue, void *data) {
     mtx_unlock(&queue->mutex);
 }
 
-void *dequeue(sync_queue_t *queue) {
+sync_queue_entry_t dequeue(sync_queue_t *queue) {
     mtx_lock(&queue->mutex);
         while (queue->front == NULL) {
             cnd_wait(&queue->cond, &queue->mutex);
         }
         sync_queue_node_t *temp = queue->front;
-        void *msg = temp->data;
+        sync_queue_entry_t entry = temp->data;
         if (queue->front == queue->rear) {
             queue->front = NULL;
             queue->rear = NULL;
@@ -71,5 +71,5 @@ void *dequeue(sync_queue_t *queue) {
 
     free(temp);
 
-    return msg;
+    return entry;
 }
