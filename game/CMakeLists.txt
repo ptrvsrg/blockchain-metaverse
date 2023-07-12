@@ -37,6 +37,14 @@ add_library(noise SHARED
 target_include_directories(noise
         PUBLIC ${NOISE_INCLUDE_DIR})
 
+# TinyCThread library
+FILE(GLOB TINYCTHREAD_SOURCE_FILES deps/tinycthread/*.c)
+        SET(TINYCTHREAD_INCLUDE_DIR deps/tinycthread)
+add_library(tinycthread SHARED
+        ${TINYCTHREAD_SOURCE_FILES})
+target_include_directories(noise
+        PUBLIC ${TINYCTHREAD_INCLUDE_DIR})
+
 # SQLite library
 FILE(GLOB SQLITE_SOURCE_FILES deps/sqlite/*.c)
 SET(SQLITE_INCLUDE_DIR deps/sqlite)
@@ -58,6 +66,7 @@ if(APPLE)
             PRIVATE glew
             PRIVATE lodepng
             PRIVATE noise
+            PRIVATE tinycthread
             PRIVATE sqlite
             PRIVATE ${GLFW_LIBRARIES}
             PRIVATE ${CURL_LIBRARIES})
@@ -68,6 +77,7 @@ elseif (UNIX)
             PRIVATE glew
             PRIVATE lodepng
             PRIVATE noise
+            PRIVATE tinycthread
             PRIVATE sqlite
             PRIVATE ${GLFW_LIBRARIES})
 elseif (MINGW)
@@ -77,6 +87,7 @@ elseif (MINGW)
             PRIVATE glew
             PRIVATE lodepng
             PRIVATE noise
+            PRIVATE tinycthread
             PRIVATE sqlite
             PRIVATE ${GLFW_LIBRARIES})
 endif()
