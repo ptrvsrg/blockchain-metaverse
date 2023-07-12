@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.22.1)
 project(craft)
 
 # Executable file
-FILE(GLOB SOURCE_FILES src/*.c src/JNI/*.c)
+FILE(GLOB SOURCE_FILES src/*.c JNI/*.c)
 add_library(
     craft SHARED
     ${SOURCE_FILES})
@@ -62,6 +62,7 @@ target_include_directories(craft
 # JNI
 find_package(JNI REQUIRED)
 include_directories(${JNI_INCLUDE_DIRS})
+include_directories(src)
 
 # Linking
 if(APPLE)
