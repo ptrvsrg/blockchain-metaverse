@@ -2,6 +2,8 @@ package blockchain;
 
 import io.neow3j.devpack.annotations.Struct;
 
+import java.util.ArrayList;
+
 import static java.lang.Math.min;
 import static java.lang.String.format;
 
@@ -34,6 +36,25 @@ public class BlockInformation {
         for (int i = 0; i < min(4, resultBytes.length - st); i++) {
             resultBytes[st + i] = (byte) ((number >> i * 8) & oneByte);
         }
+
+    }
+
+
+    public static ArrayList<BlockInformation> getInfArrayFromByteRepresentation(byte[] blockInformationByteRepresentation) throws Exception {
+        if (blockInformationByteRepresentation.length % BlockInformationByteSize != 0)
+            throw new Exception(format("input array size must be multiple %d", BlockInformationByteSize));
+
+        ArrayList<BlockInformation> resultArray = new ArrayList<>(blockInformationByteRepresentation.length / BlockInformationByteSize);
+
+        for (int i = 0; i < blockInformationByteRepresentation.length / BlockInformationByteSize; i++) {
+            resultArray.add(new BlockInformation(byteToInt(blockInformationByteRepresentation, i * BlockInformationByteSize),
+                    byteToInt(blockInformationByteRepresentation, i * BlockInformationByteSize + 4),
+                    byteToInt(blockInformationByteRepresentation, i * BlockInformationByteSize + 8),
+                    byteToInt(blockInformationByteRepresentation, i * BlockInformationByteSize + 12),
+                    byteToInt(blockInformationByteRepresentation, i * BlockInformationByteSize + 16),
+                    byteToInt(blockInformationByteRepresentation, i * BlockInformationByteSize + 20)));
+        }
+        return resultArray;
 
     }
 
