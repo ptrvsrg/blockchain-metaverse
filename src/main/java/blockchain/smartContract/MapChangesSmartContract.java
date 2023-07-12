@@ -7,6 +7,9 @@ import io.neow3j.devpack.annotations.*;
 import io.neow3j.devpack.constants.NativeContract;
 import io.neow3j.devpack.contracts.ContractManagement;
 
+import static blockchain.BlockInformation.BlockInformationByteSize;
+
+
 
 @DisplayName("MapChangesContract")
 @ManifestExtra(key = "author", value = "Your Name")
@@ -21,22 +24,18 @@ public class MapChangesSmartContract {
         StorageContext ctx = Storage.getStorageContext();
 
 
-        if (!(data instanceof Hash160)) {
-            throw new Exception("can't cast data to string");
-        }
-
-        Storage.put(ctx, contractOwnerKey, (Hash160)data);
-
-
         byte[] emptyArray = new byte[0];
         Storage.put(ctx, allChangesListKey, emptyArray);
 
     }
-    public static void putChanges(byte[] blockInformationByteRepresentation) {
+    public static void putChanges(byte[] blockInformationByteRepresentation) throws Exception {
+        if (blockInformationByteRepresentation.length % 24 != 0)
+            throw new Exception("input array size must be multiple 24");
+
         byte[] allChangesByteArray = Storage.getByteArray(Storage.getStorageContext(), allChangesListKey);
-        byte[] newAllChanges = new byte[allChangesByteArray.length + BlockInformation.BlockInformationByteSize];
+        byte[] newAllChanges = new byte[allChangesByteArray.length + BlockInformationByteSize];
         Helper.memcpy(newAllChanges, 0, allChangesByteArray, 0, allChangesByteArray.length);
-        Helper.memcpy(newAllChanges, allChangesByteArray.length, blockInformationByteRepresentation, 0, BlockInformation.BlockInformationByteSize);
+        Helper.memcpy(newAllChanges, allChangesByteArray.length, blockInformationByteRepresentation, 0, BlockInformationByteSize);
 
         Storage.put(Storage.getStorageContext(), allChangesListKey, newAllChanges);
     }
@@ -50,9 +49,9 @@ public class MapChangesSmartContract {
 
     public static byte[] getChangesWithoutFirstN(int N) {
         byte[] allChanges = Storage.getByteArray(Storage.getStorageContext(), allChangesListKey);
-        byte[] lastLengthMinusNChanges = new byte[allChanges.length - BlockInformation.BlockInformationByteSize * N];
+        byte[] lastLengthMinusNChanges = new byte[allChanges.length - BlockInformationByteSize * N];
 
-        Helper.memcpy(lastLengthMinusNChanges, 0, allChanges, N * BlockInformation.BlockInformationByteSize, allChanges.length - BlockInformation.BlockInformationByteSize * N);
+        Helper.memcpy(lastLengthMinusNChanges, 0, allChanges, N * BlockInformationByteSize, allChanges.length - BlockInformationByteSize * N);
 
         return lastLengthMinusNChanges;
     }

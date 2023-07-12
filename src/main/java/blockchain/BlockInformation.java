@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import static java.lang.Math.min;
+import static java.lang.String.format;
 
 @Struct
 public class BlockInformation {
@@ -21,21 +22,21 @@ public class BlockInformation {
 
     public static final int BlockInformationByteSize = integerSize * 6;
 
-    private int byteToInt(byte[] bytes, int st) {
+    private static int byteToInt(byte[] bytes, int st) {
         int res = 0;
-        for (int i = 0; i < 4; i++) {
-            res |= ((int) bytes[st + i] >> 8 * i);
+        for (int i = 0; i < min(4, bytes.length - st); i++) {
+            res |= ((Byte.toUnsignedInt(bytes[st + i])) << 8 * i);
         }
 
         return res;
     }
 
-    private void intToByte(byte[] resultBytes, int st, int number) {
+    private static void intToByte(byte[] resultBytes, int st, int number) {
 
         int oneByte = ~((byte) 0);
 
         for (int i = 0; i < min(4, resultBytes.length - st); i++) {
-            resultBytes[st + i] = (byte) ((number << i * 8) & oneByte);
+            resultBytes[st + i] = (byte) ((number >> i * 8) & oneByte);
         }
 
     }
@@ -54,8 +55,9 @@ public class BlockInformation {
         return bytes;
     }
 
-    public BlockInformation(byte[] array) {
-
+    public BlockInformation(byte[] array) throws Exception {
+        if (array.length != BlockInformationByteSize)
+            throw new Exception(format("input array size must be %d", BlockInformationByteSize));
         chunkX = byteToInt(array, 0);
         chunkY = byteToInt(array, 4);
         x = byteToInt(array, 8);
