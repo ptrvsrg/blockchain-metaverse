@@ -2,14 +2,14 @@
 
 #include <stdlib.h>
 
-void init_queue(sync_queue_t *queue) {
+void queue_init(sync_queue_t *queue) {
     queue->front = NULL;
     queue->rear = NULL;
     mtx_init(&queue->mutex, mtx_plain);
     cnd_init(&queue->cond);
 }
 
-void destroy_queue(sync_queue_t *queue) {
+void queue_destroy(sync_queue_t *queue) {
     mtx_lock(&queue->mutex);
         sync_queue_node_t *current = queue->front;
         while (current != NULL) {
