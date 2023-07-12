@@ -19,18 +19,24 @@ public class MapChangesSmartContract {
     private static final byte[] contractOwnerKey = new byte[]{0x00};
 
 
+    /**
+     * @param data Hash код аккаунта, который развертывает контракт
+     */
     @OnDeployment
     public static void deploy(Object data, boolean _) throws Exception {
         StorageContext ctx = Storage.getStorageContext();
 
         Storage.put(ctx, contractOwnerKey, (Hash160) data);
 
-
         byte[] emptyArray = new byte[0];
         Storage.put(ctx, allChangesListKey, emptyArray);
 
     }
 
+    /**
+     * @param blockInformationByteRepresentation массив из сериализованного представления объектов BlockInformation
+     * @throws Exception выбрасывается если размер входного массива не кратен размеру BlockInformation
+     */
     public static void putChanges(byte[] blockInformationByteRepresentation) throws Exception {
         if (blockInformationByteRepresentation.length % 24 != 0)
             throw new Exception("input array size must be multiple 24");
@@ -44,11 +50,18 @@ public class MapChangesSmartContract {
     }
 
 
+    /**
+     * @return возвращает все изменения в сериализованном виде
+     */
     public static byte[] getAllChanges() {
         return Storage.getByteArray(Storage.getStorageContext(), allChangesListKey);
     }
 
 
+    /**
+     * @param N колличество первых N изменений которые не надо возвращать
+     * @return все изменения без первых N штук
+     */
     public static byte[] getChangesWithoutFirstN(int N) {
         byte[] allChanges = Storage.getByteArray(Storage.getStorageContext(), allChangesListKey);
         byte[] lastLengthMinusNChanges = new byte[allChanges.length - BlockInformationByteSize * N];
@@ -64,6 +77,10 @@ public class MapChangesSmartContract {
     }
 
 
+    /**
+     * функция полностью очищает историю изменений
+     * @throws Exception выбрасывается если человек вызвавший контракт не является его владельцем
+     */
     public static void clear() throws Exception {
         if (Runtime.getCallingScriptHash().equals(contractOwner())) {
             throw new Exception("No authorization");

@@ -2,13 +2,14 @@ package blockchain;
 
 import io.neow3j.devpack.annotations.Struct;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import static java.lang.Math.min;
 import static java.lang.String.format;
 
 @Struct
-public class BlockInformation {
+public class BlockInformation implements Serializable {
     private final int chunkX;
     private final int chunkY;
     private final int x;
@@ -40,6 +41,10 @@ public class BlockInformation {
     }
 
 
+    /**
+     * @param blockInformationByteRepresentation массив с байтовым представлением нескольких объектов класса
+     * @return ArrayList с уже десиалезированными объектами
+     */
     public static ArrayList<BlockInformation> getInfArrayFromByteRepresentation(byte[] blockInformationByteRepresentation) throws Exception {
         if (blockInformationByteRepresentation.length % BlockInformationByteSize != 0)
             throw new Exception(format("input array size must be multiple %d", BlockInformationByteSize));
@@ -59,6 +64,9 @@ public class BlockInformation {
     }
 
 
+    /**
+     * @return возвращает байтовое представление полей объекта в порядке: chunkX, chunkY, x, y, z, blockId
+     */
     public byte[] getBytesPresentation() {
         byte[] bytes = new byte[BlockInformationByteSize];
 
@@ -72,6 +80,10 @@ public class BlockInformation {
         return bytes;
     }
 
+
+    /**
+     * @param array массив из 24 байт в котором по порядку лежит байтовое представление: chunkX, chunkY, x, y, z, blockId
+     */
     public BlockInformation(byte[] array) throws Exception {
         if (array.length != BlockInformationByteSize)
             throw new Exception(format("input array size must be %d", BlockInformationByteSize));

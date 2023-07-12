@@ -30,12 +30,22 @@ public class NodeInteraction {
     private final AccountSigner signerOwner;
 
 
+    /**
+     * @param httpUrl http-адрес ноды
+     * @param account аккаунт для подписывания транзакций
+     */
     public NodeInteraction(String httpUrl, Account account) {
         node = Neow3j.build(new HttpService(httpUrl));
         this.account = account;
         signerOwner = AccountSigner.none(account);
     }
 
+
+    /**
+     * @param contractClassName каноническое имя класса(Class.getCanonicalName())
+     * @param parameter параметр для передачи при развертывании контракта
+     * @return возвращает хэш задиплоенного контракта
+     */
     public Hash160 deployContract(String contractClassName, ContractParameter parameter) throws Throwable {
         CompilationUnit res = new Compiler().compile(contractClassName);
 
@@ -69,6 +79,13 @@ public class NodeInteraction {
         );
     }
 
+
+    /**
+     * @param contactHash хэш контракта у которого мы собираемся вызвать функцию
+     * @param function имя функции которую мы собираемся вызвать
+     * @param params параметры для передачи в функцию
+     * @return то что вернула функция
+     */
     public StackItem invokeFunctionInContract(Hash160 contactHash, String function, ContractParameter... params) throws Throwable {
 
         Transaction transaction = new SmartContract(contactHash, node)
