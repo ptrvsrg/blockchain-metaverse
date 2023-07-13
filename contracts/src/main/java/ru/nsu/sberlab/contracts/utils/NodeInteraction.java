@@ -32,7 +32,6 @@ public class NodeInteraction {
 
     private final AccountSigner signerOwner;
 
-
     /**
      * Конструктор NodeInteraction.
      *
@@ -44,7 +43,6 @@ public class NodeInteraction {
         this.account = account;
         signerOwner = AccountSigner.none(account);
     }
-
 
     /**
      *  Метод для развертывания контракта.
@@ -87,7 +85,6 @@ public class NodeInteraction {
         );
     }
 
-
     /**
      * Метод для вызова функции в контракте.
      *
@@ -105,7 +102,6 @@ public class NodeInteraction {
                 .signers(signerOwner)
                 .sign();
         NeoSendRawTransaction response = transaction.send();
-
 
         if (response.hasError()) {
             throw new Exception(format("Can't invoke function: \"%s\"  on contract: \"%s\". Cause: %s", function,
@@ -131,7 +127,6 @@ public class NodeInteraction {
         java.util.List<StackItem> stack = execution.getStack();
         return stack.get(0);
     }
-
 
     public Neow3j getNode() {
         return node;

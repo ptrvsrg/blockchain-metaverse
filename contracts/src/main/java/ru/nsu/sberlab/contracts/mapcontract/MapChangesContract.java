@@ -11,7 +11,6 @@ import io.neow3j.devpack.annotations.OnDeployment;
 import io.neow3j.devpack.annotations.Permission;
 import ru.nsu.sberlab.contracts.utils.BlockInfo;
 
-
 /**
  * Класс MapChangesContract представляет собой контракт карты
  * для хранения истории изменений.
@@ -62,7 +61,6 @@ public class MapChangesContract {
         Storage.put(Storage.getStorageContext(), allChangesListKey, newAllChanges);
     }
 
-
     /**
      * Метод для получения всех изменений на карте.
      *
@@ -71,7 +69,6 @@ public class MapChangesContract {
     public static byte[] getAllChanges() {
         return Storage.getByteArray(Storage.getStorageContext(), allChangesListKey);
     }
-
 
     /**
      * Метод для получения всех изменений без первых N штук.
@@ -97,7 +94,6 @@ public class MapChangesContract {
     public static Hash160 contractOwner() {
         return Storage.getHash160(Storage.getReadOnlyContext(), contractOwnerKey);
     }
-
 
     /**
      * Метод для полной очистки истории изменений.

@@ -21,7 +21,6 @@ public class BlockInfo implements Serializable {
 
     public static final int BlockInfoByteSize = integerSize * 6;
 
-
     /**
      * Метод для десериализации массива объектов
      *
@@ -48,7 +47,6 @@ public class BlockInfo implements Serializable {
 
     }
 
-
     /**
      * @return возвращает байтовое представление полей объекта в порядке: chunkX, chunkY, x, y, z, blockId
      */
@@ -64,7 +62,6 @@ public class BlockInfo implements Serializable {
 
         return bytes;
     }
-
 
     /**
      * @param array массив из 24 байт в котором по порядку лежит байтовое представление: chunkX,
@@ -114,7 +111,6 @@ public class BlockInfo implements Serializable {
         return chunkX;
     }
 
-
     public int getChunkY() {
         return chunkY;
     }
@@ -122,7 +118,6 @@ public class BlockInfo implements Serializable {
     public int getBlockId() {
         return blockId;
     }
-
 
     public int getY() {
         return y;

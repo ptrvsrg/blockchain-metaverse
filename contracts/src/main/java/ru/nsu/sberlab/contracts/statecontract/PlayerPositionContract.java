@@ -40,7 +40,6 @@ public class PlayerPositionContract extends ContractInterface {
 
     }
 
-
     /**
      * Метод для установки координат игрока.
      *
@@ -59,11 +58,9 @@ public class PlayerPositionContract extends ContractInterface {
         Storage.put(Storage.getStorageContext(), playerCordsKey, serializableCords);
     }
 
-
     private static Hash160 contractOwner() {
         return Storage.getHash160(Storage.getReadOnlyContext(), contractOwnerKey);
     }
-
 
     /**
      * Метод для получения координат игрока.
