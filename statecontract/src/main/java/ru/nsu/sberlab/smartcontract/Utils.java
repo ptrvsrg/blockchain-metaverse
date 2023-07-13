@@ -1,4 +1,4 @@
-package ru.nsu.sberlab;
+package ru.nsu.sberlab.smartcontract;
 
 import static java.lang.Math.min;
 

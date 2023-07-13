@@ -1,4 +1,4 @@
-package ru.nsu.sberlab;
+package ru.nsu.sberlab.smartcontract;
 
 import io.neow3j.compiler.CompilationUnit;
 import io.neow3j.compiler.Compiler;
