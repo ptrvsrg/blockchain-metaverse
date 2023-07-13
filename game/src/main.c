@@ -13,19 +13,30 @@
 #include "noise.h"
 #include "util.h"
 
-static int exclusive = 1;
+#define DB_USING
+
+/**
+ * TODO: Разхардкодить ссылки на ресурсы
+ * TODO: Убрать работу с db
+ * TODO: рефрактооринг
+*/
+
+static int exclusive = 1; /**<  */
 static int left_click = 0;
 static int right_click = 0;
 static int block_type = 1;
 
+/**
+ * @struct Структура представляющая информацию для рендера чанка
+*/
 typedef struct {
-    Map map;
-    int p;
-    int q;
-    int faces;
-    GLuint position_buffer;
-    GLuint normal_buffer;
-    GLuint uv_buffer;
+    Map map; /**< карта чанка */
+    int p; /**< координата p чанка */
+    int q; /**< координата q чанка */
+    int faces; /**< информация для рендера */
+    GLuint position_buffer; /**< информация для рендера */
+    GLuint normal_buffer; /**< информация для рендера */
+    GLuint uv_buffer; /**< информация для рендера */
 } Chunk;
 
 static GLuint make_line_buffer(int width, int height) {
@@ -71,6 +82,16 @@ static void get_motion_vector(int sz, int sx, float rx, float ry, float *vx, flo
     *vz = sinf(rx + strafe);
 }
 
+/**
+ * @brief Ищет чанк в массиве с заданными координтами
+ * 
+ * @param chunks массив чанков котором надо найти чанк
+ * @param chunk_count количество чанков
+ * @param p координата чанка
+ * @param q координата чанка
+ * 
+ * @result найденный чанк или NULL, если чанк не был найден
+*/
 static Chunk *find_chunk(Chunk *chunks, int chunk_count, int p, int q) {
     for (int i = 0; i < chunk_count; i++) {
         Chunk *chunk = chunks + i;
@@ -81,6 +102,13 @@ static Chunk *find_chunk(Chunk *chunks, int chunk_count, int p, int q) {
     return 0;
 }
 
+/**
+ * @brief Расстояние между чанком и положением игрока (p, q)
+ * 
+ * @param chunk чанк
+ * @param p координата чанка игрока
+ * @param q координата чанка игрока
+*/
 static int chunk_distance(Chunk *chunk, int p, int q) {
     int dp = ABS(chunk->p - p);
     int dq = ABS(chunk->q - q);
@@ -106,6 +134,14 @@ static int chunk_visible(Chunk *chunk, float *matrix) {
     return 0;
 }
 
+/**
+ * @brief Возвращет высоту самого высокого блока по координатам плоскости (x, z)
+ * 
+ * @param x координата в мире
+ * @param y координата в мире
+ * 
+ * @result возвращает y координату самого высокого блока
+*/
 static int highest_block(Chunk *chunks, int chunk_count, float x, float z) {
     int result = -1;
     int nx = roundf(x);
@@ -244,6 +280,13 @@ static int player_intersects_block(int height, float x, float y, float z, int hx
     return 0;
 }
 
+/**
+ * @brief генерация мира в чанке с координатами (p, q)
+ * 
+ * @param map указатель на карту
+ * @param p координата чанка
+ * @param q координата чанка
+*/
 static void make_world(Map *map, int p, int q) {
     int pad = 1;
     for (int dx = -pad; dx < CHUNK_SIZE + pad; dx++) {
@@ -370,6 +413,11 @@ static void exposed_faces(Map *map, int x, int y, int z, int *f1, int *f2, int *
     *f6 = is_transparent(map_get(map, x, y, z - 1));
 }
 
+/**
+ * @brief Обновляет чанк (информацию для рендера)
+ * 
+ * @param chunck чанк, который надо обновить
+*/
 void update_chunk(Chunk *chunk) {
     Map *map = &chunk->map;
 
@@ -457,6 +505,14 @@ void update_chunk(Chunk *chunk) {
     chunk->uv_buffer = uv_buffer;
 }
 
+/**
+ * @attention использует базу данных (генерация и подгрузка из БД)
+ * 
+ * @brief подгружает чанк по заданным координатам
+ * 
+ * @param p координата чанка
+ * @param q координата чанка
+*/
 static void make_chunk(Chunk *chunk, int p, int q) {
     chunk->p = p;
     chunk->q = q;
@@ -464,7 +520,9 @@ static void make_chunk(Chunk *chunk, int p, int q) {
     Map *map = &chunk->map;
     map_alloc(map);
     make_world(map, p, q);
+    // подгружает изменения карты из БД
     db_update_chunk(map, p, q);
+    // обновляет информацию для рендера
     update_chunk(chunk);
 }
 
@@ -494,6 +552,18 @@ static void draw_lines(GLuint buffer, GLuint position_loc, int size, int count) 
     glDisableVertexAttribArray(position_loc);
 }
 
+/**
+ * @brief обновляет чанки вокруг игрока, deletes far chuncks and creates new ones
+ * 
+ * @param chunks массив чанков
+ * @param chunk_count количество чанков
+ * @param p координата чанка игрока
+ * @param q координата чанка игрока
+ * @param force если 0, то только удалит ненужные чанки,
+ * если 1 - создаст все недостающие чанки в CREATE_CHUNK_RADIUS игрока
+ * 
+ * @result chunk_count количество чанков
+*/
 static void ensure_chunks(Chunk *chunks, int *chunk_count, int p, int q, int force) {
     int count = *chunk_count;
     for (int i = 0; i < count; i++) {
@@ -532,6 +602,19 @@ static void ensure_chunks(Chunk *chunks, int *chunk_count, int p, int q, int for
     *chunk_count = count;
 }
 
+/**
+ * @attention Записывает изменение в БД
+ * @brief Устанавливает занчение блока в чанке, и обновляет чанк
+ * 
+ * @param chunks массив чанков
+ * @param chunk_count количество чанков в массиве
+ * @param p координата чанка
+ * @param q координата чанка
+ * @param x координата блока
+ * @param y координата блока
+ * @param z координата блока
+ * @param w тип блока
+*/
 static void _set_block(Chunk *chunks, int chunk_count, int p, int q, int x, int y, int z, int w) {
     Chunk *chunk = find_chunk(chunks, chunk_count, p, q);
     if (chunk) {
@@ -542,6 +625,16 @@ static void _set_block(Chunk *chunks, int chunk_count, int p, int q, int x, int 
     db_insert_block(p, q, x, y, z, w);
 }
 
+/**
+ * @brief Set block of type @c w at place (x, y, z)
+ * 
+ * @param chunks массив чанков
+ * @param chunk_count количество чанков в массиве
+ * @param x координата блока
+ * @param y координата блока
+ * @param z координата блока
+ * @param w тип блока
+*/
 static void set_block(Chunk *chunks, int chunk_count, int x, int y, int z, int w) {
     int p = floorf((float) x / CHUNK_SIZE);
     int q = floorf((float) z / CHUNK_SIZE);
@@ -610,7 +703,7 @@ void on_scroll(GLFWwindow *window, double xdelta, double ydelta) {
     }
 }
 
-int main(int argc, char **argv) {
+int main(void) {
     srand(time(NULL));
     if (!glfwInit()) {
         return -1;
@@ -631,9 +724,11 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+#ifdef DB_USING
     if (db_init()) {
         return -1;
     }
+#endif
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
