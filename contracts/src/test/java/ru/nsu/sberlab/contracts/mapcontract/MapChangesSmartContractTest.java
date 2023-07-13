@@ -1,4 +1,4 @@
-package ru.nsu.sberlab.contracts;
+package ru.nsu.sberlab.contracts.mapcontract;
 
 
 import io.neow3j.transaction.exceptions.TransactionConfigurationException;
@@ -27,9 +27,7 @@ public class MapChangesSmartContractTest {
 
     private static Account OWNER_ACCOUNT;
 
-
     private static Hash160 contractHash;
-
 
     private static NodeInteraction nodeInteraction;
 
@@ -41,8 +39,7 @@ public class MapChangesSmartContractTest {
         confMap.put("accountWif", "");
         confMap.put("nodeURL", "");
 
-
-        BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(MapChangesSmartContractTest.class.getResourceAsStream("/config.txt"))));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(Objects.requireNonNull(MapChangesSmartContractTest.class.getResourceAsStream("/map_contract/config.txt"))));
         String line = reader.readLine();
         for (int i = 0; i < confMap.size() && line != null; i++, line = reader.readLine()) {
             String[] lineSplit = line.split("=");
@@ -54,11 +51,10 @@ public class MapChangesSmartContractTest {
 
         OWNER_ACCOUNT = Account.fromWIF(confMap.get("accountWif"));
         nodeInteraction = new NodeInteraction(confMap.get("nodeURL"), OWNER_ACCOUNT);
-
     }
 
 
-    @Order(1)
+    @Order (1)
     @Test
     public void deploy() throws Throwable {
 
@@ -79,7 +75,7 @@ public class MapChangesSmartContractTest {
 
 
     @Test
-    @Order(2)
+    @Order (2)
     public void putGetTest() throws Throwable {
         BlockInfo BlockInfo = new BlockInfo(1, 128, 999, 0, -1, 23);
         contractHash = new Hash160(confMap.get("contractHash"));
@@ -97,7 +93,7 @@ public class MapChangesSmartContractTest {
 
 
     @Test
-    @Order(3)
+    @Order (3)
     public void getLastNChangesTest() throws Throwable {
         int N = 5;
         byte[] newBytes = new byte[BlockInfo.BlockInfoByteSize * N];
@@ -118,7 +114,7 @@ public class MapChangesSmartContractTest {
 
 
     @Test
-    @Order(4)
+    @Order (4)
     public void clearChangesHistoryTest() throws Throwable {
         contractHash = new Hash160(confMap.get("contractHash"));
         nodeInteraction.invokeFunctionInContract(contractHash, "clear");
@@ -135,11 +131,11 @@ public class MapChangesSmartContractTest {
         final BufferedWriter bufferedWriter = Files.newBufferedWriter(Paths.get("src/test/resources/config.txt"));
 
 
-
         confMap.forEach((String key, String value) -> {
             try {
                 bufferedWriter.write(format("%s=%s\n", key, value));
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });

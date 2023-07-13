@@ -1,4 +1,4 @@
-package ru.nsu.sberlab.contracts;
+package ru.nsu.sberlab.contracts.mapcontract;
 
 import io.neow3j.devpack.Runtime;
 import io.neow3j.devpack.*;
@@ -6,8 +6,7 @@ import io.neow3j.devpack.annotations.DisplayName;
 import io.neow3j.devpack.annotations.ManifestExtra;
 import io.neow3j.devpack.annotations.OnDeployment;
 import io.neow3j.devpack.annotations.Permission;
-
-import static ru.nsu.sberlab.contracts.utils.BlockInfo.BlockInfoByteSize;
+import ru.nsu.sberlab.contracts.utils.BlockInfo;
 
 
 /**
@@ -75,9 +74,9 @@ public class MapChangesSmartContract {
      */
     public static byte[] getChangesWithoutFirstN(int N) {
         byte[] allChanges = Storage.getByteArray(Storage.getStorageContext(), allChangesListKey);
-        byte[] lastLengthMinusNChanges = new byte[allChanges.length - BlockInfoByteSize * N];
+        byte[] lastLengthMinusNChanges = new byte[allChanges.length - BlockInfo.BlockInfoByteSize * N];
 
-        Helper.memcpy(lastLengthMinusNChanges, 0, allChanges, N * BlockInfoByteSize, allChanges.length - BlockInfoByteSize * N);
+        Helper.memcpy(lastLengthMinusNChanges, 0, allChanges, N * BlockInfo.BlockInfoByteSize, allChanges.length - BlockInfo.BlockInfoByteSize * N);
 
         return lastLengthMinusNChanges;
     }
