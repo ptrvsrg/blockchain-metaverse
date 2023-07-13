@@ -1,7 +1,10 @@
 package ru.nsu.sberlab.contracts.mapcontract;
 
+import io.neow3j.devpack.Hash160;
 import io.neow3j.devpack.Runtime;
-import io.neow3j.devpack.*;
+import io.neow3j.devpack.Storage;
+import io.neow3j.devpack.Helper;
+import io.neow3j.devpack.StorageContext;
 import io.neow3j.devpack.annotations.DisplayName;
 import io.neow3j.devpack.annotations.ManifestExtra;
 import io.neow3j.devpack.annotations.OnDeployment;
@@ -10,16 +13,18 @@ import ru.nsu.sberlab.contracts.utils.BlockInfo;
 
 
 /**
- * Класс MapChangesSmartContract представляет собой контракт карты для хранения истории изменений.
+ * Класс MapChangesContract представляет собой контракт карты
+ * для хранения истории изменений.
  */
 @DisplayName("MapChangesContract")
 @ManifestExtra(key = "author", value = "Your Name")
 @Permission(contract = "*", methods = "*")
-public class MapChangesSmartContract {
+public class MapChangesContract {
 
     private static final byte[] allChangesListKey = new byte[]{0x01};
     private static final byte[] contractOwnerKey = new byte[]{0x00};
 
+    public static final int BYTE_BLOCK_SIZE = 24;
 
     /**
      * Метод для развертывания контракта.
@@ -27,7 +32,7 @@ public class MapChangesSmartContract {
      * @param data Hash код аккаунта, который развертывает контракт
      */
     @OnDeployment
-    public static void deploy(Object data, boolean _) throws Exception {
+    public static void deploy(final Object data, boolean _) throws Exception {
         StorageContext ctx = Storage.getStorageContext();
 
         Storage.put(ctx, contractOwnerKey, (Hash160) data);
@@ -43,14 +48,16 @@ public class MapChangesSmartContract {
      * @param blockInformationByteRepresentation массив из сериализованного представления объектов BlockInformation
      * @throws Exception выбрасывается если размер входного массива не кратен размеру BlockInformation
      */
-    public static void putChanges(byte[] blockInformationByteRepresentation) throws Exception {
-        if (blockInformationByteRepresentation.length % 24 != 0)
+    public static void putChanges(final byte[] blockInformationByteRepresentation) throws Exception {
+        if (blockInformationByteRepresentation.length % BYTE_BLOCK_SIZE != 0) {
             throw new Exception("input array size must be multiple 24");
+        }
 
         byte[] allChangesByteArray = Storage.getByteArray(Storage.getStorageContext(), allChangesListKey);
         byte[] newAllChanges = new byte[allChangesByteArray.length + blockInformationByteRepresentation.length];
         Helper.memcpy(newAllChanges, 0, allChangesByteArray, 0, allChangesByteArray.length);
-        Helper.memcpy(newAllChanges, allChangesByteArray.length, blockInformationByteRepresentation, 0, blockInformationByteRepresentation.length);
+        Helper.memcpy(newAllChanges, allChangesByteArray.length, blockInformationByteRepresentation,
+                0, blockInformationByteRepresentation.length);
 
         Storage.put(Storage.getStorageContext(), allChangesListKey, newAllChanges);
     }
@@ -72,11 +79,12 @@ public class MapChangesSmartContract {
      * @param N колличество первых N изменений которые не надо возвращать
      * @return все изменения без первых N штук
      */
-    public static byte[] getChangesWithoutFirstN(int N) {
+    public static byte[] getChangesWithoutFirstN(final int N) {
         byte[] allChanges = Storage.getByteArray(Storage.getStorageContext(), allChangesListKey);
         byte[] lastLengthMinusNChanges = new byte[allChanges.length - BlockInfo.BlockInfoByteSize * N];
 
-        Helper.memcpy(lastLengthMinusNChanges, 0, allChanges, N * BlockInfo.BlockInfoByteSize, allChanges.length - BlockInfo.BlockInfoByteSize * N);
+        Helper.memcpy(lastLengthMinusNChanges, 0, allChanges, N * BlockInfo.BlockInfoByteSize,
+                allChanges.length - BlockInfo.BlockInfoByteSize * N);
 
         return lastLengthMinusNChanges;
     }
@@ -104,6 +112,4 @@ public class MapChangesSmartContract {
         byte[] emptyArray = new byte[0];
         Storage.put(Storage.getStorageContext(), allChangesListKey, emptyArray);
     }
-
-
 }

@@ -45,7 +45,8 @@ public class PlayerPositionContract extends ContractInterface {
      * Метод для установки координат игрока.
      *
      * @param serializableCords координаты игрока в сериализованном виде
-     * @throws Exception если размер serializableCords не равен 12( 3 int'а) или аккаунт вызвавший функцию не является владельцем контракта
+     * @throws Exception если размер serializableCords не равен 12( 3 int'а) или аккаунт
+     * вызвавший функцию не является владельцем контракта
      */
     public static void putCords(byte[] serializableCords) throws Exception {
         if (serializableCords.length != 12) {

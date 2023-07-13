@@ -28,11 +28,13 @@ public class BlockInfo implements Serializable {
      * @param blockInformationByteRepresentation массив с байтовым представлением нескольких объектов класса
      * @return ArrayList с уже десиалезированными объектами
      */
-    public static ArrayList<BlockInfo> getInfoArrayFromByteRepresentation(byte[] blockInformationByteRepresentation) throws Exception {
+    public static ArrayList<BlockInfo> getInfoArrayFromByteRepresentation(byte[] blockInformationByteRepresentation)
+            throws Exception {
         if (blockInformationByteRepresentation.length % BlockInfoByteSize != 0)
             throw new Exception(format("input array size must be multiple %d", BlockInfoByteSize));
 
-        ArrayList<BlockInfo> resultArray = new ArrayList<>(blockInformationByteRepresentation.length / BlockInfoByteSize);
+        ArrayList<BlockInfo> resultArray = new ArrayList<>(
+                blockInformationByteRepresentation.length / BlockInfoByteSize);
 
         for (int i = 0; i < blockInformationByteRepresentation.length / BlockInfoByteSize; i++) {
             resultArray.add(new BlockInfo(Utils.byteToInt(blockInformationByteRepresentation, i * BlockInfoByteSize),
@@ -65,7 +67,8 @@ public class BlockInfo implements Serializable {
 
 
     /**
-     * @param array массив из 24 байт в котором по порядку лежит байтовое представление: chunkX, chunkY, x, y, z, blockId
+     * @param array массив из 24 байт в котором по порядку лежит байтовое представление: chunkX,
+     *              chunkY, x, y, z, blockId
      */
     public BlockInfo(byte[] array) throws Exception {
         if (array.length != BlockInfoByteSize)

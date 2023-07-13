@@ -1,8 +1,5 @@
 package ru.nsu.sberlab.contracts.utils;
 
-import static java.lang.Math.min;
-
-
 /**
  * Класс Utils предоставляет утилитарные методы для преобразования данных.
  */
@@ -15,7 +12,7 @@ public class Utils {
      * @param st    начальная позиция в массиве
      * @return преобразованное целое число
      */
-    public static int byteToInt(byte[] bytes, int st) {
+    public static int byteToInt(final byte[] bytes, final int st) {
         int res = 0;
         for (int i = 0; i < Math.min(4, bytes.length - st); i++) {
             res |= ((Byte.toUnsignedInt(bytes[st + i])) << 8 * i);
@@ -30,7 +27,7 @@ public class Utils {
      * @param st          начальная позиция в массиве
      * @param number      целое число для преобразования
      */
-    public static void intToByte(byte[] resultBytes, int st, int number) {
+    public static void intToByte(final byte[] resultBytes, final int st, final int number) {
         int oneByte = ~((byte) 0);
         for (int i = 0; i < Math.min(4, resultBytes.length - st); i++) {
             resultBytes[st + i] = (byte) ((number >> i * 8) & oneByte);
@@ -43,7 +40,7 @@ public class Utils {
      * @param intArray массив целых чисел
      * @return массив байтов
      */
-    public static byte[] intArrayToByteArray(int[] intArray) {
+    public static byte[] intArrayToByteArray(final int[] intArray) {
         byte[] byteArray = new byte[intArray.length * 4];
         for (int i = 0; i < intArray.length; i++) {
             intToByte(byteArray, i * 4, intArray[i]);
@@ -57,7 +54,7 @@ public class Utils {
      * @param byteArray массив байтов
      * @return массив целых чисел
      */
-    public static int[] ByteArrayToIntArray(byte[] byteArray) {
+    public static int[] byteArrayToIntArray(final byte[] byteArray) {
         int[] intArray = new int[byteArray.length / 4];
         for (int i = 0; i < intArray.length; i++) {
             intArray[i] = byteToInt(byteArray, 4 * i);

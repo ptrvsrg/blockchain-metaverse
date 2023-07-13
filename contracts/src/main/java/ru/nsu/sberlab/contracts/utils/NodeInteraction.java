@@ -97,7 +97,8 @@ public class NodeInteraction {
      * @return то что вернула функция
      * @throws Throwable если происходит ошибка при вызове функции в контракте
      */
-    public StackItem invokeFunctionInContract(Hash160 contactHash, String function, ContractParameter... params) throws Throwable {
+    public StackItem invokeFunctionInContract(Hash160 contactHash, String function, ContractParameter... params)
+            throws Throwable {
 
         Transaction transaction = new SmartContract(contactHash, node)
                 .invokeFunction(function, params)
