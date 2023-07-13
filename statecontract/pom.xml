@@ -9,8 +9,7 @@
         <version>1.0.0</version>
     </parent>
 
-    <groupId>org.example</groupId>
-    <artifactId>blockchain</artifactId>
+    <artifactId>statecontract</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>

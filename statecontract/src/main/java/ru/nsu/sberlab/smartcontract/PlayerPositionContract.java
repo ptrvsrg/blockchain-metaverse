@@ -1,4 +1,4 @@
-package ru.nsu.sberlab.blockchain.smartcontract;
+package ru.nsu.sberlab.smartcontract;
 
 import io.neow3j.devpack.Hash160;
 import io.neow3j.devpack.Runtime;
