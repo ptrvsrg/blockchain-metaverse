@@ -1,4 +1,4 @@
-package ru.nsu.sberlab.blockchain;
+package ru.nsu.sberlab;
 
 import io.neow3j.compiler.CompilationUnit;
 import io.neow3j.compiler.Compiler;
@@ -70,7 +70,8 @@ public class NodeInteraction {
         }
 
         Hash256 txHash = response.getResult().getHash();
-        System.out.printf("Deployment transaction hash: '%s'\n", txHash);
+        //DEBUG INFO
+        // System.out.printf("Deployment transaction hash: '%s'\n", txHash);
         Await.waitUntilTransactionIsExecuted(txHash, node);
 
         NeoApplicationLog log = node.getApplicationLog(txHash).send().getApplicationLog();
@@ -121,13 +122,13 @@ public class NodeInteraction {
         if (response1.hasError()) {
             throw new Exception("Error fetching transaction's app log: " + response.getError().getMessage());
         }
-        // Get the first execution. Usually there is only one execution.
+        // Получите первое выполнение. Обычно выполняется только одно действие.
         NeoApplicationLog.Execution execution = response1.getApplicationLog().getExecutions().get(0);
-        // Check if the execution ended in a NeoVM state FAULT.
+        // Проверьте, не завершилось ли выполнение ошибкой состояния Neovim.
         if (execution.getState().equals(NeoVMStateType.FAULT)) {
             throw new Exception("Invocation failed");
         }
-        // Get the result stack.
+        // Получите стек результатов.
         java.util.List<StackItem> stack = execution.getStack();
         return stack.get(0);
     }

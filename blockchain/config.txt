@@ -1,3 +1,0 @@
-contractHash=
-accountWif=
-nodeURL=
