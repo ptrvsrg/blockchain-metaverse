@@ -1,4 +1,4 @@
-package blockchain;
+package ru.nsu.sberlab.contracts.utils;
 
 import static java.lang.Math.min;
 

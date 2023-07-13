@@ -1,4 +1,4 @@
-package blockchain;
+package ru.nsu.sberlab.contracts.utils;
 
 import io.neow3j.compiler.CompilationUnit;
 import io.neow3j.compiler.Compiler;
@@ -21,7 +21,10 @@ import io.neow3j.wallet.Account;
 
 import static java.lang.String.format;
 
-
+/**
+ * Класс NodeInteraction предоставляет удобное взаимодействие с нодой.
+ * Используется для развертывания контрактов, вызова функций в контрактах и других операций с блокчейном.
+ */
 public class NodeInteraction {
     private Neow3j node;
 
@@ -31,6 +34,8 @@ public class NodeInteraction {
 
 
     /**
+     * Конструктор NodeInteraction.
+     *
      * @param httpUrl http-адрес ноды
      * @param account аккаунт для подписывания транзакций
      */
@@ -42,9 +47,12 @@ public class NodeInteraction {
 
 
     /**
+     *  Метод для развертывания контракта.
+     *
      * @param contractClassName каноническое имя класса(Class.getCanonicalName())
      * @param parameter параметр для передачи при развертывании контракта
-     * @return возвращает хэш задиплоенного контракта
+     * @return возвращает ScriptHash задиплоенного контракта
+     * @throws Throwable если происходит ошибка при  развертывании
      */
     public Hash160 deployContract(String contractClassName, ContractParameter parameter) throws Throwable {
         CompilationUnit res = new Compiler().compile(contractClassName);
@@ -81,10 +89,13 @@ public class NodeInteraction {
 
 
     /**
+     * Метод для вызова функции в контракте.
+     *
      * @param contactHash хэш контракта у которого мы собираемся вызвать функцию
      * @param function имя функции которую мы собираемся вызвать
      * @param params параметры для передачи в функцию
      * @return то что вернула функция
+     * @throws Throwable если происходит ошибка при вызове функции в контракте
      */
     public StackItem invokeFunctionInContract(Hash160 contactHash, String function, ContractParameter... params) throws Throwable {
 

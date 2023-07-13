@@ -1,0 +1,2 @@
+accountWif=L1cUGcqEbqaZ8JHHRqQVbc4ZgFsVifWkiR9b7nQXG9SZqthEW7Uk
+nodeURL=http://localhost:50012

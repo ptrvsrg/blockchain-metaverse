@@ -1,4 +1,4 @@
-package blockchain.smartContract;
+package ru.nsu.sberlab.contracts;
 
 import io.neow3j.devpack.Runtime;
 import io.neow3j.devpack.*;
@@ -7,9 +7,12 @@ import io.neow3j.devpack.annotations.ManifestExtra;
 import io.neow3j.devpack.annotations.OnDeployment;
 import io.neow3j.devpack.annotations.Permission;
 
-import static blockchain.BlockInformation.BlockInformationByteSize;
+import static ru.nsu.sberlab.contracts.utils.BlockInfo.BlockInfoByteSize;
 
 
+/**
+ * Класс MapChangesSmartContract представляет собой контракт карты для хранения истории изменений.
+ */
 @DisplayName("MapChangesContract")
 @ManifestExtra(key = "author", value = "Your Name")
 @Permission(contract = "*", methods = "*")
@@ -20,6 +23,8 @@ public class MapChangesSmartContract {
 
 
     /**
+     * Метод для развертывания контракта.
+     *
      * @param data Hash код аккаунта, который развертывает контракт
      */
     @OnDeployment
@@ -34,6 +39,8 @@ public class MapChangesSmartContract {
     }
 
     /**
+     * Метод для добавления изменений в контракт.
+     *
      * @param blockInformationByteRepresentation массив из сериализованного представления объектов BlockInformation
      * @throws Exception выбрасывается если размер входного массива не кратен размеру BlockInformation
      */
@@ -51,6 +58,8 @@ public class MapChangesSmartContract {
 
 
     /**
+     * Метод для получения всех изменений на карте.
+     *
      * @return возвращает все изменения в сериализованном виде
      */
     public static byte[] getAllChanges() {
@@ -59,26 +68,33 @@ public class MapChangesSmartContract {
 
 
     /**
+     * Метод для получения всех изменений без первых N штук.
+     *
      * @param N колличество первых N изменений которые не надо возвращать
      * @return все изменения без первых N штук
      */
     public static byte[] getChangesWithoutFirstN(int N) {
         byte[] allChanges = Storage.getByteArray(Storage.getStorageContext(), allChangesListKey);
-        byte[] lastLengthMinusNChanges = new byte[allChanges.length - BlockInformationByteSize * N];
+        byte[] lastLengthMinusNChanges = new byte[allChanges.length - BlockInfoByteSize * N];
 
-        Helper.memcpy(lastLengthMinusNChanges, 0, allChanges, N * BlockInformationByteSize, allChanges.length - BlockInformationByteSize * N);
+        Helper.memcpy(lastLengthMinusNChanges, 0, allChanges, N * BlockInfoByteSize, allChanges.length - BlockInfoByteSize * N);
 
         return lastLengthMinusNChanges;
     }
 
-
+    /**
+     * Метод для получения владельца контракта.
+     *
+     * @return Возвращает хэш-код владельца контракта
+     */
     public static Hash160 contractOwner() {
         return Storage.getHash160(Storage.getReadOnlyContext(), contractOwnerKey);
     }
 
 
     /**
-     * функция полностью очищает историю изменений
+     * Метод для полной очистки истории изменений.
+     *
      * @throws Exception выбрасывается если человек вызвавший контракт не является его владельцем
      */
     public static void clear() throws Exception {
