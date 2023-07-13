@@ -2,29 +2,14 @@
 
 #include <stdlib.h>
 
-#include "tinycthread.h"
-
-typedef struct sync_queue_node_t sync_queue_node_t;
-struct sync_queue_node_t {
-    sync_queue_entry_t data;
-    sync_queue_node_t *next;
-};
-
-struct sync_queue_t {
-    sync_queue_node_t *front;
-    sync_queue_node_t *rear;
-    mtx_t mutex;
-    cnd_t cond;
-};
-
-void init_queue(sync_queue_t *queue) {
+void queue_init(sync_queue_t *queue) {
     queue->front = NULL;
     queue->rear = NULL;
     mtx_init(&queue->mutex, mtx_plain);
     cnd_init(&queue->cond);
 }
 
-void destroy_queue(sync_queue_t *queue) {
+void queue_destroy(sync_queue_t *queue) {
     mtx_lock(&queue->mutex);
         sync_queue_node_t *current = queue->front;
         while (current != NULL) {
