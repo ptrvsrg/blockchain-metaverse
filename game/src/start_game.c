@@ -1,8 +1,13 @@
 #include "tinycthread.h"
 #include "start_game.h"
+#include "game.h"
+
+#include <stdio.h>
 
 sync_queue_t in_blockchain_queue;
 sync_queue_t out_blockchain_queue;
+
+// extern void main(void);
 
 /**
  * @brief Условие прослушивания @c out_blockchain_queue.
@@ -25,6 +30,9 @@ void start_game(void) {
     thrd_t blockchain_listen_thread;
     thrd_create(&blockchain_listen_thread, out_queue_listener, NULL);
 
+    run();
+
+    listen_blockchain = 0;
     thrd_join(blockchain_listen_thread, NULL);
 
     queue_destroy(&in_blockchain_queue);

@@ -5,8 +5,7 @@ JNIEXPORT jobject JNICALL Java_ru_nsu_sberlab_cprogramintegration_CDataExtractor
     JNIEnv* env,
     jclass
 ) {
-    sync_queue_entry_t entry = dequeue(&out_blockchain_queue);
-
+    sync_queue_entry_t entry = dequeue(&in_blockchain_queue);
     jclass block_class = (*env)->FindClass(env, "ru/nsu/sberlab/cprogramintegration/Block");
     jmethodID block_constructor = (*env)->GetMethodID(env, block_class, "<init>", "(IIIIII)V");
     jobject block_inctance = (*env)->NewObject(env, block_class, block_constructor,
