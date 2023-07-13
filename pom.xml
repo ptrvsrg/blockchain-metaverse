@@ -7,9 +7,10 @@
     <groupId>ru.nsu.sberlab</groupId>
     <artifactId>blockchain-metaverse</artifactId>
     <version>1.0.0</version>
+    <packaging>pom</packaging>
 
     <modules>
-
+        <module>blockchain</module>
     </modules>
 
     <properties>
