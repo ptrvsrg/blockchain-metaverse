@@ -9,17 +9,13 @@ import io.neow3j.devpack.contracts.ContractInterface;
 
 /**
  * Класс PlayerPositionContract представляет контракт для управления позицией игрока в игровой системе.
- * Расширяет класс ContractInterface для реализации функций контракта.
  */
-public class PlayerPositionContract extends ContractInterface {
+public class PlayerPositionContract {
 
     private static final byte[] contractOwnerKey = new byte[]{0x00};
 
     private static final byte[] playerCordsKey = new byte[]{0x01};
 
-    public PlayerPositionContract(Hash160 contractHash) {
-        super(contractHash);
-    }
 
     /**
      * Метод развертывания контракта.
@@ -40,12 +36,12 @@ public class PlayerPositionContract extends ContractInterface {
 
     }
 
+
     /**
      * Метод для установки координат игрока.
      *
      * @param serializableCords координаты игрока в сериализованном виде
-     * @throws Exception если размер serializableCords не равен 12( 3 int'а) или аккаунт
-     * вызвавший функцию не является владельцем контракта
+     * @throws Exception если размер serializableCords не равен 12( 3 int'а) или аккаунт вызвавший функцию не является владельцем контракта
      */
     public static void putCords(byte[] serializableCords) throws Exception {
         if (serializableCords.length != 12) {
@@ -58,9 +54,11 @@ public class PlayerPositionContract extends ContractInterface {
         Storage.put(Storage.getStorageContext(), playerCordsKey, serializableCords);
     }
 
+
     private static Hash160 contractOwner() {
         return Storage.getHash160(Storage.getReadOnlyContext(), contractOwnerKey);
     }
+
 
     /**
      * Метод для получения координат игрока.
