@@ -24,20 +24,19 @@ public class PlayerPositionTest {
     private static final String nodeURLEnvVar = "NODE_URL";
 
     @BeforeAll
-    public static void readConfig() throws Exception {
+    public static void readConfig() {
         ownerAccount = Account.fromWIF(System.getenv(ownerWifEnvVar));
         nodeInteraction = new NodeInteraction(System.getenv(nodeURLEnvVar), ownerAccount);
 
     }
 
-    @Order (1)
+    @Order(1)
     @Test
     public void deploy() throws Throwable {
         try {
             contractHash = nodeInteraction.deployContract(PlayerPositionContract.class.getCanonicalName(),
                     ContractParameter.hash160(ownerAccount.getScriptHash()));
-        }
-        catch (TransactionConfigurationException e) {
+        } catch (TransactionConfigurationException e) {
             if (e.getMessage().contains("Contract Already Exists: ")) {
                 contractHash = new Hash160(e.getMessage().substring(e.getMessage().indexOf("Contract Already Exists: ")
                         + "Contract Already Exists: ".length()).trim());
@@ -49,7 +48,7 @@ public class PlayerPositionTest {
     }
 
     @Test
-    @Order (2)
+    @Order(2)
     public void putGetTest() throws Throwable {
         int[] cords = new int[3];
         cords[0] = 1;

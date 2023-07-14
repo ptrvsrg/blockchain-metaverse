@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>statecontract</module>
+        <module>contracts</module>
     </modules>
 
     <properties>

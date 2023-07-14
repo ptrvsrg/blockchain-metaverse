@@ -1,6 +1,6 @@
 package ru.nsu.sberlab.contracts.utils;
 
-import java.io.Serializable;
+import java.io.*;
 import java.util.ArrayList;
 
 import static java.lang.Math.min;
@@ -9,7 +9,7 @@ import static java.lang.String.format;
 /**
  * Класс BlockInfo нужен для хранения состояния блока.
  */
-public class BlockInfo implements Serializable {
+public class BlockInfo {
     private final int chunkX;
     private final int chunkY;
     private final int x;
