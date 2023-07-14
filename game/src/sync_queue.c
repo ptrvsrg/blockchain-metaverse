@@ -19,6 +19,7 @@ void queue_destroy(sync_queue_t *queue) {
             free(current);
             current = next;
         }
+        cnd_broadcast(&queue->cond);
     mtx_unlock(&queue->mutex);
 
     mtx_destroy(&queue->mutex);
