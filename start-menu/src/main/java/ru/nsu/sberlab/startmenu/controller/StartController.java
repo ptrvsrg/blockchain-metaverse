@@ -48,17 +48,13 @@ public class StartController {
     @FXML
     private TextField portTextField;
 
-    public String getPortValue() {
-        return portTextField.getText();
-    }
-
     /**
      * Получает значение порта из текстового поля.
      *
      * @return значение порта
      */
     private int getPort() throws NumberFormatException {
-        String port = getPortValue();
+        String port = portTextField.getText();
         return Integer.parseInt(port);
     }
 
