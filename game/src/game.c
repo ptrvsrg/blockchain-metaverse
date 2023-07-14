@@ -280,6 +280,8 @@ int run(void) {
 
         glfwPollEvents();
     }
+    db_save_state(state.x, state.y, state.z, state.rx, state.ry);
+    db_close();
     destroy_renderer(&renderer);
 }
 

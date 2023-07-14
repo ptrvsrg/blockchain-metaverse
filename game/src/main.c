@@ -13,18 +13,18 @@
 #include "noise.h"
 #include "util.h"
 
+#include "start_game.h"
 #define DB_USING
 
 /**
  * TODO: Разхардкодить ссылки на ресурсы
- * TODO: Убрать работу с db
  * TODO: рефрактооринг
 */
 
-static int exclusive = 1; /**<  */
-static int left_click = 0;
-static int right_click = 0;
-static int block_type = 1;
+static int exclusive = 1; /**< kinda focus on game window */
+static int left_click = 0; /**< состояние нажатия ЛКМ */
+static int right_click = 0; /**< состояние нажатия ПКМ */
+static int block_type = 1; /**< тип блока ??? */
 
 /**
  * @struct Структура представляющая информацию для рендера чанка
@@ -418,7 +418,7 @@ static void exposed_faces(Map *map, int x, int y, int z, int *f1, int *f2, int *
  * 
  * @param chunck чанк, который надо обновить
 */
-void update_chunk(Chunk *chunk) {
+static void update_chunk(Chunk *chunk) {
     Map *map = &chunk->map;
 
     if (chunk->faces) {
@@ -638,6 +638,16 @@ static void _set_block(Chunk *chunks, int chunk_count, int p, int q, int x, int 
 static void set_block(Chunk *chunks, int chunk_count, int x, int y, int z, int w) {
     int p = floorf((float) x / CHUNK_SIZE);
     int q = floorf((float) z / CHUNK_SIZE);
+    
+    sync_queue_entry_t entry;
+    entry.m_block_x = x;
+    entry.m_block_y = y;
+    entry.m_block_z = z;
+    entry.m_chunk_x = p;
+    entry.m_chunk_z = q;
+    entry.m_block_id = w;
+    enqueue(&in_blockchain_queue, entry);
+    
     _set_block(chunks, chunk_count, p, q, x, y, z, w);
     w = w ? -1 : 0;
     int p0 = x == p * CHUNK_SIZE;
@@ -708,6 +718,7 @@ int main(void) {
     if (!glfwInit()) {
         return -1;
     }
+    // Инициализация окна
     GLFWwindow *window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, NULL, NULL);
     if (!window) {
         glfwTerminate();
@@ -730,6 +741,7 @@ int main(void) {
     }
 #endif
 
+    // Инициализация opengl: настройка, текстуры, шейдеры etc.
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LINE_SMOOTH);
@@ -768,6 +780,8 @@ int main(void) {
     GLuint item_uv_buffer = 0;
     int previous_block_type = 0;
 
+    // иницаилизация игровых данных
+
     Chunk chunks[MAX_CHUNKS];
     int chunk_count = 0;
 
@@ -793,6 +807,7 @@ int main(void) {
         y = highest_block(chunks, chunk_count, x, z) + 2;
     }
 
+    // МЕГА-цикл
     glfwGetCursorPos(window, &px, &py);
     double previous = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
@@ -905,7 +920,7 @@ int main(void) {
 
         int p = floorf(roundf(x) / CHUNK_SIZE);
         int q = floorf(roundf(z) / CHUNK_SIZE);
-        ensure_chunks(chunks, &chunk_count, p, q, 0);
+        ensure_chunks(chunks, &chunk_count, p, q, 0); //!!!!!!!
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

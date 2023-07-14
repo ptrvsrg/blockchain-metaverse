@@ -7,8 +7,6 @@
 sync_queue_t in_blockchain_queue;
 sync_queue_t out_blockchain_queue;
 
-// extern void main(void);
-
 /**
  * @brief Условие прослушивания @c out_blockchain_queue.
  * 
