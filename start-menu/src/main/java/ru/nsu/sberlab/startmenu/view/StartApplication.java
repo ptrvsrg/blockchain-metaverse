@@ -1,4 +1,4 @@
-package ru.nsu.sberlab.startmenu;
+package ru.nsu.sberlab.startmenu.view;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
