@@ -15,6 +15,12 @@ extern "C" {
 JNIEXPORT void JNICALL Java_ru_nsu_sberlab_launcher_Launcher_start
   (JNIEnv *, jclass);
 
+JNIEXPORT void JNICALL Java_ru_nsu_sberlab_launcher_Launcher_init
+  (JNIEnv *, jclass);
+
+JNIEXPORT void JNICALL Java_ru_nsu_sberlab_launcher_Launcher_destroy
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif

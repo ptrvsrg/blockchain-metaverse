@@ -11,8 +11,10 @@
 #include "noise.h"
 #include "util.h"
 
-#define DB_USING
+#include "sync_queue.h"
+#include "start_game.h"
 
+// Используются в callback'ах, которые вызывает OpenGL, поэтому глобальные
 static int exclusive = 1; /**< kinda focus on game window */
 static int left_click = 0; /**< состояние нажатия ЛКМ */
 static int right_click = 0; /**< состояние нажатия ПКМ */
@@ -130,6 +132,18 @@ static void _set_block(Chunk *chunks, int chunk_count, int p, int q, int x, int 
 static void set_block(Chunk *chunks, int chunk_count, int x, int y, int z, int w);
 
 
+static int enqueue_block(int p, int q, int x, int y, int z, int w) {
+    sync_queue_entry_t entry;
+    entry.m_chunk_x = p;
+    entry.m_chunk_z = q;
+    entry.m_block_x = x;
+    entry.m_block_y = y;
+    entry.m_block_z = z;
+    entry.m_block_id = w;
+
+    return enqueue(&in_blockchain_queue, entry);
+}
+
 int run(void) {
     Chunk chunks[MAX_CHUNKS];
     int chunk_count = 0;
@@ -139,11 +153,9 @@ int run(void) {
         return -1;
     }
     
-#ifdef DB_USING
     if (db_init()) {
         return -1;
     }
-#endif
 
     state_t state;
     state.x = ((double) rand() / (double) RAND_MAX - 0.5) * 10000;
@@ -196,6 +208,9 @@ int run(void) {
                               &hx, &hy, &hz);
             if (hy > 0 && is_destructable(hw)) {
                 set_block(chunks, chunk_count, hx, hy, hz, 0);
+                int p = floorf((float) hx / CHUNK_SIZE);
+                int q = floorf((float) hz / CHUNK_SIZE);
+                enqueue_block(p, q, hx, hy, hz, BLOCK_EMPTY);
             }
         }
 
@@ -207,7 +222,22 @@ int run(void) {
             if (is_obstacle(hw)) {
                 if (!player_intersects_block(2, state.x, state.y, state.z, hx, hy, hz)) {
                     set_block(chunks, chunk_count, hx, hy, hz, block_type);
+                    int p = floorf((float) hx / CHUNK_SIZE);
+                    int q = floorf((float) hz / CHUNK_SIZE);
+                    enqueue_block(p, q, hx, hy, hz, block_type);
                 }
+            }
+        }
+
+        sync_queue_entry_t entry;
+        if (try_dequeue(&out_blockchain_queue, &entry) != QUEUE_FAILURE) {
+            set_block(chunks, chunk_count,
+                entry.m_block_x, entry.m_block_y, entry.m_block_z, entry.m_block_id
+            );
+            if (player_intersects_block(2, state.x, state.y, state.z,
+                entry.m_block_x, entry.m_block_y, entry.m_block_z)
+            ) {
+                state.y = highest_block(chunks, chunk_count, state.x, state.z) + 2;
             }
         }
 
@@ -271,6 +301,7 @@ int run(void) {
                 dy = 0;
             }
         }
+        glfwPollEvents();
 
         int p = floorf(roundf(state.x) / CHUNK_SIZE);
         int q = floorf(roundf(state.z) / CHUNK_SIZE);
@@ -278,7 +309,6 @@ int run(void) {
 
         render(chunks, chunk_count, &state, &renderer);
 
-        glfwPollEvents();
     }
     db_save_state(state.x, state.y, state.z, state.rx, state.ry);
     db_close();
