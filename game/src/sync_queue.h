@@ -76,4 +76,14 @@ int enqueue(sync_queue_t *queue, sync_queue_entry_t entry);
  */
 int dequeue(sync_queue_t *queue, sync_queue_entry_t* out_entry);
 
+/**
+ * @brief Удаляет и возвращает первый элемент из синхронизированной очереди, если он есть.
+ *
+ * @param queue Указатель на синхронизированную очередь.
+ * @param out_entry Указатель, куда будет записан удаленный из очереди элемент.
+ * @return @c QUEUE_SUCCESS, если элемент был успешно извелечен,
+ * @c QUEUE_FAILURE, если элемента нет или очередь была уничтожена.
+ */
+int try_dequeue(sync_queue_t *queue, sync_queue_entry_t* out_entry);
+
 #endif

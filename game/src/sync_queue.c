@@ -70,3 +70,23 @@ int dequeue(sync_queue_t *queue, sync_queue_entry_t* out) {
 
     return result;
 }
+
+int try_dequeue(sync_queue_t *queue, sync_queue_entry_t* out_entry) {
+    int result = QUEUE_FAILURE;
+    mtx_lock(&queue->mutex);
+        if (queue->enabled && queue->front != NULL) {
+            sync_queue_node_t *temp = queue->front;
+            *out_entry = temp->data;
+            if (queue->front == queue->rear) {
+                queue->front = NULL;
+                queue->rear = NULL;
+            } else {
+                queue->front = queue->front->next;
+            }
+            free(temp);
+            result = QUEUE_SUCCESS;
+        }
+    mtx_unlock(&queue->mutex);
+
+    return result;
+}
