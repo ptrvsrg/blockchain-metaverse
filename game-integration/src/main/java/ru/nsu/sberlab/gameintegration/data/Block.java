@@ -1,14 +1,15 @@
-package ru.nsu.sberlab.cprogramintegration;
+package ru.nsu.sberlab.gameintegration.data;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class State {
+public class Block {
+    private int p;
+    private int q;
     private int x;
     private int y;
     private int z;
-    private int rx;
-    private int ry;
+    private int w;
 }
