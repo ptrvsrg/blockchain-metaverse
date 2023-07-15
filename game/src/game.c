@@ -12,7 +12,6 @@
 #include "util.h"
 
 #include "sync_queue.h"
-#include "start_game.h"
 
 // Используются в callback'ах, которые вызывает OpenGL, поэтому глобальные
 static int exclusive = 1; /**< kinda focus on game window */

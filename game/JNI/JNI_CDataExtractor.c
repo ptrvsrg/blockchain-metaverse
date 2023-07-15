@@ -1,5 +1,6 @@
 #include "JNI_CDataExtractor.h"
 #include "start_game.h"
+#include "sync_queue.h"
 
 JNIEXPORT jobject JNICALL Java_ru_nsu_sberlab_cprogramintegration_CDataExtractor_getBlockChangeC(
     JNIEnv* env,

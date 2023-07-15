@@ -1,5 +1,6 @@
 #include "JNI_BlockchainHandler.h"
 #include "start_game.h"
+#include "sync_queue.h"
 
 JNIEXPORT void JNICALL Java_ru_nsu_sberlab_cprogramintegration_BlockchainHandler_sendBlockChangeC(
     JNIEnv* env, jclass,
