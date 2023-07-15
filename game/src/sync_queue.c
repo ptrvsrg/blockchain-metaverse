@@ -7,6 +7,8 @@ void queue_init(sync_queue_t *queue) {
     queue->rear = NULL;
     mtx_init(&queue->mutex, mtx_plain);
     cnd_init(&queue->cond);
+
+    queue->enabled = 1;
 }
 
 void queue_destroy(sync_queue_t *queue) {
@@ -17,44 +19,54 @@ void queue_destroy(sync_queue_t *queue) {
             free(current);
             current = next;
         }
+        cnd_broadcast(&queue->cond);
     mtx_unlock(&queue->mutex);
 
     mtx_destroy(&queue->mutex);
     cnd_destroy(&queue->cond);
+
+    queue->enabled = 0;
 }
 
-void enqueue(sync_queue_t *queue, sync_queue_entry_t data) {
-    sync_queue_node_t *new_node = (sync_queue_node_t *) malloc(sizeof(sync_queue_node_t));
-    new_node->data = data;
-    new_node->next = NULL;
-
+int enqueue(sync_queue_t *queue, sync_queue_entry_t data) {
+    int result = QUEUE_FAILURE;
     mtx_lock(&queue->mutex);
-        if (queue->front == NULL && queue->rear == NULL) {
-            queue->front = new_node;
-        } else {
-            queue->rear->next = new_node;
+        if (queue->enabled) {
+            sync_queue_node_t *new_node = (sync_queue_node_t *) malloc(sizeof(sync_queue_node_t));
+            new_node->data = data;
+            new_node->next = NULL;
+            if (queue->front == NULL && queue->rear == NULL) {
+                queue->front = new_node;
+            } else {
+                queue->rear->next = new_node;
+            }
+            queue->rear = new_node;
+            cnd_broadcast(&queue->cond);
+            result = QUEUE_SUCCESS;
         }
-        queue->rear = new_node;
-        cnd_broadcast(&queue->cond);
     mtx_unlock(&queue->mutex);
+    return result;
 }
 
-sync_queue_entry_t dequeue(sync_queue_t *queue) {
+int dequeue(sync_queue_t *queue, sync_queue_entry_t* out) {
+    int result = QUEUE_FAILURE;
     mtx_lock(&queue->mutex);
-        while (queue->front == NULL) {
+        while (queue->front == NULL && queue->enabled) {
             cnd_wait(&queue->cond, &queue->mutex);
         }
-        sync_queue_node_t *temp = queue->front;
-        sync_queue_entry_t entry = temp->data;
-        if (queue->front == queue->rear) {
-            queue->front = NULL;
-            queue->rear = NULL;
-        } else {
-            queue->front = queue->front->next;
+        if (queue->enabled) {
+            sync_queue_node_t *temp = queue->front;
+            *out = temp->data;
+            if (queue->front == queue->rear) {
+                queue->front = NULL;
+                queue->rear = NULL;
+            } else {
+                queue->front = queue->front->next;
+            }
+            free(temp);
+            result = QUEUE_SUCCESS;
         }
     mtx_unlock(&queue->mutex);
 
-    free(temp);
-
-    return entry;
+    return result;
 }
