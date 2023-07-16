@@ -7,14 +7,20 @@ stages:
 .build-c:
     stage: build
     script:
-        - cmake -B build -S $MODULE_NAME -DCMAKE_BUILD_TYPE=Debug
-        - cmake --build build
+        - cmake -B $MODULE_NAME/build -S $MODULE_NAME -DCMAKE_BUILD_TYPE=Debug
+        - cmake --build $MODULE_NAME/build
+    cache:
+        paths:
+            - $MODULE_NAME/build
 
 
 .test-c:
     stage: test
     script:
-        - ctest --verbose --test-dir $MODULE_NAME
+        - ctest --verbose --test-dir $MODULE_NAME/build
+    cache:
+        paths:
+            - $MODULE_NAME/build
 
 # Сборка и тестирование C-модуля game
 
@@ -45,3 +51,27 @@ test-c-game:
     cache:
         paths:
             - .m2/repository
+
+# Сборка и тестирование Java-модуля contracts
+
+build-java-contracts:
+    variables:
+        MODULE_NAME: "contracts"
+    extends: .build-java
+
+test-java-contracts:
+    variables:
+        MODULE_NAME: "contracts"
+    extends: .test-java
+
+# Сборка и тестирование Java-модуля start-menu
+
+build-java-start-menu:
+    variables:
+        MODULE_NAME: "start-menu"
+    extends: .build-java
+
+test-java-start-menu:
+    variables:
+        MODULE_NAME: "start-menu"
+    extends: .test-java
