@@ -1,0 +1,47 @@
+stages:
+    - build
+    - test
+
+# Сборка и тестирование C-модуля
+
+.build-c:
+    stage: build
+    script:
+        - cmake -B build -S $MODULE_NAME -DCMAKE_BUILD_TYPE=Debug
+        - cmake --build build
+
+
+.test-c:
+    stage: test
+    script:
+        - ctest --verbose --test-dir $MODULE_NAME
+
+# Сборка и тестирование C-модуля game
+
+build-c-game:
+    variables:
+        MODULE_NAME: "game"
+    extends: .build-c
+
+test-c-game:
+    variables:
+        MODULE_NAME: "game"
+    extends: .test-c
+
+# Сборка и тестирование Java-модуля
+
+.build-java:
+    stage: build
+    script:
+        - mvn -f $MODULE_NAME compile
+    cache:
+        paths:
+            - .m2/repository
+
+.test-java:
+    stage: test
+    script:
+        - mvn -f $MODULE_NAME test
+    cache:
+        paths:
+            - .m2/repository
