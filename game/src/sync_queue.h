@@ -40,6 +40,18 @@ typedef struct sync_queue_t {
     int enabled;
 } sync_queue_t;
 
+
+/**
+ * @brief Очередь в которую пишутся изменения, которые будут переданы в Neo
+*/
+extern sync_queue_t in_blockchain_queue;
+
+/**
+ * @brief Очередь в которой появляются изменения присланные из Neo
+ */
+extern sync_queue_t out_blockchain_queue;
+
+
 /**
  * @brief Инициализирует синхронизированную очередь.
  *
@@ -53,6 +65,20 @@ void queue_init(sync_queue_t *queue);
  * @param queue Указатель на синхронизированную очередь, которую необходимо уничтожить.
  */
 void queue_destroy(sync_queue_t *queue);
+
+/**
+ * @brief Делает очердь доступной.
+ *
+ * @param queue Указатель на синхронизированную очередь.
+ */
+void queue_enable(sync_queue_t *queue);
+
+/**
+ * @brief Делает очередь недоступной.
+ *
+ * @param queue Указатель на синхронизированную очередь.
+ */
+void queue_disable(sync_queue_t *queue);
 
 /**
  * @brief Добавляет элемент в конец синхронизированной очереди.
@@ -75,5 +101,15 @@ int enqueue(sync_queue_t *queue, sync_queue_entry_t entry);
  * @c QUEUE_FAILURE, если очередь была уничтожена.
  */
 int dequeue(sync_queue_t *queue, sync_queue_entry_t* out_entry);
+
+/**
+ * @brief Удаляет и возвращает первый элемент из синхронизированной очереди, если он есть.
+ *
+ * @param queue Указатель на синхронизированную очередь.
+ * @param out_entry Указатель, куда будет записан удаленный из очереди элемент.
+ * @return @c QUEUE_SUCCESS, если элемент был успешно извелечен,
+ * @c QUEUE_FAILURE, если элемента нет или очередь была уничтожена.
+ */
+int try_dequeue(sync_queue_t *queue, sync_queue_entry_t* out_entry);
 
 #endif
