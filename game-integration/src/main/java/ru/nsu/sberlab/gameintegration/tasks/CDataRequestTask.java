@@ -6,18 +6,16 @@ import ru.nsu.sberlab.gameintegration.data.Block;
 
 /**
  * Класс CDataRequestTask представляет поток для запроса изменений данных из C-кода.
- * Унаследован от класса Thread.
+ * Реализует интерфейс Runnable.
  */
 @Log4j2
-public class CDataRequestTask extends Thread{
-
-    private static native Block getBlockChangeC();
-    private static native PlayerPosition getPlayerPositionChangeC();
-
+public class CDataRequestTask implements Runnable{
     /**
      * Время между запросами на изменение данных (в миллисекундах).
      */
-    public static final int TIME_REQUEST = 1500;
+    private static final int TIME_REQUEST = 1500;
+
+    private static native Block getBlockChangeC();
 
     /**
      * Получает изменение блока и отправляет его на запись в блокчейн.
@@ -26,15 +24,6 @@ public class CDataRequestTask extends Thread{
         Block block = getBlockChangeC();
         if (block == null) return;
         //TODO отправить на запись блок
-    }
-
-    /**
-     * Получает изменение состояния и отправляет его на запись в блокчейн.
-     */
-    public static void getPlayerPositionChange(){
-        PlayerPosition state = getPlayerPositionChangeC();
-        if (state == null) return;
-        //TODO отправить на запись положение
     }
 
     /**

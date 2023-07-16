@@ -1,24 +1,17 @@
 package ru.nsu.sberlab.gameintegration.tasks;
 
+import lombok.RequiredArgsConstructor;
 import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
 
 /**
- * Класс Start представляет поток для запуска стартовой операции.
- * Унаследован от класса Thread.
+ * Класс Start представляет задачу для запуска стартовой операции.
+ * Реализует интерфейс Runnable.
  */
-public class StartTask extends Thread{
+@RequiredArgsConstructor
+public class StartTask implements Runnable{
 
-    public native void start(PlayerPosition playerPosition);
     private final PlayerPosition playerPosition;
-
-    /**
-     * Создает новый экземпляр StartTask с указанным объектом PlayerPosition.
-     *
-     * @param playerPosition объект PlayerPosition для использования в стартовой операции
-     */
-    public StartTask(PlayerPosition playerPosition){
-        this.playerPosition = playerPosition;
-    }
+    public native void start(PlayerPosition playerPosition);
 
     /**
      * Выполняет стартовую операцию, вызывая нативный метод start(PlayerPosition playerPosition).

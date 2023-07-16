@@ -1,40 +1,31 @@
 package ru.nsu.sberlab.gameintegration.tasks;
 
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
 import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
 import ru.nsu.sberlab.gameintegration.data.Block;
 
 /**
  * Класс BlockchainDataRequestTask представляет поток для запроса данных из блокчейна и
- * взаимодействия с кодом на языке C/C++. Унаследован от класса Thread.
- */
+ * взаимодействия с кодом на языке C/C++. Имплементирует класс Runnable.
+ **/
 @Log4j2
-public class BlockchainDataRequestTask extends Thread{
+public class BlockchainDataRequestTask implements Runnable {
+
+    /**
+     * Время между запросами на изменение данных в блокчейне (в миллисекундах).
+     */
+    private static final int TIME_REQUEST = 1500;
 
     private static native void sendBlockChangeC(Block block);
 
     /**
-     * Время между запросами на изменение данных (в миллисекундах).
-     */
-    public static final int TIME_REQUEST = 1500;
-
-    /**
      * Отправляет уведомление об изменении блока в блокчейне.
      */
-    public void sentBlockChange(){
+    public void sendBlockChange(){
         //TODO функция чтобы взять из блокчейна блок
         Block block = new Block(0,0,0,0,0,0);
         sendBlockChangeC(block);
-    }
-
-    /**
-     * Отправляет уведомление об изменении состояния в блокчейне.
-     *
-     * @return объект PlayerPosition с изменением состояния
-     */
-    public static PlayerPosition getPlayerPosition(){
-        //TODO функция чтобы взять из блокчейна местоположение
-        return new PlayerPosition(0,0,0,0, 0);
     }
 
     /**
@@ -47,13 +38,12 @@ public class BlockchainDataRequestTask extends Thread{
     @Override
     public void run() {
         while (true){
-            sentBlockChange();
+            sendBlockChange();
             try {
-                //noinspection BusyWait
                 Thread.sleep(TIME_REQUEST);
             }
             catch (InterruptedException e) {
-                log.error(e.getMessage());
+                log.catching(Level.ERROR, e);
             }
         }
     }
