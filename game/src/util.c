@@ -42,6 +42,7 @@ void load_png_texture(const char *file_name) {
     error = lodepng_decode32_file(&image, &width, &height, file_name);
     if (error) {
         fprintf(stderr, "error %u: %s\n", error, lodepng_error_text(error));
+        exit(1);
     }
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
                  GL_UNSIGNED_BYTE, image);
