@@ -68,8 +68,7 @@ if(APPLE)
             PRIVATE noise
             PRIVATE tinycthread
             PRIVATE sqlite
-            PRIVATE ${GLFW_LIBRARIES}
-            PRIVATE ${CURL_LIBRARIES})
+            PRIVATE ${GLFW_LIBRARIES})
 elseif (UNIX)
     target_link_libraries(craft
             PRIVATE dl
