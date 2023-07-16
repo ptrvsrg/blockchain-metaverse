@@ -10,8 +10,10 @@ variables:
 .build-c:
     stage: build
     script:
-        - cmake -B $MODULE_NAME/build -S $MODULE_NAME -DCMAKE_BUILD_TYPE=Debug
-        - cmake --build $MODULE_NAME/build
+        - mkdir -p $MODULE_NAME/build
+        - cd $MODULE_NAME/build
+        - cmake ..
+        - cmake --build .
     artifacts:
         paths:
             - $MODULE_NAME/build/
@@ -20,7 +22,8 @@ variables:
 .test-c:
     stage: test
     script:
-        - ctest --verbose --test-dir $MODULE_NAME/build
+        - cd $MODULE_NAME/build
+        - ctest --verbose
 
 # Сборка и тестирование C-модуля game
 
@@ -41,21 +44,23 @@ test-c-game:
 .build-java:
     stage: build
     script:
-        - mvn -f $MODULE_NAME compile
+        - cd $MODULE_NAME
+        - mvn compile
     artifacts:
         paths:
-            - target/
+            - $MODULE_NAME/target/
     cache:
         paths:
-            - .m2/repository/
+            - $CI_PROJECT_DIR/.m2/repository/
 
 .test-java:
     stage: test
     script:
-        - mvn -f $MODULE_NAME test
+        - cd $MODULE_NAME
+        - mvn test
     cache:
         paths:
-            - .m2/repository/
+            - $CI_PROJECT_DIR/.m2/repository/
 
 # Сборка и тестирование Java-модуля contracts
 
