@@ -1,14 +1,12 @@
 package ru.nsu.sberlab.gameintegration.data;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Value;
 
-@AllArgsConstructor
-@Getter
+@Value
 public class PlayerPosition {
-    private int x;
-    private int y;
-    private int z;
-    private int rx;
-    private int ry;
+    float x;
+    float y;
+    float z;
+    float rx;
+    float ry;
 }
