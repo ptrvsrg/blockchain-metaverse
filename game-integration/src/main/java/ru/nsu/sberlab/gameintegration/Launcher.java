@@ -2,6 +2,7 @@ package ru.nsu.sberlab.gameintegration;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
+import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
 import ru.nsu.sberlab.gameintegration.tasks.BlockchainDataRequestTask;
 import ru.nsu.sberlab.gameintegration.tasks.CDataRequestTask;
 import ru.nsu.sberlab.gameintegration.tasks.StartTask;
@@ -32,7 +33,7 @@ public class Launcher {
             startTask.join();
             cDataRequestTask.join();
 
-            PlayerPositionHandler.setPlayerPosition(); //исправить
+            PlayerPositionHandler.setPlayerPosition(PlayerPositionHandler.getPlayerPositionC());
             blockchainDataRequestTask.interrupt();
         } catch (InterruptedException e){
             log.catching(Level.ERROR, e);

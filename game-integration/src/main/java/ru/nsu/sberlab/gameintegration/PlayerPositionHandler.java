@@ -4,7 +4,7 @@ import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
 
 public class PlayerPositionHandler {
 
-    private static native PlayerPosition getPlayerPositionC();
+    public static native PlayerPosition getPlayerPositionC();
 
     /**
      * Получает состояние игрока из блокчейна.
@@ -18,10 +18,11 @@ public class PlayerPositionHandler {
 
     /**
      * Получает состояние игрока и отправляет его на запись в блокчейн.
+     *
+     * @param playerPosition состояние игрока
      */
-    public static void setPlayerPosition(){
-        PlayerPosition state = getPlayerPositionC();
-        if (state == null) return;
+    public static void setPlayerPosition(PlayerPosition playerPosition){
+        if (playerPosition == null) return;
         //TODO отправить на запись положение
     }
 }
