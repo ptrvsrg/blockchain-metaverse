@@ -1,6 +1,7 @@
 package ru.nsu.sberlab.gameintegration;
 
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
 import ru.nsu.sberlab.gameintegration.tasks.BlockchainDataRequestTask;
 import ru.nsu.sberlab.gameintegration.tasks.CDataRequestTask;
 import ru.nsu.sberlab.gameintegration.tasks.StartTask;
@@ -14,24 +15,28 @@ public class Launcher {
     /**
      * Запускает игру и выполняет задачи для запроса изменений данных из блокчейна.
      *
-     * @throws InterruptedException если поток прерван во время выполнения
      */
-    public void launch() throws InterruptedException {
+    public void launch() {
 
         log.info("STARTING GAME...");
-        StartTask start = new StartTask(BlockchainDataRequestTask.getPlayerPosition());
-        BlockchainDataRequestTask blockchainDataRequestTask = new BlockchainDataRequestTask();
-        CDataRequestTask cDataRequestTask = new CDataRequestTask();
+        Thread startTask = new Thread(new StartTask(PlayerPositionHandler.getPlayerPosition()));
+        Thread blockchainDataRequestTask = new Thread(new BlockchainDataRequestTask());
+        Thread cDataRequestTask = new Thread(new CDataRequestTask());
 
-        start.start();
+        startTask.start();
         blockchainDataRequestTask.start();
         cDataRequestTask.start();
 
-        log.info("ENDING GAME ...");
-        start.join();
-        CDataRequestTask.getPlayerPositionChange();
-        blockchainDataRequestTask.interrupt();
-        cDataRequestTask.interrupt();
+        try {
+            log.info("ENDING GAME ...");
+            startTask.join();
+            cDataRequestTask.join();
+
+            PlayerPositionHandler.setPlayerPosition(); //исправить
+            blockchainDataRequestTask.interrupt();
+        } catch (InterruptedException e){
+            log.catching(Level.ERROR, e);
+        }
 
         log.info("END SESSION");
     }
