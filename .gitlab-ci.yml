@@ -2,6 +2,9 @@ stages:
     - build
     - test
 
+variables:
+  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+
 # Сборка и тестирование C-модуля
 
 .build-c:
@@ -9,18 +12,15 @@ stages:
     script:
         - cmake -B $MODULE_NAME/build -S $MODULE_NAME -DCMAKE_BUILD_TYPE=Debug
         - cmake --build $MODULE_NAME/build
-    cache:
+    artifacts:
         paths:
-            - $MODULE_NAME/build
+            - $MODULE_NAME/build/
 
 
 .test-c:
     stage: test
     script:
         - ctest --verbose --test-dir $MODULE_NAME/build
-    cache:
-        paths:
-            - $MODULE_NAME/build
 
 # Сборка и тестирование C-модуля game
 
@@ -33,6 +33,8 @@ test-c-game:
     variables:
         MODULE_NAME: "game"
     extends: .test-c
+    dependencies:
+        - build-c-game
 
 # Сборка и тестирование Java-модуля
 
@@ -40,9 +42,12 @@ test-c-game:
     stage: build
     script:
         - mvn -f $MODULE_NAME compile
+    artifacts:
+        paths:
+            - target/
     cache:
         paths:
-            - .m2/repository
+            - .m2/repository/
 
 .test-java:
     stage: test
@@ -50,7 +55,7 @@ test-c-game:
         - mvn -f $MODULE_NAME test
     cache:
         paths:
-            - .m2/repository
+            - .m2/repository/
 
 # Сборка и тестирование Java-модуля contracts
 
@@ -63,6 +68,8 @@ test-java-contracts:
     variables:
         MODULE_NAME: "contracts"
     extends: .test-java
+    dependencies:
+        - build-java-contracts
 
 # Сборка и тестирование Java-модуля start-menu
 
@@ -75,3 +82,5 @@ test-java-start-menu:
     variables:
         MODULE_NAME: "start-menu"
     extends: .test-java
+    dependencies:
+        - build-java-start-menu
