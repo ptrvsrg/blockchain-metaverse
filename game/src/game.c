@@ -13,6 +13,48 @@
 
 #include "sync_queue.h"
 
+state_t state;
+
+/**
+ * @brief Структура, содержащая данные для рендеринга.
+ * 
+ * @details Можно разбить еще на несколько структур
+ */
+typedef struct renderer_t_s renderer_t;
+struct renderer_t_s {
+    GLFWwindow* window; /**< Окно для рендера. */
+    int width;
+    int height;
+    GLuint block_program; /**< Индекс для программы шейдера блоков */
+    GLuint matrix_loc;
+    GLuint camera_loc;
+    GLuint sampler_loc;
+    GLuint timer_loc;
+    GLuint position_loc;
+    GLuint normal_loc;
+    GLuint uv_loc;
+    GLuint line_program;
+    GLuint line_matrix_loc;
+    GLuint line_position_loc;
+    GLuint item_position_buffer;
+    GLuint item_normal_buffer;
+    GLuint item_uv_buffer;
+    float matrix[16];
+};
+
+/**
+ * @struct Структура представляющая информацию для рендера чанка
+*/
+typedef struct {
+    Map map; /**< карта чанка */
+    int p; /**< координата p чанка */
+    int q; /**< координата q чанка */
+    int faces; /**< информация для рендера */
+    GLuint position_buffer; /**< информация для рендера */
+    GLuint normal_buffer; /**< информация для рендера */
+    GLuint uv_buffer; /**< информация для рендера */
+} Chunk;
+
 // Используются в callback'ах, которые вызывает OpenGL, поэтому глобальные
 static int exclusive = 1; /**< kinda focus on game window */
 static int left_click = 0; /**< состояние нажатия ЛКМ */
@@ -131,6 +173,12 @@ static void _set_block(Chunk *chunks, int chunk_count, int p, int q, int x, int 
 static void set_block(Chunk *chunks, int chunk_count, int x, int y, int z, int w);
 
 
+static int init_renderer(renderer_t* renderer);
+
+static int render(Chunk* chunks, int chunck_count, state_t* state, renderer_t* renderer);
+
+static void destroy_renderer(renderer_t* renderer);
+
 static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     sync_queue_entry_t entry;
     entry.m_chunk_x = p;
@@ -143,7 +191,7 @@ static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     return enqueue(&in_blockchain_queue, entry);
 }
 
-int run(void) {
+int run(state_t loaded_state) {
     Chunk chunks[MAX_CHUNKS];
     int chunk_count = 0;
 
@@ -156,19 +204,20 @@ int run(void) {
         return -1;
     }
 
-    state_t state;
-    state.x = ((double) rand() / (double) RAND_MAX - 0.5) * 10000;
-    state.z = ((double) rand() / (double) RAND_MAX - 0.5) * 10000;
-    state.y = 0;
-    state.rx = 0;
-    state.ry = 0;
-    int loaded = db_load_state(&state.x, &state.y, &state.z, &state.rx, &state.ry);
+    // state_t state;
+    // state.x = ((double) rand() / (double) RAND_MAX - 0.5) * 10000;
+    // state.z = ((double) rand() / (double) RAND_MAX - 0.5) * 10000;
+    // state.y = 0;
+    // state.rx = 0;
+    // state.ry = 0;
+    // int loaded = db_load_state(&state.x, &state.y, &state.z, &state.rx, &state.ry);
+    state = loaded_state;
     ensure_chunks(chunks, &chunk_count,
                   floorf(roundf(state.x) / CHUNK_SIZE),
                   floorf(roundf(state.z) / CHUNK_SIZE), 1);
-    if (!loaded) {
+    // if (!loaded) {
         state.y = highest_block(chunks, chunk_count, state.x, state.z) + 2;
-    }
+    // }
 
     float dy = 0;
     double px = 0;
@@ -309,7 +358,7 @@ int run(void) {
         render(chunks, chunk_count, &state, &renderer);
 
     }
-    db_save_state(state.x, state.y, state.z, state.rx, state.ry);
+    // db_save_state(state.x, state.y, state.z, state.rx, state.ry);
     db_close();
     destroy_renderer(&renderer);
 }
