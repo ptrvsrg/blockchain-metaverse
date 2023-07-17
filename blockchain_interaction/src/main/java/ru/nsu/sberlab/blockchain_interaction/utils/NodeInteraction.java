@@ -1,4 +1,4 @@
-package ru.nsu.sberlab.contracts.utils;
+package ru.nsu.sberlab.blockchain_interaction.utils;
 
 import io.neow3j.compiler.CompilationUnit;
 import io.neow3j.compiler.Compiler;
@@ -18,6 +18,8 @@ import io.neow3j.types.Hash256;
 import io.neow3j.types.NeoVMStateType;
 import io.neow3j.utils.Await;
 import io.neow3j.wallet.Account;
+
+import java.util.Map;
 
 import static java.lang.String.format;
 
@@ -45,16 +47,34 @@ public class NodeInteraction {
     }
 
     /**
-     *  Метод для развертывания контракта.
+     * Метод для развертывания контракта.
      *
      * @param contractClassName каноническое имя класса(Class.getCanonicalName())
-     * @param parameter параметр для передачи при развертывании контракта
+     * @param parameter         параметр для передачи при развертывании контракта
      * @return возвращает ScriptHash задиплоенного контракта
      * @throws Throwable если происходит ошибка при  развертывании
      */
     public Hash160 deployContract(String contractClassName, ContractParameter parameter) throws Throwable {
-        CompilationUnit res = new Compiler().compile(contractClassName);
+        return deployContract(contractClassName, parameter, null);
+    }
 
+    /**
+     * Метод для развертывания контракта.
+     *
+     * @param contractClassName каноническое имя класса(Class.getCanonicalName())
+     * @param parameter         параметр для передачи при развертывании контракта
+     * @param replaceMap        параметр для передачи замен для placeholders строк
+     * @return возвращает ScriptHash задиплоенного контракта
+     * @throws Throwable если происходит ошибка при  развертывании
+     */
+    public Hash160 deployContract(String contractClassName, ContractParameter parameter, Map<String, String> replaceMap) throws Throwable {
+        CompilationUnit res;
+
+        if (replaceMap == null) {
+            res = new Compiler().compile(contractClassName);
+        } else {
+            res = new Compiler().compile(contractClassName, replaceMap);
+        }
 
         Transaction transaction = new ContractManagement(node)
                 .deploy(res.getNefFile(), res.getManifest(), parameter)
@@ -89,8 +109,8 @@ public class NodeInteraction {
      * Метод для вызова функции в контракте.
      *
      * @param contactHash хэш контракта у которого мы собираемся вызвать функцию
-     * @param function имя функции которую мы собираемся вызвать
-     * @param params параметры для передачи в функцию
+     * @param function    имя функции которую мы собираемся вызвать
+     * @param params      параметры для передачи в функцию
      * @return то что вернула функция
      * @throws Throwable если происходит ошибка при вызове функции в контракте
      */

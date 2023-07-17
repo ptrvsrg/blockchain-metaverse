@@ -9,13 +9,14 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>contracts</artifactId>
+    <artifactId>blockchain_interaction</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
 
     <dependencies>
         <dependency>
@@ -38,10 +39,9 @@
             <artifactId>devpack-test</artifactId>
             <version>3.20.1</version>
         </dependency>
-
         <dependency>
             <groupId>ru.nsu.sberlab</groupId>
-            <artifactId>blockchain_interaction</artifactId>
+            <artifactId>contracts</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>

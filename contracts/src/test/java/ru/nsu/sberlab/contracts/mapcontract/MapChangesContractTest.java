@@ -8,8 +8,8 @@ import io.neow3j.wallet.Account;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import ru.nsu.sberlab.contracts.utils.BlockInfo;
-import ru.nsu.sberlab.contracts.utils.NodeInteraction;
+import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
+import ru.nsu.sberlab.blockchain_interaction.utils.NodeInteraction;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,16 +17,12 @@ import java.util.HashMap;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 public class MapChangesContractTest {
-    private static Account ownerAccount;
-
-    private static Hash160 contractHash;
-
-    private static NodeInteraction nodeInteraction;
     private static final String ownerWifEnvVar = "OWNER_WIF";
     private static final String nodeURLEnvVar = "NODE_URL";
-
-
     private static final HashMap<String, String> confMap = new HashMap<>(3);
+    private static Account ownerAccount;
+    private static Hash160 contractHash;
+    private static NodeInteraction nodeInteraction;
 
     @BeforeAll
     public static void readConfig() {
@@ -39,10 +35,12 @@ public class MapChangesContractTest {
     @Test
     @Order(0)
     public void deploy() throws Throwable {
+        HashMap<String, String> replaceMap = new HashMap<>(1);
+        replaceMap.put("Name", "test");
 
         try {
             contractHash = nodeInteraction.deployContract(MapChangesContract.class.getCanonicalName(),
-                    ContractParameter.hash160(ownerAccount.getScriptHash()));
+                    ContractParameter.hash160(ownerAccount.getScriptHash()), replaceMap);
         } catch (TransactionConfigurationException e) {
             if (e.getMessage().contains("Contract Already Exists: ")) {
                 contractHash = new Hash160(e.getMessage().substring(e.getMessage().indexOf("Contract Already Exists: ")
@@ -63,7 +61,7 @@ public class MapChangesContractTest {
         BlockInfo BlockInfo = new BlockInfo(1, 128, 999, 0, -1, 23);
 
 
-        nodeInteraction.invokeFunctionInContract(contractHash, "putChanges", ContractParameter.byteArray(BlockInfo.getBytesPresentation()));
+        nodeInteraction.invokeFunctionInContract(contractHash, "putChanges", ContractParameter.byteArray(BlockInfo.serialize()));
 
         byte[] result = nodeInteraction.invokeFunctionInContract(contractHash, "getAllChanges").getByteArray();
 
@@ -72,9 +70,6 @@ public class MapChangesContractTest {
         assertThat(appendedBlockInfo.toString()).isEqualTo(BlockInfo.toString());
 
     }
-
-
-
 
 
     @Order(2)
@@ -92,7 +87,7 @@ public class MapChangesContractTest {
     @Test
     public void getLastNChangesTest() throws Throwable {
         int N = 5;
-        byte[] newBytes = new byte[BlockInfo.BlockInfoByteSize * (N+1)];
+        byte[] newBytes = new byte[BlockInfo.BlockInfoByteSize * (N + 1)];
 
         for (int i = 24; i < newBytes.length; i++) {
             newBytes[i] = (byte) i;

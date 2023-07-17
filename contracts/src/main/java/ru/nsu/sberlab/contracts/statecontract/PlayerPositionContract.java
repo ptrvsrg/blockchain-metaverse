@@ -1,21 +1,18 @@
 package ru.nsu.sberlab.contracts.statecontract;
 
-import io.neow3j.devpack.Hash160;
 import io.neow3j.devpack.Runtime;
-import io.neow3j.devpack.Storage;
-import io.neow3j.devpack.StorageContext;
+import io.neow3j.devpack.*;
+import io.neow3j.devpack.annotations.DisplayName;
 import io.neow3j.devpack.annotations.OnDeployment;
-import io.neow3j.devpack.contracts.ContractInterface;
+import io.neow3j.devpack.contracts.ContractManagement;
 
 /**
  * Класс PlayerPositionContract представляет контракт для управления позицией игрока в игровой системе.
  */
+@DisplayName("${Name}")
 public class PlayerPositionContract {
 
     private static final byte[] contractOwnerKey = new byte[]{0x00};
-
-    private static final byte[] playerCordsKey = new byte[]{0x01};
-
 
     /**
      * Метод развертывания контракта.
@@ -40,18 +37,19 @@ public class PlayerPositionContract {
     /**
      * Метод для установки координат игрока.
      *
+     * @param playerHash        hash игрока, чьи координаты мы хотим установить
      * @param serializableCords координаты игрока в сериализованном виде
-     * @throws Exception если размер serializableCords не равен 12( 3 int'а) или аккаунт вызвавший функцию не является владельцем контракта
+     * @throws Exception если размер serializableCords не равен 20( 5 int'ов) или hash подписавшего транзакцию не равен playerHash
      */
-    public static void putCords(byte[] serializableCords) throws Exception {
-        if (serializableCords.length != 12) {
-            throw new Exception("serializableCords array size must be 12");
+    public static void putCords(Hash160 playerHash, byte[] serializableCords) throws Exception {
+        if (serializableCords.length != 20) {
+            throw new Exception("serializableCords array size must be 20");
         }
-        if (Runtime.getCallingScriptHash().equals(contractOwner())) {
+        if (Runtime.checkWitness(playerHash)) {
             throw new Exception("No authorization");
         }
 
-        Storage.put(Storage.getStorageContext(), playerCordsKey, serializableCords);
+        Storage.put(Storage.getStorageContext(), playerHash.toByteString(), serializableCords);
     }
 
 
@@ -63,14 +61,37 @@ public class PlayerPositionContract {
     /**
      * Метод для получения координат игрока.
      *
+     * @param playerHash hash игрока, чьи координаты мы хотим узнать
      * @return координаты игрока
-     * @throws Exception если аккаунт вызвавший функцию не является владельцем контракта
      */
-    public static byte[] getCords() throws Exception {
-        if (Runtime.getCallingScriptHash().equals(contractOwner())) {
+    public static byte[] getCords(Hash160 playerHash) throws Exception {
+
+        return Storage.getByteArray(Storage.getStorageContext(), playerHash.toByteArray());
+    }
+
+    public static void destroy() throws Exception {
+        if (Runtime.checkWitness(contractOwner())) {
             throw new Exception("No authorization");
         }
 
-        return Storage.getByteArray(Storage.getStorageContext(), playerCordsKey);
+        new ContractManagement().destroy();
     }
+
+    public static void update(ByteString nefFile, String manifest, Object data) throws Exception {
+        if (Runtime.checkWitness(contractOwner())) {
+            throw new Exception("No authorization");
+        }
+
+        if (data == null) {
+            new ContractManagement().update(nefFile, manifest);
+        } else {
+            new ContractManagement().update(nefFile, manifest, data);
+        }
+
+    }
+
+    public static void update(ByteString nefFile, String manifest) throws Exception {
+        update(nefFile, manifest, null);
+    }
+
 }

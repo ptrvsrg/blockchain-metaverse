@@ -13,6 +13,7 @@
         <module>contracts</module>
         <module>start-menu</module>
         <module>game-integration</module>
+        <module>blockchain_interaction</module>
     </modules>
 
     <properties>

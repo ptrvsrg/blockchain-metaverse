@@ -1,29 +1,24 @@
 package ru.nsu.sberlab.contracts.mapcontract;
 
-import io.neow3j.devpack.Hash160;
 import io.neow3j.devpack.Runtime;
-import io.neow3j.devpack.Storage;
-import io.neow3j.devpack.Helper;
-import io.neow3j.devpack.StorageContext;
+import io.neow3j.devpack.*;
 import io.neow3j.devpack.annotations.DisplayName;
-import io.neow3j.devpack.annotations.ManifestExtra;
 import io.neow3j.devpack.annotations.OnDeployment;
 import io.neow3j.devpack.annotations.Permission;
-import ru.nsu.sberlab.contracts.utils.BlockInfo;
+import io.neow3j.devpack.contracts.ContractManagement;
+import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
 
 /**
  * Класс MapChangesContract представляет собой контракт карты
  * для хранения истории изменений.
  */
-@DisplayName("MapChangesContract")
-@ManifestExtra(key = "author", value = "Your Name")
+@DisplayName("${Name}")
 @Permission(contract = "*", methods = "*")
 public class MapChangesContract {
 
+    public static final int BYTE_BLOCK_SIZE = 24;
     private static final byte[] allChangesListKey = new byte[]{0x01};
     private static final byte[] contractOwnerKey = new byte[]{0x00};
-
-    public static final int BYTE_BLOCK_SIZE = 24;
 
     /**
      * Метод для развертывания контракта.
@@ -101,11 +96,37 @@ public class MapChangesContract {
      * @throws Exception выбрасывается если человек вызвавший контракт не является его владельцем
      */
     public static void clear() throws Exception {
-        if (Runtime.getCallingScriptHash().equals(contractOwner())) {
+        if (Runtime.checkWitness(contractOwner())) {
             throw new Exception("No authorization");
         }
 
         byte[] emptyArray = new byte[0];
         Storage.put(Storage.getStorageContext(), allChangesListKey, emptyArray);
     }
+
+    public static void destroy() throws Exception {
+        if (Runtime.checkWitness(contractOwner())) {
+            throw new Exception("No authorization");
+        }
+
+        new ContractManagement().destroy();
+    }
+
+    public static void update(ByteString nefFile, String manifest, Object data) throws Exception {
+        if (Runtime.checkWitness(contractOwner())) {
+            throw new Exception("No authorization");
+        }
+
+        if (data == null) {
+            new ContractManagement().update(nefFile, manifest);
+        } else {
+            new ContractManagement().update(nefFile, manifest, data);
+        }
+
+    }
+
+    public static void update(ByteString nefFile, String manifest) throws Exception {
+        update(nefFile, manifest, null);
+    }
+
 }
