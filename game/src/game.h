@@ -13,6 +13,11 @@ struct state_t_s {
     float ry; /**< Координата ry поворота камеры игрока. */
 };
 
+/**
+ * @brief глобальное положение игрока нужное для реализации нативных методов
+*/
+extern state_t state;
+
 int run(state_t);
 
 #endif

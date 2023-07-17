@@ -13,6 +13,8 @@
 
 #include "sync_queue.h"
 
+state_t state;
+
 /**
  * @brief Структура, содержащая данные для рендеринга.
  * 
@@ -189,7 +191,7 @@ static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     return enqueue(&in_blockchain_queue, entry);
 }
 
-int run(state_t state) {
+int run(state_t loaded_state) {
     Chunk chunks[MAX_CHUNKS];
     int chunk_count = 0;
 
@@ -209,6 +211,7 @@ int run(state_t state) {
     // state.rx = 0;
     // state.ry = 0;
     // int loaded = db_load_state(&state.x, &state.y, &state.z, &state.rx, &state.ry);
+    state = loaded_state;
     ensure_chunks(chunks, &chunk_count,
                   floorf(roundf(state.x) / CHUNK_SIZE),
                   floorf(roundf(state.z) / CHUNK_SIZE), 1);
@@ -355,7 +358,7 @@ int run(state_t state) {
         render(chunks, chunk_count, &state, &renderer);
 
     }
-    db_save_state(state.x, state.y, state.z, state.rx, state.ry);
+    // db_save_state(state.x, state.y, state.z, state.rx, state.ry);
     db_close();
     destroy_renderer(&renderer);
 }
