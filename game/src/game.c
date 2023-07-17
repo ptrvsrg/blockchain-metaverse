@@ -102,6 +102,17 @@ static int _hit_test(Map *map, float max_distance, int previous, float x, float 
                      float vx, float vy, float vz, int *hx, int *hy, int *hz);
 static int hit_test(Chunk *chunks, int chunk_count, int previous, float x, float y, float z,
                     float rx, float ry, int *bx, int *by, int *bz);
+/**
+ * @brief Проверяет, сталкивается ли игрок с препятствием, и если так,
+ * то перемещает игрока соответствующим образом.
+ * 
+ * @param chunks массив чанков
+ * @param chunk_count количество чанков в массиве
+ * @param x указатель на x координату игрока
+ * @param y указатель на y координату игрока
+ * @param  указатель на  координату игрока
+ * @return 0, если столкновения не произошло; 1 - иначе.
+*/
 static int collide(Chunk *chunks, int chunk_count, int height, float *x, float *y, float *z);
 static int player_intersects_block(int height, float x, float y, float z, int hx, int hy, int hz);
 /**
@@ -173,6 +184,26 @@ static void _set_block(Chunk *chunks, int chunk_count, int p, int q, int x, int 
 static void set_block(Chunk *chunks, int chunk_count, int x, int y, int z, int w);
 
 
+static int player_intersects_obstacle(Chunk *chunks, int chunk_count, int height, float x, float y, float z) {
+    int result = 0;
+    int p = floorf(roundf(x) / CHUNK_SIZE);
+    int q = floorf(roundf(z) / CHUNK_SIZE);
+    Chunk *chunk = find_chunk(chunks, chunk_count, p, q);
+    if (chunk) {
+        Map* map = &chunk->map;
+        int nx = roundf(x);
+        int ny = roundf(y);
+        int nz = roundf(z);
+        for (int i = 0; i < height; i++) {
+            if (is_obstacle(map_get(map, nx, ny - i, nz))) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    return result;
+}
 static int init_renderer(renderer_t* renderer);
 
 static int render(Chunk* chunks, int chunck_count, state_t* state, renderer_t* renderer);
@@ -215,9 +246,9 @@ int run(state_t loaded_state) {
     ensure_chunks(chunks, &chunk_count,
                   floorf(roundf(state.x) / CHUNK_SIZE),
                   floorf(roundf(state.z) / CHUNK_SIZE), 1);
-    // if (!loaded) {
+    if (player_intersects_obstacle(chunks, chunk_count, 2, state.x, state.y, state.z)) {
         state.y = highest_block(chunks, chunk_count, state.x, state.z) + 2;
-    // }
+    }
 
     float dy = 0;
     double px = 0;
@@ -284,6 +315,7 @@ int run(state_t loaded_state) {
             );
             if (player_intersects_block(2, state.x, state.y, state.z,
                 entry.m_block_x, entry.m_block_y, entry.m_block_z)
+                && is_obstacle(entry.m_block_id)
             ) {
                 state.y = highest_block(chunks, chunk_count, state.x, state.z) + 2;
             }
