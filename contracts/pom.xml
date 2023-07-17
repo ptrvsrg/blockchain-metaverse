@@ -41,7 +41,7 @@
 
         <dependency>
             <groupId>ru.nsu.sberlab</groupId>
-            <artifactId>blockchain_interaction</artifactId>
+            <artifactId>blockchain-interaction</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>
