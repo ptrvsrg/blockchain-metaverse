@@ -4,12 +4,14 @@ import io.neow3j.devpack.Runtime;
 import io.neow3j.devpack.*;
 import io.neow3j.devpack.annotations.DisplayName;
 import io.neow3j.devpack.annotations.OnDeployment;
+import io.neow3j.devpack.annotations.Permission;
 import io.neow3j.devpack.contracts.ContractManagement;
 
 /**
  * Класс PlayerPositionContract представляет контракт для управления позицией игрока в игровой системе.
  */
 @DisplayName("${Name}")
+@Permission(contract = "ContractManagement", methods = "*")
 public class PlayerPositionContract {
 
     private static final byte[] contractOwnerKey = new byte[]{0x00};

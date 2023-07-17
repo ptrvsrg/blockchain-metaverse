@@ -13,7 +13,7 @@ import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
  * для хранения истории изменений.
  */
 @DisplayName("${Name}")
-@Permission(contract = "*", methods = "*")
+@Permission(contract = "ContractManagement", methods = "*")
 public class MapChangesContract {
 
     public static final int BYTE_BLOCK_SIZE = 24;

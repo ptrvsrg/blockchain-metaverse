@@ -1,5 +1,6 @@
 package ru.nsu.sberlab.blockchain_interaction;
 
+import io.neow3j.contract.NefFile;
 import io.neow3j.transaction.exceptions.TransactionConfigurationException;
 import io.neow3j.types.ContractParameter;
 import io.neow3j.types.Hash160;
@@ -177,6 +178,72 @@ public class MapInteraction {
     public Coordinates getCoordinates(Hash160 stateContractHash) throws Throwable {
         return new Coordinates(nodeInteraction.invokeFunctionInContract(stateContractHash, GET_COORDINATES,
                 ContractParameter.hash160(nodeInteraction.getAccount().getScriptHash())).getByteArray());
+    }
+
+    /**
+     * Разрушение карты.
+     *
+     * @throws Throwable если не получилось вызвать соответствующие методы
+     */
+    public void destroyMap() throws Throwable {
+        nodeInteraction.invokeFunctionInContract(mapContractHash, "destroy");
+        nodeInteraction.invokeFunctionInContract(stateContractHash, "destroy");
+    }
+
+    /**
+     * Обновить контракт MapChangesContract.
+     *
+     * @param nefFile  скомпилированный контракт
+     * @param manifest манифест
+     */
+    public void updateMapContract(NefFile nefFile, String manifest) throws Throwable {
+        updateMapContract(nefFile, manifest, null);
+    }
+
+    /**
+     * Обновить контракт MapChangesContract.
+     *
+     * @param nefFile  скомпилированный контракт
+     * @param manifest манифест
+     * @param data     передаваемые параметры
+     */
+    public void updateMapContract(NefFile nefFile, String manifest, Object data) throws Throwable {
+        if (data == null) {
+            nodeInteraction.invokeFunctionInContract(mapContractHash, "update",
+                    ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest));
+        } else {
+            nodeInteraction.invokeFunctionInContract(mapContractHash, "update",
+                    ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest),
+                    ContractParameter.any(data));
+        }
+    }
+
+    /**
+     * Обновить контракт PlayerPositionContract.
+     *
+     * @param nefFile  скомпилированный контракт
+     * @param manifest манифест
+     */
+    public void updateStateContract(NefFile nefFile, String manifest) throws Throwable {
+        updateStateContract(nefFile, manifest, null);
+    }
+
+    /**
+     * Обновить контракт PlayerPositionContract.
+     *
+     * @param nefFile  скомпилированный контракт
+     * @param manifest манифест
+     * @param data     передаваемые параметры
+     */
+    public void updateStateContract(NefFile nefFile, String manifest, Object data) throws Throwable {
+        if (data == null) {
+            nodeInteraction.invokeFunctionInContract(stateContractHash, "update",
+                    ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest));
+        } else {
+            nodeInteraction.invokeFunctionInContract(stateContractHash, "update",
+                    ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest),
+                    ContractParameter.any(data));
+        }
     }
 
 
