@@ -10,37 +10,10 @@
 #include "matrix.h"
 #include "noise.h"
 #include "util.h"
-
+#include "renderer.h"
 #include "sync_queue.h"
 
 state_t state;
-
-/**
- * @brief Структура, содержащая данные для рендеринга.
- * 
- * @details Можно разбить еще на несколько структур
- */
-typedef struct renderer_t_s renderer_t;
-struct renderer_t_s {
-    GLFWwindow* window; /**< Окно для рендера. */
-    int width;
-    int height;
-    GLuint block_program; /**< Индекс для программы шейдера блоков */
-    GLuint matrix_loc;
-    GLuint camera_loc;
-    GLuint sampler_loc;
-    GLuint timer_loc;
-    GLuint position_loc;
-    GLuint normal_loc;
-    GLuint uv_loc;
-    GLuint line_program;
-    GLuint line_matrix_loc;
-    GLuint line_position_loc;
-    GLuint item_position_buffer;
-    GLuint item_normal_buffer;
-    GLuint item_uv_buffer;
-    float matrix[16];
-};
 
 /**
  * @struct Структура представляющая информацию для рендера чанка
@@ -204,9 +177,11 @@ static int player_intersects_obstacle(Chunk *chunks, int chunk_count, int height
 
     return result;
 }
-static int init_renderer(renderer_t* renderer);
 
-static int render(Chunk* chunks, int chunck_count, state_t* state, renderer_t* renderer);
+static int render(
+    Chunk* chunks, int chunck_count, state_t* state,
+    renderer_t* renderer, GLFWwindow* window, int width, int height
+);
 
 static void destroy_renderer(renderer_t* renderer);
 
@@ -223,6 +198,26 @@ static int enqueue_block(int p, int q, int x, int y, int z, int w) {
 }
 
 int run(state_t loaded_state) {
+    if (!glfwInit()) {
+        return -1;
+    }
+    // Инициализация окна
+    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, NULL, NULL);
+    if (!window) {
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(VSYNC);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetKeyCallback(window, on_key);
+    glfwSetMouseButtonCallback(window, on_mouse_button);
+    glfwSetScrollCallback(window, on_scroll);
+
+    int width;
+    int height;
+    glfwGetWindowSize(window, &width, &height);
+
     Chunk chunks[MAX_CHUNKS];
     int chunk_count = 0;
 
@@ -253,16 +248,16 @@ int run(state_t loaded_state) {
     float dy = 0;
     double px = 0;
     double py = 0;
-    glfwGetCursorPos(renderer.window, &px, &py);
+    glfwGetCursorPos(window, &px, &py);
     double previous = glfwGetTime();
-    while (!glfwWindowShouldClose(renderer.window)) {
+    while (!glfwWindowShouldClose(window)) {
         double now = glfwGetTime();
         double dt = MIN(now - previous, 0.2);
         previous = now;
 
         if (exclusive && (px || py)) {
             double mx, my;
-            glfwGetCursorPos(renderer.window, &mx, &my);
+            glfwGetCursorPos(window, &mx, &my);
             float m = 0.0025;
             state.rx += (mx - px) * m;
             state.ry -= (my - py) * m;
@@ -277,7 +272,7 @@ int run(state_t loaded_state) {
             px = mx;
             py = my;
         } else {
-            glfwGetCursorPos(renderer.window, &px, &py);
+            glfwGetCursorPos(window, &px, &py);
         }
 
         if (left_click) {
@@ -323,44 +318,44 @@ int run(state_t loaded_state) {
 
         int sz = 0;
         int sx = 0;
-        int ortho = glfwGetKey(renderer.window, 'F');
-        int fov = glfwGetKey(renderer.window, GLFW_KEY_LEFT_SHIFT) ? 15.0 : 65.0;
-        if (glfwGetKey(renderer.window, 'Q')) break;
-        if (glfwGetKey(renderer.window, 'W')) sz--;
-        if (glfwGetKey(renderer.window, 'S')) sz++;
-        if (glfwGetKey(renderer.window, 'A')) sx--;
-        if (glfwGetKey(renderer.window, 'D')) sx++;
-        if (dy == 0 && glfwGetKey(renderer.window, GLFW_KEY_SPACE)) {
+        int ortho = glfwGetKey(window, 'F');
+        int fov = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 15.0 : 65.0;
+        if (glfwGetKey(window, 'Q')) break;
+        if (glfwGetKey(window, 'W')) sz--;
+        if (glfwGetKey(window, 'S')) sz++;
+        if (glfwGetKey(window, 'A')) sx--;
+        if (glfwGetKey(window, 'D')) sx++;
+        if (dy == 0 && glfwGetKey(window, GLFW_KEY_SPACE)) {
             dy = 8;
         }
         float vx, vy, vz;
         get_motion_vector(sz, sx, state.rx, state.ry, &vx, &vy, &vz);
-        if (glfwGetKey(renderer.window, 'Z')) {
+        if (glfwGetKey(window, 'Z')) {
             vx = -1;
             vy = 0;
             vz = 0;
         }
-        if (glfwGetKey(renderer.window, 'X')) {
+        if (glfwGetKey(window, 'X')) {
             vx = 1;
             vy = 0;
             vz = 0;
         }
-        if (glfwGetKey(renderer.window, 'C')) {
+        if (glfwGetKey(window, 'C')) {
             vx = 0;
             vy = -1;
             vz = 0;
         }
-        if (glfwGetKey(renderer.window, 'V')) {
+        if (glfwGetKey(window, 'V')) {
             vx = 0;
             vy = 1;
             vz = 0;
         }
-        if (glfwGetKey(renderer.window, 'B')) {
+        if (glfwGetKey(window, 'B')) {
             vx = 0;
             vy = 0;
             vz = -1;
         }
-        if (glfwGetKey(renderer.window, 'N')) {
+        if (glfwGetKey(window, 'N')) {
             vx = 0;
             vy = 0;
             vz = 1;
@@ -387,7 +382,7 @@ int run(state_t loaded_state) {
         int q = floorf(roundf(state.z) / CHUNK_SIZE);
         ensure_chunks(chunks, &chunk_count, p, q, 0);
 
-        render(chunks, chunk_count, &state, &renderer);
+        render(chunks, chunk_count, &state, &renderer, window, width, height);
 
     }
     // db_save_state(state.x, state.y, state.z, state.rx, state.ry);
@@ -395,77 +390,18 @@ int run(state_t loaded_state) {
     destroy_renderer(&renderer);
 }
 
-int init_renderer(renderer_t* renderer) {
-    if (!glfwInit()) {
-        return -1;
-    }
-    // Инициализация окна
-    renderer->window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, NULL, NULL);
-    if (!renderer->window) {
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(renderer->window);
-    glfwSwapInterval(VSYNC);
-    glfwSetInputMode(renderer->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetKeyCallback(renderer->window, on_key);
-    glfwSetMouseButtonCallback(renderer->window, on_mouse_button);
-    glfwSetScrollCallback(renderer->window, on_scroll);
-
-    if (glewInit() != GLEW_OK) {
-        return -1;
-    }
-
-    // Инициализация opengl: настройка, текстуры, шейдеры etc.
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LINE_SMOOTH);
-    glLogicOp(GL_INVERT);
-    glClearColor(0.53, 0.81, 0.92, 1.00);
-
-    GLuint vertex_array;
-    glGenVertexArrays(1, &vertex_array);
-    glBindVertexArray(vertex_array);
-
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    load_png_texture("texture/texture.png");
-
-    renderer->block_program = load_GPU_program(
-            "shaders/block_vertex.glsl", "shaders/block_fragment.glsl");
-    renderer->matrix_loc = glGetUniformLocation(renderer->block_program, "matrix");
-    renderer->camera_loc = glGetUniformLocation(renderer->block_program, "camera");
-    renderer->sampler_loc = glGetUniformLocation(renderer->block_program, "sampler");
-    renderer->timer_loc = glGetUniformLocation(renderer->block_program, "timer");
-    renderer->position_loc = glGetAttribLocation(renderer->block_program, "position");
-    renderer->normal_loc = glGetAttribLocation(renderer->block_program, "normal");
-    renderer->uv_loc = glGetAttribLocation(renderer->block_program, "uv");
-
-    renderer->line_program = load_GPU_program(
-            "shaders/line_vertex.glsl", "shaders/line_fragment.glsl");
-    renderer->line_matrix_loc = glGetUniformLocation(renderer->line_program, "matrix");
-    renderer->line_position_loc = glGetAttribLocation(renderer->line_program, "position");
-
-    renderer->item_position_buffer = 0;
-    renderer->item_normal_buffer = 0;
-    renderer->item_uv_buffer = 0;
-
-    glfwGetWindowSize(renderer->window, &renderer->width, &renderer->height);
-}
-
-int render(Chunk* chunks, int chunk_count, state_t* state, renderer_t* renderer) {
+int render(
+    Chunk* chunks, int chunk_count, state_t* state,
+    renderer_t* renderer, GLFWwindow* window, int width, int height
+) {
     int p = floorf(roundf(state->x) / CHUNK_SIZE);
     int q = floorf(roundf(state->z) / CHUNK_SIZE);
-    int ortho = glfwGetKey(renderer->window, 'F');
-    int fov = glfwGetKey(renderer->window, GLFW_KEY_LEFT_SHIFT) ? 15.0 : 65.0;
+    int ortho = glfwGetKey(window, 'F');
+    int fov = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 15.0 : 65.0;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     matrix_update_3d(
-        renderer->matrix, renderer->width, renderer->height,
+        renderer->matrix, width, height,
         state->x, state->y, state->z, state->rx, state->ry,
         fov, ortho);
 
@@ -503,20 +439,20 @@ int render(Chunk* chunks, int chunk_count, state_t* state, renderer_t* renderer)
         glDisable(GL_COLOR_LOGIC_OP);
     }
 
-    matrix_update_2d(renderer->matrix, renderer->width, renderer->height);
+    matrix_update_2d(renderer->matrix, width, height);
 
     // render crosshairs
     glUseProgram(renderer->line_program);
     glLineWidth(4);
     glEnable(GL_COLOR_LOGIC_OP);
     glUniformMatrix4fv(renderer->line_matrix_loc, 1, GL_FALSE, renderer->matrix);
-    GLuint buffer = make_line_buffer(renderer->width, renderer->height);
+    GLuint buffer = make_line_buffer(width, height);
     draw_lines(buffer, renderer->line_position_loc, 2, 4);
     glDeleteBuffers(1, &buffer);
     glDisable(GL_COLOR_LOGIC_OP);
 
     // render selected item
-    matrix_update_item(renderer->matrix, renderer->width, renderer->height);
+    matrix_update_item(renderer->matrix, width, height);
     if (block_type != previous_block_type) {
         previous_block_type = block_type;
         make_single_cube(
@@ -534,7 +470,7 @@ int render(Chunk* chunks, int chunk_count, state_t* state, renderer_t* renderer)
             renderer->position_loc, renderer->normal_loc, renderer->uv_loc);
     glEnable(GL_DEPTH_TEST);
 
-    glfwSwapBuffers(renderer->window);
+    glfwSwapBuffers(window);
 }
 
 void destroy_renderer(renderer_t* renderer) {
