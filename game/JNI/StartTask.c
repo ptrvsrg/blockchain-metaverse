@@ -19,6 +19,6 @@ JNIEXPORT void JNICALL Java_ru_nsu_sberlab_gameintegration_tasks_StartTask_start
     state.rx = (float)(*env)->CallFloatMethod(env, playerPosition, getRx);
     state.ry = (float)(*env)->CallFloatMethod(env, playerPosition, getRy);
     run(state);
-    queue_destroy(&in_blockchain_queue);
-    queue_destroy(&out_blockchain_queue);
+    queue_disable(&in_blockchain_queue);
+    queue_disable(&out_blockchain_queue);
 }
