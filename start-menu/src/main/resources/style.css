@@ -1,5 +1,5 @@
 .pane{
-    -fx-background-image: url("background.png");
+    -fx-background-image: url("background.jpg");
     -fx-background-repeat: stretch;
     -fx-background-size: cover;
     -fx-background-position: center center;
@@ -8,7 +8,7 @@
 
 .button {
     -jfx-button-type: RAISED;
-    -fx-background-color: #2dc9c9;
+    -fx-background-color: #ea8133;
     -fx-text-fill: WHITE;
     -fx-font-weight: BOLD;
     -fx-background-radius: 10px;
