@@ -12,7 +12,7 @@ void start_game(void) {
     // thrd_t blockchain_listen_thread;
     // thrd_create(&blockchain_listen_thread, out_queue_listener, NULL);
 
-    run();
+    // run();
     queue_disable(&in_blockchain_queue);
     queue_disable(&out_blockchain_queue);
 
