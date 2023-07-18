@@ -355,7 +355,7 @@ int run(state_t loaded_state) {
             state.x, state.y, state.z, state.rx, state.ry,
             renderer.fov, renderer.ortho);
 
-        render_chunks(chunks, chunk_count, &state, &renderer);
+        render_chunks(&renderer, chunks, chunk_count, &state);
 
         // get block that player is pointing to
         int block_x, block_y, block_z;
