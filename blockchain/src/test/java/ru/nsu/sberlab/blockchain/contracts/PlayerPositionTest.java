@@ -1,17 +1,18 @@
-package ru.nsu.sberlab.contracts.statecontract;
+package ru.nsu.sberlab.blockchain.contracts;
 
 import io.neow3j.transaction.exceptions.TransactionConfigurationException;
 import io.neow3j.types.ContractParameter;
 import io.neow3j.types.Hash160;
 import io.neow3j.wallet.Account;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
-import ru.nsu.sberlab.contracts.utils.NodeInteraction;
-import ru.nsu.sberlab.contracts.utils.Utils;
+import org.junit.jupiter.api.*;
+import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.NodeInteraction;
+import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.Utils;
+
+import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PlayerPositionTest {
 
     private static Account ownerAccount;
@@ -33,9 +34,12 @@ public class PlayerPositionTest {
     @Order(1)
     @Test
     public void deploy() throws Throwable {
+        HashMap<String, String> replaceMap = new HashMap<>(1);
+        replaceMap.put("Name", "test3");
+
         try {
             contractHash = nodeInteraction.deployContract(PlayerPositionContract.class.getCanonicalName(),
-                    ContractParameter.hash160(ownerAccount.getScriptHash()));
+                    ContractParameter.hash160(ownerAccount.getScriptHash()), replaceMap);
         } catch (TransactionConfigurationException e) {
             if (e.getMessage().contains("Contract Already Exists: ")) {
                 contractHash = new Hash160(e.getMessage().substring(e.getMessage().indexOf("Contract Already Exists: ")
@@ -50,17 +54,18 @@ public class PlayerPositionTest {
     @Test
     @Order(2)
     public void putGetTest() throws Throwable {
-        int[] cords = new int[3];
-        cords[0] = 1;
-        cords[1] = 2;
-        cords[2] = 3;
+        int[] cords = new int[5];
+
+        for (int i = 0; i < cords.length; i++) {
+            cords[i] = i + 1;
+        }
 
 
-        nodeInteraction.invokeFunctionInContract(contractHash, "putCords",
+        nodeInteraction.invokeFunctionInContract(contractHash, "putCords", ContractParameter.hash160(ownerAccount.getScriptHash()),
                 ContractParameter.byteArray(Utils.intArrayToByteArray(cords)));
 
         int[] result = Utils.byteArrayToIntArray(nodeInteraction.invokeFunctionInContract(contractHash,
-                "getCords").getByteArray());
+                "getCords", ContractParameter.hash160(ownerAccount.getScriptHash())).getByteArray());
 
         assertThat(result).containsExactly(cords);
     }
