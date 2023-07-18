@@ -11,7 +11,7 @@ import static java.lang.String.format;
  */
 public class BlockInfo {
     private static final int integerSize = 4;
-    public static final int BlockInfoByteSize = integerSize * 6;
+    public static final int BlockInfoByteSize = integerSize  + BlockCoordinates.BLOCK_COORDINATES_SIZE;
     private final int blockId;
     private BlockCoordinates coordinates;
 
