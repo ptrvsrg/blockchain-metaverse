@@ -1,4 +1,5 @@
 #include <math.h>
+#include <stdlib.h>
 
 #include "renderer.h"
 #include "util.h"
@@ -10,11 +11,14 @@
 
 static void draw_lines(GLuint buffer, GLuint position_loc, int size, int count);
 static void draw_chunk(Chunk *chunk, GLuint position_loc, GLuint normal_loc, GLuint uv_loc);
+static void draw_single_cube(GLuint position_buffer, GLuint normal_buffer, GLuint uv_buffer,
+                             GLuint position_loc, GLuint normal_loc, GLuint uv_loc);
 static int chunk_visible(Chunk *chunk, float *matrix);
 static GLuint make_cube_buffer(float x, float y, float z, float n);
 static GLuint make_line_buffer(int width, int height);
+static void make_single_cube(GLuint *position_buffer, GLuint *normal_buffer, GLuint *uv_buffer, int w);
 
-int init_renderer(renderer_t* renderer) {
+int init_renderer(renderer_t* renderer, GLFWwindow* window) {
     if (glewInit() != GLEW_OK) {
         return -1;
     }
@@ -56,6 +60,8 @@ int init_renderer(renderer_t* renderer) {
     renderer->item_position_buffer = 0;
     renderer->item_normal_buffer = 0;
     renderer->item_uv_buffer = 0;
+
+    glfwGetWindowSize(window, &renderer->width, &renderer->height);
 }
 
 void render_chunks(Chunk* chunks, int chunk_count, state_t* state, renderer_t* renderer) {
@@ -89,15 +95,33 @@ void render_wireframe(renderer_t* renderer, int hx, int hy, int hz) {
     glDisable(GL_COLOR_LOGIC_OP);
 }
 
-void render_crosshairs(renderer_t* renderer, int width, int height) {
+void render_crosshairs(renderer_t* renderer) {
     glUseProgram(renderer->line_program);
     glLineWidth(4);
     glEnable(GL_COLOR_LOGIC_OP);
     glUniformMatrix4fv(renderer->line_matrix_loc, 1, GL_FALSE, renderer->matrix);
-    GLuint buffer = make_line_buffer(width, height);
+    GLuint buffer = make_line_buffer(renderer->width, renderer->height);
     draw_lines(buffer, renderer->line_position_loc, 2, 4);
     glDeleteBuffers(1, &buffer);
     glDisable(GL_COLOR_LOGIC_OP);
+}
+
+void render_selected_item(renderer_t* renderer, int update_item, int block_type) {
+    if (update_item) {
+        make_single_cube(
+                &renderer->item_position_buffer, &renderer->item_normal_buffer, &renderer->item_uv_buffer,
+                block_type);
+    }
+    glUseProgram(renderer->block_program);
+    glUniformMatrix4fv(renderer->matrix_loc, 1, GL_FALSE, renderer->matrix);
+    glUniform3f(renderer->camera_loc, 0, 0, 5);
+    glUniform1i(renderer->sampler_loc, 0);
+    glUniform1f(renderer->timer_loc, glfwGetTime());
+    glDisable(GL_DEPTH_TEST);
+    draw_single_cube(
+            renderer->item_position_buffer, renderer->item_normal_buffer, renderer->item_uv_buffer,
+            renderer->position_loc, renderer->normal_loc, renderer->uv_loc);
+    glEnable(GL_DEPTH_TEST);
 }
 
 static void draw_chunk(Chunk *chunk, GLuint position_loc, GLuint normal_loc, GLuint uv_loc) {
@@ -166,4 +190,56 @@ static GLuint make_line_buffer(int width, int height) {
             GL_ARRAY_BUFFER, sizeof(data), data
     );
     return buffer;
+}
+
+static void draw_single_cube(GLuint position_buffer, GLuint normal_buffer, GLuint uv_buffer,
+                             GLuint position_loc, GLuint normal_loc, GLuint uv_loc) {
+    glEnableVertexAttribArray(position_loc);
+    glEnableVertexAttribArray(normal_loc);
+    glEnableVertexAttribArray(uv_loc);
+    glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
+    glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, normal_buffer);
+    glVertexAttribPointer(normal_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, uv_buffer);
+    glVertexAttribPointer(uv_loc, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glDrawArrays(GL_TRIANGLES, 0, 6 * 6);
+    glDisableVertexAttribArray(position_loc);
+    glDisableVertexAttribArray(normal_loc);
+    glDisableVertexAttribArray(uv_loc);
+}
+
+static void make_single_cube(GLuint *position_buffer, GLuint *normal_buffer, GLuint *uv_buffer, int w) {
+    int faces = 6;
+    glDeleteBuffers(1, position_buffer);
+    glDeleteBuffers(1, normal_buffer);
+    glDeleteBuffers(1, uv_buffer);
+    GLfloat *position_data = malloc(sizeof(GLfloat) * faces * 18);
+    GLfloat *normal_data = malloc(sizeof(GLfloat) * faces * 18);
+    GLfloat *uv_data = malloc(sizeof(GLfloat) * faces * 12);
+    make_cube(
+            position_data,
+            normal_data,
+            uv_data,
+            1, 1, 1, 1, 1, 1,
+            0, 0, 0, 0.5, w);
+    *position_buffer = make_buffer(
+            GL_ARRAY_BUFFER,
+            sizeof(GLfloat) * faces * 18,
+            position_data
+    );
+    *normal_buffer = make_buffer(
+            GL_ARRAY_BUFFER,
+            sizeof(GLfloat) * faces * 18,
+            normal_data
+    );
+    *uv_buffer = make_buffer(
+            GL_ARRAY_BUFFER,
+            sizeof(GLfloat) * faces * 12,
+            uv_data
+    );
+    free(position_data);
+    free(normal_data);
+    free(uv_data);
 }

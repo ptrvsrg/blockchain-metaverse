@@ -2,6 +2,7 @@
 #define _renderer_h_
 
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "chunk.h"
 #include "state.h"
 
@@ -13,10 +14,10 @@
 typedef struct renderer_t_s renderer_t;
 struct renderer_t_s {
     // GLFWwindow* window; /**< Окно для рендера. */
-    // int width; /**< Ширина окна. */
-    // int height;
-    // float fov;
-    // int ortho;
+    int width; /**< Ширина окна. */
+    int height;
+    float fov;
+    int ortho;
     GLuint block_program; /**< Индекс для программы шейдера блоков */
     GLuint matrix_loc;
     GLuint camera_loc;
@@ -34,12 +35,14 @@ struct renderer_t_s {
     float matrix[16];
 };
 
-int init_renderer(renderer_t* renderer);
+int init_renderer(renderer_t* renderer, GLFWwindow* window);
 
 void render_chunks(Chunk* chunks, int chunk_count, state_t* state, renderer_t* renderer);
 
 void render_wireframe(renderer_t* renderer, int hx, int hy, int hz);
 
-void render_crosshairs(renderer_t* renderer, int width, int height);
+void render_crosshairs(renderer_t* renderer);
+
+void render_selected_item(renderer_t* renderer, int update_item, int block_type);
 
 #endif // _renderer_h_

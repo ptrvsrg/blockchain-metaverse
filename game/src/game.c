@@ -73,9 +73,6 @@ static int player_intersects_block(int height, float x, float y, float z, int hx
  * @param q координата чанка
 */
 static void make_world(Map *map, int p, int q);
-static void make_single_cube(GLuint *position_buffer, GLuint *normal_buffer, GLuint *uv_buffer, int w);
-static void draw_single_cube(GLuint position_buffer, GLuint normal_buffer, GLuint uv_buffer,
-                             GLuint position_loc, GLuint normal_loc, GLuint uv_loc);
 static void exposed_faces(Map *map, int x, int y, int z, int *f1, int *f2, int *f3, int *f4, int *f5, int *f6);
 /**
  * @brief Обновляет чанк (информацию для рендера)
@@ -155,7 +152,7 @@ static int player_intersects_obstacle(Chunk *chunks, int chunk_count, int height
 
 static int render(
     Chunk* chunks, int chunck_count, state_t* state,
-    renderer_t* renderer, GLFWwindow* window, int width, int height
+    renderer_t* renderer, GLFWwindow* window
 );
 
 static void destroy_renderer(renderer_t* renderer);
@@ -189,15 +186,11 @@ int run(state_t loaded_state) {
     glfwSetMouseButtonCallback(window, on_mouse_button);
     glfwSetScrollCallback(window, on_scroll);
 
-    int width;
-    int height;
-    glfwGetWindowSize(window, &width, &height);
-
     Chunk chunks[MAX_CHUNKS];
     int chunk_count = 0;
 
     renderer_t renderer;
-    if (-1 == init_renderer(&renderer)) {
+    if (-1 == init_renderer(&renderer, window)) {
         return -1;
     }
     
@@ -357,28 +350,27 @@ int run(state_t loaded_state) {
         int q = floorf(roundf(state.z) / CHUNK_SIZE);
         ensure_chunks(chunks, &chunk_count, p, q, 0);
 
-        render(chunks, chunk_count, &state, &renderer, window, width, height);
-
+        renderer.ortho = glfwGetKey(window, 'F');
+        renderer.fov = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 15.0 : 65.0;
+        render(chunks, chunk_count, &state, &renderer, window);
+        glfwSwapBuffers(window);
     }
     // db_save_state(state.x, state.y, state.z, state.rx, state.ry);
     db_close();
     destroy_renderer(&renderer);
+    glfwTerminate();
 }
 
 int render(
     Chunk* chunks, int chunk_count, state_t* state,
-    renderer_t* renderer, GLFWwindow* window, int width, int height
+    renderer_t* renderer, GLFWwindow* window
 ) {
-    int p = floorf(roundf(state->x) / CHUNK_SIZE);
-    int q = floorf(roundf(state->z) / CHUNK_SIZE);
-    int ortho = glfwGetKey(window, 'F');
-    int fov = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 15.0 : 65.0;
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    
     matrix_update_3d(
-        renderer->matrix, width, height,
+        renderer->matrix, renderer->width, renderer->height,
         state->x, state->y, state->z, state->rx, state->ry,
-        fov, ortho);
+        renderer->fov, renderer->ortho);
 
     render_chunks(chunks, chunk_count, state, renderer);
 
@@ -393,35 +385,19 @@ int render(
     }
 
     // render crosshairs
-    matrix_update_2d(renderer->matrix, width, height);
-    render_crosshairs(renderer, width, height);
+    matrix_update_2d(renderer->matrix, renderer->width, renderer->height);
+    render_crosshairs(renderer);
 
     // render selected item
-    matrix_update_item(renderer->matrix, width, height);
+    matrix_update_item(renderer->matrix, renderer->width, renderer->height);
     if (block_type != previous_block_type) {
         previous_block_type = block_type;
-        make_single_cube(
-                &renderer->item_position_buffer, &renderer->item_normal_buffer, &renderer->item_uv_buffer,
-                block_type);
+        render_selected_item(renderer, 1, block_type);
     }
-    glUseProgram(renderer->block_program);
-    glUniformMatrix4fv(renderer->matrix_loc, 1, GL_FALSE, renderer->matrix);
-    glUniform3f(renderer->camera_loc, 0, 0, 5);
-    glUniform1i(renderer->sampler_loc, 0);
-    glUniform1f(renderer->timer_loc, glfwGetTime());
-    glDisable(GL_DEPTH_TEST);
-    draw_single_cube(
-            renderer->item_position_buffer, renderer->item_normal_buffer, renderer->item_uv_buffer,
-            renderer->position_loc, renderer->normal_loc, renderer->uv_loc);
-    glEnable(GL_DEPTH_TEST);
-
-    glfwSwapBuffers(window);
+    else {
+        render_selected_item(renderer, 0, block_type);
+    }
 }
-
-void destroy_renderer(renderer_t* renderer) {
-    glfwTerminate();
-}
-
 
 
 static void on_key(GLFWwindow *window, int key, int scancode, int action, int mods) {
@@ -716,58 +692,6 @@ static void make_world(Map *map, int p, int q) {
             }
         }
     }
-}
-
-static void make_single_cube(GLuint *position_buffer, GLuint *normal_buffer, GLuint *uv_buffer, int w) {
-    int faces = 6;
-    glDeleteBuffers(1, position_buffer);
-    glDeleteBuffers(1, normal_buffer);
-    glDeleteBuffers(1, uv_buffer);
-    GLfloat *position_data = malloc(sizeof(GLfloat) * faces * 18);
-    GLfloat *normal_data = malloc(sizeof(GLfloat) * faces * 18);
-    GLfloat *uv_data = malloc(sizeof(GLfloat) * faces * 12);
-    make_cube(
-            position_data,
-            normal_data,
-            uv_data,
-            1, 1, 1, 1, 1, 1,
-            0, 0, 0, 0.5, w);
-    *position_buffer = make_buffer(
-            GL_ARRAY_BUFFER,
-            sizeof(GLfloat) * faces * 18,
-            position_data
-    );
-    *normal_buffer = make_buffer(
-            GL_ARRAY_BUFFER,
-            sizeof(GLfloat) * faces * 18,
-            normal_data
-    );
-    *uv_buffer = make_buffer(
-            GL_ARRAY_BUFFER,
-            sizeof(GLfloat) * faces * 12,
-            uv_data
-    );
-    free(position_data);
-    free(normal_data);
-    free(uv_data);
-}
-
-static void draw_single_cube(GLuint position_buffer, GLuint normal_buffer, GLuint uv_buffer,
-                             GLuint position_loc, GLuint normal_loc, GLuint uv_loc) {
-    glEnableVertexAttribArray(position_loc);
-    glEnableVertexAttribArray(normal_loc);
-    glEnableVertexAttribArray(uv_loc);
-    glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
-    glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, normal_buffer);
-    glVertexAttribPointer(normal_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, uv_buffer);
-    glVertexAttribPointer(uv_loc, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDrawArrays(GL_TRIANGLES, 0, 6 * 6);
-    glDisableVertexAttribArray(position_loc);
-    glDisableVertexAttribArray(normal_loc);
-    glDisableVertexAttribArray(uv_loc);
 }
 
 static void exposed_faces(Map *map, int x, int y, int z, int *f1, int *f2, int *f3, int *f4, int *f5, int *f6) {
