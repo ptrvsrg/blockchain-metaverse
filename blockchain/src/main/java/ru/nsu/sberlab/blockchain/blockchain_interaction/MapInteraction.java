@@ -11,6 +11,7 @@ import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.StateContractA
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.BlockInfo;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.Coordinates;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.NodeInteraction;
+import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.PlayerCoordinates;
 import ru.nsu.sberlab.blockchain.contracts.MapChangesContract;
 import ru.nsu.sberlab.blockchain.contracts.PlayerPositionContract;
 
@@ -158,7 +159,7 @@ public class MapInteraction {
      * @param coordinates координаты
      * @throws Throwable бросается в случае если не получается вызвать функцию putCords контракта
      */
-    public void putPlayerCoordinates(Coordinates coordinates) throws Throwable {
+    public void putPlayerCoordinates(PlayerCoordinates coordinates) throws Throwable {
 
 
         nodeInteraction.invokeFunctionInContract(stateContractHash, PUT_COORDINATES, ContractParameter.hash160(nodeInteraction.getAccount().getScriptHash()),
@@ -171,8 +172,8 @@ public class MapInteraction {
      * @return координаты игрока
      * @throws Throwable бросается в случае если не получается вызвать функцию getCords контракта
      */
-    public Coordinates getCoordinates() throws Throwable {
-        return new Coordinates(nodeInteraction.invokeFunctionInContract(stateContractHash, GET_COORDINATES,
+    public PlayerCoordinates getCoordinates() throws Throwable {
+        return new PlayerCoordinates(nodeInteraction.invokeFunctionInContract(stateContractHash, GET_COORDINATES,
                 ContractParameter.hash160(nodeInteraction.getAccount().getScriptHash())).getByteArray());
     }
 

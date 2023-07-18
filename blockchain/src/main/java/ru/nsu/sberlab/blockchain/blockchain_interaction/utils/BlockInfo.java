@@ -10,12 +10,10 @@ import static java.lang.String.format;
  * Класс BlockInfo нужен для хранения состояния блока.
  */
 public class BlockInfo {
-    private Coordinates coordinates;
-    private final int blockId;
-
     private static final int integerSize = 4;
-
     public static final int BlockInfoByteSize = integerSize * 6;
+    private final int blockId;
+    private BlockCoordinates coordinates;
 
     /**
      * @param serializedObject массив из 24 байт в котором по порядку лежит байтовое представление: coordinates, blockId
@@ -24,18 +22,18 @@ public class BlockInfo {
         if (serializedObject.length != BlockInfoByteSize)
             throw new Exception(format("input serializedObject size must be %d", BlockInfoByteSize));
 
-        coordinates = new Coordinates(Arrays.copyOfRange(serializedObject, 0, 20));
+        coordinates = new BlockCoordinates(Arrays.copyOfRange(serializedObject, 0, 20));
         blockId = Utils.byteToInt(serializedObject, 20);
     }
 
 
-    public BlockInfo(Coordinates coordinates, int blockId) {
+    public BlockInfo(BlockCoordinates coordinates, int blockId) {
         this.coordinates = coordinates;
         this.blockId = blockId;
     }
 
     public BlockInfo(int chunkX, int chunkY, int x, int y, int z, int blockId) {
-        coordinates = new Coordinates(chunkX, chunkY, x, y, z);
+        coordinates = new BlockCoordinates(chunkX, chunkY, x, y, z);
         this.blockId = blockId;
     }
 
@@ -54,24 +52,19 @@ public class BlockInfo {
                 blockInformationByteRepresentation.length / BlockInfoByteSize);
 
         for (int i = 0; i < blockInformationByteRepresentation.length / BlockInfoByteSize; i++) {
-            resultArray.add(new BlockInfo(Utils.byteToInt(blockInformationByteRepresentation, i * BlockInfoByteSize),
-                    Utils.byteToInt(blockInformationByteRepresentation, i * BlockInfoByteSize + 4),
-                    Utils.byteToInt(blockInformationByteRepresentation, i * BlockInfoByteSize + 8),
-                    Utils.byteToInt(blockInformationByteRepresentation, i * BlockInfoByteSize + 12),
-                    Utils.byteToInt(blockInformationByteRepresentation, i * BlockInfoByteSize + 16),
+            resultArray.add(new BlockInfo(new BlockCoordinates(
+                    Arrays.copyOfRange(blockInformationByteRepresentation, i * BlockInfoByteSize, i * BlockInfoByteSize + 20)),
                     Utils.byteToInt(blockInformationByteRepresentation, i * BlockInfoByteSize + 20)));
         }
         return resultArray;
 
     }
 
-    /**
-     * @return возвращает байтовое представление полей объекта в порядке: chunkX, chunkY, x, y, z, blockId
-     */
+
     public byte[] serialize() {
         byte[] bytes = new byte[BlockInfoByteSize];
 
-        System.arraycopy(coordinates.serialize(), 0, bytes, 0, Coordinates.COORDINATES_BYTE_SIZE);
+        System.arraycopy(coordinates.serialize(), 0, bytes, 0, BlockCoordinates.BLOCK_COORDINATES_SIZE);
         Utils.intToByte(bytes, 20, blockId);
 
         return bytes;
@@ -98,11 +91,11 @@ public class BlockInfo {
         return Objects.hash(coordinates, blockId);
     }
 
-    public Coordinates getCoordinates() {
+    public BlockCoordinates getCoordinates() {
         return coordinates;
     }
 
-    public void setCoordinates(Coordinates coordinates) {
+    public void setCoordinates(BlockCoordinates coordinates) {
         this.coordinates = coordinates;
     }
 
