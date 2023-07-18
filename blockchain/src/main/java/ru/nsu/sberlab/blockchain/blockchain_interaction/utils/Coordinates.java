@@ -5,44 +5,43 @@ import java.util.Objects;
 import static java.lang.String.format;
 
 /**
- * Класс для представления координат в майнкрафте.
+ * Класс для представления координат.
  */
 public class Coordinates {
 
-    public static final int COORDINATES_BYTE_SIZE = 4 * 5;
-    private int chunkX;
-    private int chunkY;
+    public static final int COORDINATES_BYTE_SIZE = 4 * 3;
 
     private int x;
     private int y;
     private int z;
 
+    /**
+     * @return байтовое представление в порядке: x, y, z
+     */
     public byte[] serialize() {
         byte[] bytes = new byte[COORDINATES_BYTE_SIZE];
 
-        Utils.intToByte(bytes, 0, chunkX);
-        Utils.intToByte(bytes, 4, chunkY);
-        Utils.intToByte(bytes, 8, x);
-        Utils.intToByte(bytes, 12, y);
-        Utils.intToByte(bytes, 16, z);
+        Utils.intToByte(bytes, 0, x);
+        Utils.intToByte(bytes, 4, y);
+        Utils.intToByte(bytes, 8, z);
 
         return bytes;
     }
 
+    /**
+     * @param serializedObject массив из 12 байт, в котором по порядку идут: x, y, z
+     * @throws Exception если массив некорректного размера
+     */
     public Coordinates(byte[] serializedObject) throws Exception {
         if (serializedObject.length != COORDINATES_BYTE_SIZE)
             throw new Exception(format("input array size must be %d", COORDINATES_BYTE_SIZE));
 
-        chunkX = Utils.byteToInt(serializedObject, 0);
-        chunkY = Utils.byteToInt(serializedObject, 4);
-        x = Utils.byteToInt(serializedObject, 8);
-        y = Utils.byteToInt(serializedObject, 12);
-        z = Utils.byteToInt(serializedObject, 16);
+        x = Utils.byteToInt(serializedObject, 0);
+        y = Utils.byteToInt(serializedObject, 4);
+        z = Utils.byteToInt(serializedObject, 8);
     }
 
-    public Coordinates(int chunkX, int chunkY, int x, int y, int z) {
-        this.chunkX = chunkX;
-        this.chunkY = chunkY;
+    public Coordinates(int x, int y, int z) {
         this.x = x;
         this.y = y;
         this.z = z;
@@ -52,9 +51,7 @@ public class Coordinates {
     @Override
     public String toString() {
         return "Coordinates{" +
-                "chunkX=" + chunkX +
-                ", chunkY=" + chunkY +
-                ", x=" + x +
+                "x=" + x +
                 ", y=" + y +
                 ", z=" + z +
                 '}';
@@ -65,29 +62,14 @@ public class Coordinates {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Coordinates that = (Coordinates) o;
-        return chunkX == that.chunkX && chunkY == that.chunkY && x == that.x && y == that.y && z == that.z;
+        return x == that.x && y == that.y && z == that.z;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(chunkX, chunkY, x, y, z);
+        return Objects.hash(x, y, z);
     }
 
-    public int getChunkX() {
-        return chunkX;
-    }
-
-    public void setChunkX(int chunkX) {
-        this.chunkX = chunkX;
-    }
-
-    public int getChunkY() {
-        return chunkY;
-    }
-
-    public void setChunkY(int chunkY) {
-        this.chunkY = chunkY;
-    }
 
     public int getX() {
         return x;

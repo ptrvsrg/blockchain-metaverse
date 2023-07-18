@@ -5,6 +5,7 @@ import org.junit.jupiter.api.*;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.BlockChainException;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.BlockInfo;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.Coordinates;
+import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.PlayerCoordinates;
 
 import java.util.ArrayList;
 
@@ -76,7 +77,7 @@ public class MapInteractionTest {
     @Order(4)
     @Test
     public void putGetCordsTest() throws Throwable {
-        Coordinates cords = new Coordinates(1, 223, 444, 123, 4);
+        PlayerCoordinates cords = new PlayerCoordinates(1, 223, 444, 123, 4);
 
         mapInteraction.putPlayerCoordinates(cords);
 
