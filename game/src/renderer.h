@@ -2,6 +2,8 @@
 #define _renderer_h_
 
 #include <GL/glew.h>
+#include "chunk.h"
+#include "state.h"
 
 /**
  * @brief Структура, содержащая данные для рендеринга.
@@ -11,8 +13,10 @@
 typedef struct renderer_t_s renderer_t;
 struct renderer_t_s {
     // GLFWwindow* window; /**< Окно для рендера. */
-    // int width;
+    // int width; /**< Ширина окна. */
     // int height;
+    // float fov;
+    // int ortho;
     GLuint block_program; /**< Индекс для программы шейдера блоков */
     GLuint matrix_loc;
     GLuint camera_loc;
@@ -31,5 +35,7 @@ struct renderer_t_s {
 };
 
 int init_renderer(renderer_t* renderer);
+
+void render_chunks(Chunk* chunks, int chunk_count, state_t* state, renderer_t* renderer);
 
 #endif // _renderer_h_

@@ -12,21 +12,9 @@
 #include "util.h"
 #include "renderer.h"
 #include "sync_queue.h"
+#include "chunk.h"
 
 state_t state;
-
-/**
- * @struct Структура представляющая информацию для рендера чанка
-*/
-typedef struct {
-    Map map; /**< карта чанка */
-    int p; /**< координата p чанка */
-    int q; /**< координата q чанка */
-    int faces; /**< информация для рендера */
-    GLuint position_buffer; /**< информация для рендера */
-    GLuint normal_buffer; /**< информация для рендера */
-    GLuint uv_buffer; /**< информация для рендера */
-} Chunk;
 
 // Используются в callback'ах, которые вызывает OpenGL, поэтому глобальные
 static int exclusive = 1; /**< kinda focus on game window */
@@ -53,15 +41,6 @@ static void get_motion_vector(int sz, int sx, float rx, float ry, float *vx, flo
  * @result найденный чанк или NULL, если чанк не был найден
 */
 static Chunk *find_chunk(Chunk *chunks, int chunk_count, int p, int q);
-/**
- * @brief Расстояние между чанком и положением игрока (p, q)
- * 
- * @param chunk чанк
- * @param p координата чанка игрока
- * @param q координата чанка игрока
-*/
-static int chunk_distance(Chunk *chunk, int p, int q);
-static int chunk_visible(Chunk *chunk, float *matrix);
 /**
  * @brief Возвращет высоту самого высокого блока по координатам плоскости (x, z)
  * 
@@ -115,7 +94,6 @@ static void update_chunk(Chunk *chunk);
  * @param q координата чанка
 */
 static void make_chunk(Chunk *chunk, int p, int q);
-static void draw_chunk(Chunk *chunk, GLuint position_loc, GLuint normal_loc, GLuint uv_loc);
 static void draw_lines(GLuint buffer, GLuint position_loc, int size, int count);
 /**
  * @brief обновляет чанки вокруг игрока, deletes far chuncks and creates new ones
@@ -405,22 +383,7 @@ int render(
         state->x, state->y, state->z, state->rx, state->ry,
         fov, ortho);
 
-    // render chunks
-    glUseProgram(renderer->block_program);
-    glUniformMatrix4fv(renderer->matrix_loc, 1, GL_FALSE, renderer->matrix);
-    glUniform3f(renderer->camera_loc, state->x, state->y, state->z);
-    glUniform1i(renderer->sampler_loc, 0);
-    glUniform1f(renderer->timer_loc, glfwGetTime());
-    for (int i = 0; i < chunk_count; i++) {
-        Chunk *chunk = chunks + i;
-        if (chunk_distance(chunk, p, q) > RENDER_CHUNK_RADIUS) {
-            continue;
-        }
-        if (!chunk_visible(chunk, renderer->matrix)) {
-            continue;
-        }
-        draw_chunk(chunk, renderer->position_loc, renderer->normal_loc, renderer->uv_loc);
-    }
+    render_chunks(chunks, chunk_count, state, renderer);
 
     // render focused block wireframe
     int hx, hy, hz;
@@ -574,31 +537,6 @@ static Chunk *find_chunk(Chunk *chunks, int chunk_count, int p, int q) {
         Chunk *chunk = chunks + i;
         if (chunk->p == p && chunk->q == q) {
             return chunk;
-        }
-    }
-    return 0;
-}
-
-static int chunk_distance(Chunk *chunk, int p, int q) {
-    int dp = ABS(chunk->p - p);
-    int dq = ABS(chunk->q - q);
-    return MAX(dp, dq);
-}
-
-static int chunk_visible(Chunk *chunk, float *matrix) {
-    for (int dp = 0; dp <= 1; dp++) {
-        for (int dq = 0; dq <= 1; dq++) {
-            for (int y = 0; y < 128; y += 16) {
-                float vec[4] = {
-                        (chunk->p + dp) * CHUNK_SIZE - dp,
-                        y,
-                        (chunk->q + dq) * CHUNK_SIZE - dq,
-                        1};
-                vector_multiply(vec, matrix, vec);
-                if (vec[3] >= 0) {
-                    return 1;
-                }
-            }
         }
     }
     return 0;
@@ -966,23 +904,6 @@ static void make_chunk(Chunk *chunk, int p, int q) {
     db_update_chunk(map, p, q);
     // обновляет информацию для рендера
     update_chunk(chunk);
-}
-
-static void draw_chunk(Chunk *chunk, GLuint position_loc, GLuint normal_loc, GLuint uv_loc) {
-    glEnableVertexAttribArray(position_loc);
-    glEnableVertexAttribArray(normal_loc);
-    glEnableVertexAttribArray(uv_loc);
-    glBindBuffer(GL_ARRAY_BUFFER, chunk->position_buffer);
-    glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, chunk->normal_buffer);
-    glVertexAttribPointer(normal_loc, 3, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, chunk->uv_buffer);
-    glVertexAttribPointer(uv_loc, 2, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDrawArrays(GL_TRIANGLES, 0, chunk->faces * 6);
-    glDisableVertexAttribArray(position_loc);
-    glDisableVertexAttribArray(normal_loc);
-    glDisableVertexAttribArray(uv_loc);
 }
 
 static void draw_lines(GLuint buffer, GLuint position_loc, int size, int count) {
