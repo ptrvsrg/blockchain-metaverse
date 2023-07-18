@@ -62,9 +62,11 @@ int init_renderer(renderer_t* renderer, GLFWwindow* window) {
     renderer->item_uv_buffer = 0;
 
     glfwGetWindowSize(window, &renderer->width, &renderer->height);
+
+    return 0;
 }
 
-void render_chunks(Chunk* chunks, int chunk_count, state_t* state, renderer_t* renderer) {
+void render_chunks(renderer_t* renderer, Chunk* chunks, int chunk_count, state_t* state) {
     int p = floorf(roundf(state->x) / CHUNK_SIZE);
     int q = floorf(roundf(state->z) / CHUNK_SIZE);
     glUseProgram(renderer->block_program);
