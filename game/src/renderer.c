@@ -69,6 +69,10 @@ int init_renderer(renderer_t* renderer, GLFWwindow* window) {
 void render_chunks(renderer_t* renderer, Chunk* chunks, int chunk_count, state_t* state) {
     int p = floorf(roundf(state->x) / CHUNK_SIZE);
     int q = floorf(roundf(state->z) / CHUNK_SIZE);
+    matrix_update_3d(
+            renderer->matrix, renderer->width, renderer->height,
+            state->x, state->y, state->z, state->rx, state->ry,
+            renderer->fov, renderer->ortho);
     glUseProgram(renderer->block_program);
     glUniformMatrix4fv(renderer->matrix_loc, 1, GL_FALSE, renderer->matrix);
     glUniform3f(renderer->camera_loc, state->x, state->y, state->z);
@@ -86,7 +90,11 @@ void render_chunks(renderer_t* renderer, Chunk* chunks, int chunk_count, state_t
     }
 }
 
-void render_wireframe(renderer_t* renderer, int hx, int hy, int hz) {
+void render_wireframe(renderer_t* renderer, state_t* state, int hx, int hy, int hz) {
+    matrix_update_3d(
+            renderer->matrix, renderer->width, renderer->height,
+            state->x, state->y, state->z, state->rx, state->ry,
+            renderer->fov, renderer->ortho);
     glUseProgram(renderer->line_program);
     glLineWidth(1);
     glEnable(GL_COLOR_LOGIC_OP);
@@ -98,6 +106,7 @@ void render_wireframe(renderer_t* renderer, int hx, int hy, int hz) {
 }
 
 void render_crosshairs(renderer_t* renderer) {
+    matrix_update_2d(renderer->matrix, renderer->width, renderer->height);
     glUseProgram(renderer->line_program);
     glLineWidth(4);
     glEnable(GL_COLOR_LOGIC_OP);
@@ -109,6 +118,7 @@ void render_crosshairs(renderer_t* renderer) {
 }
 
 void render_selected_item(renderer_t* renderer, int update_item, int block_type) {
+    matrix_update_item(renderer->matrix, renderer->width, renderer->height);
     if (update_item) {
         make_single_cube(
                 &renderer->item_position_buffer, &renderer->item_normal_buffer, &renderer->item_uv_buffer,

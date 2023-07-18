@@ -349,12 +349,6 @@ int run(state_t loaded_state) {
         // Rendering
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // applies player's state changes
-        matrix_update_3d(
-            renderer.matrix, renderer.width, renderer.height,
-            state.x, state.y, state.z, state.rx, state.ry,
-            renderer.fov, renderer.ortho);
-
         render_chunks(&renderer, chunks, chunk_count, &state);
 
         // get block that player is pointing to
@@ -364,15 +358,13 @@ int run(state_t loaded_state) {
             state.x, state.y, state.z, state.rx, state.ry,
             &block_x, &block_y, &block_z);
         if (is_obstacle(block_w)) {
-            render_wireframe(&renderer, block_x, block_y, block_z);
+            render_wireframe(&renderer, &state, block_x, block_y, block_z);
         }
 
         // updates matrix to draw GUI crosshairs
-        matrix_update_2d(renderer.matrix, renderer.width, renderer.height);
         render_crosshairs(&renderer);
 
         // updates matrix to drow selected item
-        matrix_update_item(renderer.matrix, renderer.width, renderer.height);
         if (block_type != previous_block_type) {
             previous_block_type = block_type;
             render_selected_item(&renderer, 1, block_type);

@@ -60,11 +60,12 @@ void render_chunks(renderer_t* renderer, Chunk* chunks, int chunk_count, state_t
  * @brief Рисует wireframe блока.
  * 
  * @param renderer указатель на структуру с данными для рендеринга.
+ * @param state указатель на состояние игрока.
  * @param bx координата x блока.
  * @param by координата y блока.
  * @param bz координата z блока.
 */
-void render_wireframe(renderer_t* renderer, int bx, int by, int bz);
+void render_wireframe(renderer_t* renderer, state_t* state, int hx, int hy, int hz);
 
 /**
  * @brief Рисует перекрестие.
