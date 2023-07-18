@@ -40,4 +40,6 @@ void render_chunks(Chunk* chunks, int chunk_count, state_t* state, renderer_t* r
 
 void render_wireframe(renderer_t* renderer, int hx, int hy, int hz);
 
+void render_crosshairs(renderer_t* renderer, int width, int height);
+
 #endif // _renderer_h_

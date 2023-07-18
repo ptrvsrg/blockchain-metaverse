@@ -26,7 +26,6 @@ static int previous_block_type = 0; /**< тип предыдущего блок�
 static void on_key(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void on_mouse_button(GLFWwindow *window, int button, int action, int mods);
 static void on_scroll(GLFWwindow *window, double xdelta, double ydelta);
-static GLuint make_line_buffer(int width, int height);
 static void get_sight_vector(float rx, float ry, float *vx, float *vy, float *vz);
 static void get_motion_vector(int sz, int sx, float rx, float ry, float *vx, float *vy, float *vz);
 /**
@@ -93,7 +92,6 @@ static void update_chunk(Chunk *chunk);
  * @param q координата чанка
 */
 static void make_chunk(Chunk *chunk, int p, int q);
-static void draw_lines(GLuint buffer, GLuint position_loc, int size, int count);
 /**
  * @brief обновляет чанки вокруг игрока, deletes far chuncks and creates new ones
  * 
@@ -394,17 +392,9 @@ int render(
         render_wireframe(renderer, hx, hy, hz);
     }
 
-    matrix_update_2d(renderer->matrix, width, height);
-
     // render crosshairs
-    glUseProgram(renderer->line_program);
-    glLineWidth(4);
-    glEnable(GL_COLOR_LOGIC_OP);
-    glUniformMatrix4fv(renderer->line_matrix_loc, 1, GL_FALSE, renderer->matrix);
-    GLuint buffer = make_line_buffer(width, height);
-    draw_lines(buffer, renderer->line_position_loc, 2, 4);
-    glDeleteBuffers(1, &buffer);
-    glDisable(GL_COLOR_LOGIC_OP);
+    matrix_update_2d(renderer->matrix, width, height);
+    render_crosshairs(renderer, width, height);
 
     // render selected item
     matrix_update_item(renderer->matrix, width, height);
@@ -887,15 +877,6 @@ static void make_chunk(Chunk *chunk, int p, int q) {
     db_update_chunk(map, p, q);
     // обновляет информацию для рендера
     update_chunk(chunk);
-}
-
-static void draw_lines(GLuint buffer, GLuint position_loc, int size, int count) {
-    glEnableVertexAttribArray(position_loc);
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glVertexAttribPointer(position_loc, size, GL_FLOAT, GL_FALSE, 0, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glDrawArrays(GL_LINES, 0, count);
-    glDisableVertexAttribArray(position_loc);
 }
 
 static void ensure_chunks(Chunk *chunks, int *chunk_count, int p, int q, int force) {

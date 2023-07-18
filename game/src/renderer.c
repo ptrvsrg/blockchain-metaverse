@@ -12,6 +12,7 @@ static void draw_lines(GLuint buffer, GLuint position_loc, int size, int count);
 static void draw_chunk(Chunk *chunk, GLuint position_loc, GLuint normal_loc, GLuint uv_loc);
 static int chunk_visible(Chunk *chunk, float *matrix);
 static GLuint make_cube_buffer(float x, float y, float z, float n);
+static GLuint make_line_buffer(int width, int height);
 
 int init_renderer(renderer_t* renderer) {
     if (glewInit() != GLEW_OK) {
@@ -88,6 +89,17 @@ void render_wireframe(renderer_t* renderer, int hx, int hy, int hz) {
     glDisable(GL_COLOR_LOGIC_OP);
 }
 
+void render_crosshairs(renderer_t* renderer, int width, int height) {
+    glUseProgram(renderer->line_program);
+    glLineWidth(4);
+    glEnable(GL_COLOR_LOGIC_OP);
+    glUniformMatrix4fv(renderer->line_matrix_loc, 1, GL_FALSE, renderer->matrix);
+    GLuint buffer = make_line_buffer(width, height);
+    draw_lines(buffer, renderer->line_position_loc, 2, 4);
+    glDeleteBuffers(1, &buffer);
+    glDisable(GL_COLOR_LOGIC_OP);
+}
+
 static void draw_chunk(Chunk *chunk, GLuint position_loc, GLuint normal_loc, GLuint uv_loc) {
     glEnableVertexAttribArray(position_loc);
     glEnableVertexAttribArray(normal_loc);
@@ -136,6 +148,20 @@ static int chunk_visible(Chunk *chunk, float *matrix) {
 static GLuint make_cube_buffer(float x, float y, float z, float n) {
     float data[144];
     make_cube_wireframe(data, x, y, z, n);
+    GLuint buffer = make_buffer(
+            GL_ARRAY_BUFFER, sizeof(data), data
+    );
+    return buffer;
+}
+
+static GLuint make_line_buffer(int width, int height) {
+    int x = width / 2;
+    int y = height / 2;
+    int p = 10;
+    float data[] = {
+            x, y - p, x, y + p,
+            x - p, y, x + p, y
+    };
     GLuint buffer = make_buffer(
             GL_ARRAY_BUFFER, sizeof(data), data
     );
