@@ -6,9 +6,12 @@
 #include "chunk.h"
 #include "state.h"
 #include "matrix.h"
+#include "block.h"
 
+static void draw_lines(GLuint buffer, GLuint position_loc, int size, int count);
 static void draw_chunk(Chunk *chunk, GLuint position_loc, GLuint normal_loc, GLuint uv_loc);
 static int chunk_visible(Chunk *chunk, float *matrix);
+static GLuint make_cube_buffer(float x, float y, float z, float n);
 
 int init_renderer(renderer_t* renderer) {
     if (glewInit() != GLEW_OK) {
@@ -74,6 +77,17 @@ void render_chunks(Chunk* chunks, int chunk_count, state_t* state, renderer_t* r
     }
 }
 
+void render_wireframe(renderer_t* renderer, int hx, int hy, int hz) {
+    glUseProgram(renderer->line_program);
+    glLineWidth(1);
+    glEnable(GL_COLOR_LOGIC_OP);
+    glUniformMatrix4fv(renderer->line_matrix_loc, 1, GL_FALSE, renderer->matrix);
+    GLuint buffer = make_cube_buffer(hx, hy, hz, 0.51);
+    draw_lines(buffer, renderer->line_position_loc, 3, 48);
+    glDeleteBuffers(1, &buffer);
+    glDisable(GL_COLOR_LOGIC_OP);
+}
+
 static void draw_chunk(Chunk *chunk, GLuint position_loc, GLuint normal_loc, GLuint uv_loc) {
     glEnableVertexAttribArray(position_loc);
     glEnableVertexAttribArray(normal_loc);
@@ -89,6 +103,15 @@ static void draw_chunk(Chunk *chunk, GLuint position_loc, GLuint normal_loc, GLu
     glDisableVertexAttribArray(position_loc);
     glDisableVertexAttribArray(normal_loc);
     glDisableVertexAttribArray(uv_loc);
+}
+
+static void draw_lines(GLuint buffer, GLuint position_loc, int size, int count) {
+    glEnableVertexAttribArray(position_loc);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glVertexAttribPointer(position_loc, size, GL_FLOAT, GL_FALSE, 0, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glDrawArrays(GL_LINES, 0, count);
+    glDisableVertexAttribArray(position_loc);
 }
 
 static int chunk_visible(Chunk *chunk, float *matrix) {
@@ -108,4 +131,13 @@ static int chunk_visible(Chunk *chunk, float *matrix) {
         }
     }
     return 0;
+}
+
+static GLuint make_cube_buffer(float x, float y, float z, float n) {
+    float data[144];
+    make_cube_wireframe(data, x, y, z, n);
+    GLuint buffer = make_buffer(
+            GL_ARRAY_BUFFER, sizeof(data), data
+    );
+    return buffer;
 }

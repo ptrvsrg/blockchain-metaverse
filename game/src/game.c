@@ -27,7 +27,6 @@ static void on_key(GLFWwindow *window, int key, int scancode, int action, int mo
 static void on_mouse_button(GLFWwindow *window, int button, int action, int mods);
 static void on_scroll(GLFWwindow *window, double xdelta, double ydelta);
 static GLuint make_line_buffer(int width, int height);
-static GLuint make_cube_buffer(float x, float y, float z, float n);
 static void get_sight_vector(float rx, float ry, float *vx, float *vy, float *vz);
 static void get_motion_vector(int sz, int sx, float rx, float ry, float *vx, float *vy, float *vz);
 /**
@@ -392,14 +391,7 @@ int render(
         state->x, state->y, state->z, state->rx, state->ry,
         &hx, &hy, &hz);
     if (is_obstacle(hw)) {
-        glUseProgram(renderer->line_program);
-        glLineWidth(1);
-        glEnable(GL_COLOR_LOGIC_OP);
-        glUniformMatrix4fv(renderer->line_matrix_loc, 1, GL_FALSE, renderer->matrix);
-        GLuint buffer = make_cube_buffer(hx, hy, hz, 0.51);
-        draw_lines(buffer, renderer->line_position_loc, 3, 48);
-        glDeleteBuffers(1, &buffer);
-        glDisable(GL_COLOR_LOGIC_OP);
+        render_wireframe(renderer, hx, hy, hz);
     }
 
     matrix_update_2d(renderer->matrix, width, height);
@@ -497,15 +489,6 @@ static GLuint make_line_buffer(int width, int height) {
             x, y - p, x, y + p,
             x - p, y, x + p, y
     };
-    GLuint buffer = make_buffer(
-            GL_ARRAY_BUFFER, sizeof(data), data
-    );
-    return buffer;
-}
-
-static GLuint make_cube_buffer(float x, float y, float z, float n) {
-    float data[144];
-    make_cube_wireframe(data, x, y, z, n);
     GLuint buffer = make_buffer(
             GL_ARRAY_BUFFER, sizeof(data), data
     );

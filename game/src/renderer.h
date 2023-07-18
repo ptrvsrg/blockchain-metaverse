@@ -38,4 +38,6 @@ int init_renderer(renderer_t* renderer);
 
 void render_chunks(Chunk* chunks, int chunk_count, state_t* state, renderer_t* renderer);
 
+void render_wireframe(renderer_t* renderer, int hx, int hy, int hz);
+
 #endif // _renderer_h_
