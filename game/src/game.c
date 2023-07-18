@@ -150,13 +150,6 @@ static int player_intersects_obstacle(Chunk *chunks, int chunk_count, int height
     return result;
 }
 
-static int render(
-    Chunk* chunks, int chunck_count, state_t* state,
-    renderer_t* renderer, GLFWwindow* window
-);
-
-static void destroy_renderer(renderer_t* renderer);
-
 static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     sync_queue_entry_t entry;
     entry.m_chunk_x = p;
@@ -352,51 +345,46 @@ int run(state_t loaded_state) {
 
         renderer.ortho = glfwGetKey(window, 'F');
         renderer.fov = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 15.0 : 65.0;
-        render(chunks, chunk_count, &state, &renderer, window);
+        
+        // Rendering
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // applies player's state changes
+        matrix_update_3d(
+            renderer.matrix, renderer.width, renderer.height,
+            state.x, state.y, state.z, state.rx, state.ry,
+            renderer.fov, renderer.ortho);
+
+        render_chunks(chunks, chunk_count, &state, &renderer);
+
+        // get block that player is pointing to
+        int block_x, block_y, block_z;
+        int block_w = hit_test(
+            chunks, chunk_count, 0,
+            state.x, state.y, state.z, state.rx, state.ry,
+            &block_x, &block_y, &block_z);
+        if (is_obstacle(block_w)) {
+            render_wireframe(&renderer, block_x, block_y, block_z);
+        }
+
+        // updates matrix to draw GUI crosshairs
+        matrix_update_2d(renderer.matrix, renderer.width, renderer.height);
+        render_crosshairs(&renderer);
+
+        // updates matrix to drow selected item
+        matrix_update_item(renderer.matrix, renderer.width, renderer.height);
+        if (block_type != previous_block_type) {
+            previous_block_type = block_type;
+            render_selected_item(&renderer, 1, block_type);
+        }
+        else {
+            render_selected_item(&renderer, 0, block_type);
+        }
+
         glfwSwapBuffers(window);
     }
-    // db_save_state(state.x, state.y, state.z, state.rx, state.ry);
     db_close();
-    destroy_renderer(&renderer);
     glfwTerminate();
-}
-
-int render(
-    Chunk* chunks, int chunk_count, state_t* state,
-    renderer_t* renderer, GLFWwindow* window
-) {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    
-    matrix_update_3d(
-        renderer->matrix, renderer->width, renderer->height,
-        state->x, state->y, state->z, state->rx, state->ry,
-        renderer->fov, renderer->ortho);
-
-    render_chunks(chunks, chunk_count, state, renderer);
-
-    // render focused block wireframe
-    int hx, hy, hz;
-    int hw = hit_test(
-        chunks, chunk_count, 0,
-        state->x, state->y, state->z, state->rx, state->ry,
-        &hx, &hy, &hz);
-    if (is_obstacle(hw)) {
-        render_wireframe(renderer, hx, hy, hz);
-    }
-
-    // render crosshairs
-    matrix_update_2d(renderer->matrix, renderer->width, renderer->height);
-    render_crosshairs(renderer);
-
-    // render selected item
-    matrix_update_item(renderer->matrix, renderer->width, renderer->height);
-    if (block_type != previous_block_type) {
-        previous_block_type = block_type;
-        render_selected_item(renderer, 1, block_type);
-    }
-    else {
-        render_selected_item(renderer, 0, block_type);
-    }
 }
 
 
