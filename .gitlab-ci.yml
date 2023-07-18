@@ -62,19 +62,19 @@ test-c-game:
         paths:
             - $CI_PROJECT_DIR/.m2/repository/
 
-# Сборка и тестирование Java-модуля contracts
+# Сборка и тестирование Java-модуля blockchain
 
-build-java-contracts:
+build-java-blockchain:
     variables:
-        MODULE_NAME: "contracts"
+        MODULE_NAME: "blockchain"
     extends: .build-java
 
-test-java-contracts:
+test-java-blockchain:
     variables:
-        MODULE_NAME: "contracts"
+        MODULE_NAME: "blockchain"
     extends: .test-java
     dependencies:
-        - build-java-contracts
+        - build-java-blockchain
 
 # Сборка и тестирование Java-модуля start-menu
 
