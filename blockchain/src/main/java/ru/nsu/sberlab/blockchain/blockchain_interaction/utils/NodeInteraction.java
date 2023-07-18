@@ -4,6 +4,7 @@ import io.neow3j.compiler.CompilationUnit;
 import io.neow3j.compiler.Compiler;
 import io.neow3j.contract.ContractManagement;
 import io.neow3j.contract.SmartContract;
+import io.neow3j.crypto.ECKeyPair;
 import io.neow3j.protocol.Neow3j;
 import io.neow3j.protocol.core.response.NeoApplicationLog;
 import io.neow3j.protocol.core.response.NeoGetApplicationLog;
@@ -28,11 +29,33 @@ import static java.lang.String.format;
  * Используется для развертывания контрактов, вызова функций в контрактах и других операций с блокчейном.
  */
 public class NodeInteraction {
+    private final AccountSigner signerOwner;
     private Neow3j node;
-
     private Account account;
 
-    private final AccountSigner signerOwner;
+    /**
+     * Конструктор NodeInteraction.
+     *
+     * @param httpUrl http-адрес ноды
+     */
+    public NodeInteraction(String httpUrl) {
+        node = Neow3j.build(new HttpService(httpUrl));
+        this.account = Account.create();
+        signerOwner = AccountSigner.none(account);
+    }
+
+    /**
+     * Конструктор NodeInteraction.
+     *
+     * @param httpUrl http-адрес ноды
+     * @param keyPair пара ключей публичный-приватный для аккаунта
+     */
+    public NodeInteraction(String httpUrl, ECKeyPair keyPair) {
+        node = Neow3j.build(new HttpService(httpUrl));
+        this.account = new Account(keyPair);
+        signerOwner = AccountSigner.none(account);
+    }
+
 
     /**
      * Конструктор NodeInteraction.
@@ -52,7 +75,7 @@ public class NodeInteraction {
      * @param contractClassName каноническое имя класса(Class.getCanonicalName())
      * @param parameter         параметр для передачи при развертывании контракта
      * @return возвращает ScriptHash задиплоенного контракта
-     * @throws Throwable если происходит ошибка при  развертывании
+     * @throws Throwable если происходит ошибка при развертывании
      */
     public Hash160 deployContract(String contractClassName, ContractParameter parameter) throws Throwable {
         return deployContract(contractClassName, parameter, null);
@@ -65,7 +88,7 @@ public class NodeInteraction {
      * @param parameter         параметр для передачи при развертывании контракта
      * @param replaceMap        параметр для передачи замен для placeholders строк
      * @return возвращает ScriptHash задиплоенного контракта
-     * @throws Throwable если происходит ошибка при  развертывании
+     * @throws Throwable если происходит ошибка при развертывании
      */
     public Hash160 deployContract(String contractClassName, ContractParameter parameter, Map<String, String> replaceMap) throws Throwable {
         CompilationUnit res;

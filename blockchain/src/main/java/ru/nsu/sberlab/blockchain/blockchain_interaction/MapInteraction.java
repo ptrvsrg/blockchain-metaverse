@@ -1,6 +1,7 @@
 package ru.nsu.sberlab.blockchain.blockchain_interaction;
 
 import io.neow3j.contract.NefFile;
+import io.neow3j.crypto.ECKeyPair;
 import io.neow3j.transaction.exceptions.TransactionConfigurationException;
 import io.neow3j.types.ContractParameter;
 import io.neow3j.types.Hash160;
@@ -9,7 +10,6 @@ import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.BlockChainExce
 import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.MapContractAlreadyExist;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.StateContractAlreadyExist;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.BlockInfo;
-import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.Coordinates;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.NodeInteraction;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.PlayerCoordinates;
 import ru.nsu.sberlab.blockchain.contracts.MapChangesContract;
@@ -45,10 +45,45 @@ public class MapInteraction {
      * @param httpUrl http адрес блокчейн ноды
      * @param account аккаунт от коготорого производятся взаимодействия
      * @param mapName название карты
-     * @throws BlockChainException не удается развернуть какой либо контракт или он уже существует
+     * @throws BlockChainException не удается развернуть какой-либо контракт или он уже существует
      */
     public MapInteraction(String httpUrl, Account account, String mapName) throws BlockChainException {
-        nodeInteraction = new NodeInteraction(httpUrl, account);
+        this(new NodeInteraction(httpUrl, account), mapName);
+    }
+
+    /**
+     * Конструктор создающий карту(разворачивает два контракта MapChangesContract и PlayerPositionContract).
+     *
+     * @param httpUrl http адрес блокчейн ноды
+     * @param mapName название карты
+     * @throws BlockChainException не удается развернуть какой-либо контракт или он уже существует
+     */
+    public MapInteraction(String httpUrl, String mapName) throws BlockChainException {
+        this(new NodeInteraction(httpUrl), mapName);
+    }
+
+    /**
+     * Конструктор создающий карту(разворачивает два контракта MapChangesContract и PlayerPositionContract).
+     *
+     * @param httpUrl http адрес блокчейн ноды
+     * @param keyPair пара ключей публичный/приватный для аккаунта
+     * @param mapName название карты
+     * @throws BlockChainException не удается развернуть какой-либо контракт или он уже существует
+     */
+    public MapInteraction(String httpUrl, ECKeyPair keyPair, String mapName) throws BlockChainException {
+        this(new NodeInteraction(httpUrl, keyPair), mapName);
+    }
+
+
+    /**
+     * Конструктор создающий карту(разворачивает два контракта MapChangesContract и PlayerPositionContract).
+     *
+     * @param nodeInteraction класс для подключения к ноде
+     * @param mapName         название карты
+     * @throws BlockChainException не удается развернуть какой-либо контракт или он уже существует
+     */
+    public MapInteraction(NodeInteraction nodeInteraction, String mapName) throws BlockChainException {
+        this.nodeInteraction = nodeInteraction;
         HashMap<String, Hash160> returnMap = new HashMap<>(2);
         HashMap<String, String> replaceMap = new HashMap<>(1);
         replaceMap.put("Name", mapName);
@@ -90,16 +125,51 @@ public class MapInteraction {
     /**
      * Конструктор для взаимодействия с уже существующими картами (контрактами MapChangesContract и PlayerPositionContract).
      *
-     * @param httpUrl           http адрес блокчейн ноды
-     * @param account           аккаунт от коготорого производятся взаимодействия
-     * @param mapContractHash   Hash развенутого контракта MapChangesContract
-     * @param stateContractHash Hash развенутого контракта PlayerPositionContract
+     * @param nodeInteraction   класс для подключения к ноде
+     * @param mapContractHash   Hash развернутого контракта MapChangesContract
+     * @param stateContractHash Hash развернутого контракта PlayerPositionContract
      */
-    public MapInteraction(String httpUrl, Account account, Hash160 mapContractHash, Hash160 stateContractHash) {
-        nodeInteraction = new NodeInteraction(httpUrl, account);
+    public MapInteraction(NodeInteraction nodeInteraction, Hash160 mapContractHash, Hash160 stateContractHash) {
+        this.nodeInteraction = nodeInteraction;
         this.mapContractHash = mapContractHash;
         this.stateContractHash = stateContractHash;
     }
+
+    /**
+     * Конструктор создающий карту(разворачивает два контракта MapChangesContract и PlayerPositionContract).
+     *
+     * @param httpUrl           http адрес блокчейн ноды
+     * @param account           аккаунт от которого производятся взаимодействия
+     * @param mapContractHash   Hash развернутого контракта MapChangesContract
+     * @param stateContractHash Hash развернутого контракта PlayerPositionContract
+     */
+    public MapInteraction(String httpUrl, Account account, Hash160 mapContractHash, Hash160 stateContractHash) {
+        this(new NodeInteraction(httpUrl, account), mapContractHash, stateContractHash);
+    }
+
+    /**
+     * Конструктор создающий карту(разворачивает два контракта MapChangesContract и PlayerPositionContract).
+     *
+     * @param httpUrl           http адрес блокчейн ноды
+     * @param keyPair           пара ключей публичный/приватный для аккаунта
+     * @param mapContractHash   Hash развернутого контракта MapChangesContract
+     * @param stateContractHash Hash развернутого контракта PlayerPositionContract
+     */
+    public MapInteraction(String httpUrl, ECKeyPair keyPair, Hash160 mapContractHash, Hash160 stateContractHash) {
+        this(new NodeInteraction(httpUrl, keyPair), mapContractHash, stateContractHash);
+    }
+
+    /**
+     * Конструктор создающий карту(разворачивает два контракта MapChangesContract и PlayerPositionContract).
+     *
+     * @param httpUrl           http адрес блокчейн ноды
+     * @param mapContractHash   Hash развернутого контракта MapChangesContract
+     * @param stateContractHash Hash развернутого контракта PlayerPositionContract
+     */
+    public MapInteraction(String httpUrl, Hash160 mapContractHash, Hash160 stateContractHash) {
+        this(new NodeInteraction(httpUrl), mapContractHash, stateContractHash);
+    }
+
 
     /**
      * Добавить изменения.
@@ -112,8 +182,7 @@ public class MapInteraction {
 
 
         for (int i = 0; i < infoArray.length; i++)
-            System.arraycopy(infoArray[i].serialize(), 0, infoListSerialized,
-                    i * BlockInfo.BlockInfoByteSize, BlockInfo.BlockInfoByteSize);
+            System.arraycopy(infoArray[i].serialize(), 0, infoListSerialized, i * BlockInfo.BlockInfoByteSize, BlockInfo.BlockInfoByteSize);
 
         nodeInteraction.invokeFunctionInContract(mapContractHash, PUT_CHANGES_FUNCTION, ContractParameter.byteArray(infoListSerialized));
 
@@ -138,8 +207,7 @@ public class MapInteraction {
      * @throws Throwable бросается в случае если не получается вызвать функцию getChangesWithoutFirstN контракта
      */
     public ArrayList<BlockInfo> getAllChangesWithoutFirstN(int N) throws Throwable {
-        byte[] result = nodeInteraction.invokeFunctionInContract(mapContractHash, GET_CHANGES_WITHOUT_FIRST_N,
-                ContractParameter.integer(N)).getByteArray();
+        byte[] result = nodeInteraction.invokeFunctionInContract(mapContractHash, GET_CHANGES_WITHOUT_FIRST_N, ContractParameter.integer(N)).getByteArray();
 
         return BlockInfo.getInfoArrayFromByteRepresentation(result);
     }
@@ -162,8 +230,7 @@ public class MapInteraction {
     public void putPlayerCoordinates(PlayerCoordinates coordinates) throws Throwable {
 
 
-        nodeInteraction.invokeFunctionInContract(stateContractHash, PUT_COORDINATES, ContractParameter.hash160(nodeInteraction.getAccount().getScriptHash()),
-                ContractParameter.byteArray(coordinates.serialize()));
+        nodeInteraction.invokeFunctionInContract(stateContractHash, PUT_COORDINATES, ContractParameter.hash160(nodeInteraction.getAccount().getScriptHash()), ContractParameter.byteArray(coordinates.serialize()));
     }
 
     /**
@@ -173,8 +240,7 @@ public class MapInteraction {
      * @throws Throwable бросается в случае если не получается вызвать функцию getCords контракта
      */
     public PlayerCoordinates getCoordinates() throws Throwable {
-        return new PlayerCoordinates(nodeInteraction.invokeFunctionInContract(stateContractHash, GET_COORDINATES,
-                ContractParameter.hash160(nodeInteraction.getAccount().getScriptHash())).getByteArray());
+        return new PlayerCoordinates(nodeInteraction.invokeFunctionInContract(stateContractHash, GET_COORDINATES, ContractParameter.hash160(nodeInteraction.getAccount().getScriptHash())).getByteArray());
     }
 
     /**
@@ -206,12 +272,9 @@ public class MapInteraction {
      */
     public void updateMapContract(NefFile nefFile, String manifest, Object data) throws Throwable {
         if (data == null) {
-            nodeInteraction.invokeFunctionInContract(mapContractHash, "update",
-                    ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest));
+            nodeInteraction.invokeFunctionInContract(mapContractHash, "update", ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest));
         } else {
-            nodeInteraction.invokeFunctionInContract(mapContractHash, "update",
-                    ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest),
-                    ContractParameter.any(data));
+            nodeInteraction.invokeFunctionInContract(mapContractHash, "update", ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest), ContractParameter.any(data));
         }
     }
 
@@ -234,15 +297,15 @@ public class MapInteraction {
      */
     public void updateStateContract(NefFile nefFile, String manifest, Object data) throws Throwable {
         if (data == null) {
-            nodeInteraction.invokeFunctionInContract(stateContractHash, "update",
-                    ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest));
+            nodeInteraction.invokeFunctionInContract(stateContractHash, "update", ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest));
         } else {
-            nodeInteraction.invokeFunctionInContract(stateContractHash, "update",
-                    ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest),
-                    ContractParameter.any(data));
+            nodeInteraction.invokeFunctionInContract(stateContractHash, "update", ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest), ContractParameter.any(data));
         }
     }
 
+    public NodeInteraction getNodeInteraction() {
+        return nodeInteraction;
+    }
 
     public Hash160 getMapContractHash() {
         return mapContractHash;
