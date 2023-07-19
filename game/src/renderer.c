@@ -8,6 +8,7 @@
 #include "state.h"
 #include "matrix.h"
 #include "block.h"
+#include "game_utils.h"
 
 static void draw_lines(GLuint buffer, GLuint position_loc, int size, int count);
 static void draw_chunk(Chunk *chunk, GLuint position_loc, GLuint normal_loc, GLuint uv_loc);

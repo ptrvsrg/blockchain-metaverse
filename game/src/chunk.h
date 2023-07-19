@@ -17,13 +17,4 @@ typedef struct {
     GLuint uv_buffer; /**< информация для рендера */
 } Chunk;
 
-/**
- * @brief Расстояние между чанком и положением игрока (p, q)
- * 
- * @param chunk чанк
- * @param p координата чанка игрока
- * @param q координата чанка игрока
-*/
-int chunk_distance(Chunk *chunk, int p, int q);
-
 #endif // _chunk_h_
