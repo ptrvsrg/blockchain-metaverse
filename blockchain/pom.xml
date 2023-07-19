@@ -10,6 +10,8 @@
     </parent>
 
     <artifactId>blockchain</artifactId>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -33,7 +35,6 @@
             <artifactId>compiler</artifactId>
             <version>3.20.0</version>
         </dependency>
-
         <dependency>
             <groupId>io.neow3j</groupId>
             <artifactId>crypto</artifactId>
@@ -42,13 +43,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <version>5.9.2</version>
             <scope>test</scope>
         </dependency>
 
