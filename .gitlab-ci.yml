@@ -73,9 +73,6 @@ test-java-blockchain:
   variables:
     MODULE_NAME: "blockchain"
   extends: .test-java
-  script:
-    - echo "$OWNER_WIF"
-    - echo "NODE_URL"
   dependencies:
     - build-java-blockchain
 
