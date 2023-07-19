@@ -7,8 +7,7 @@ import io.neow3j.types.ContractParameter;
 import io.neow3j.types.Hash160;
 import io.neow3j.wallet.Account;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.BlockChainException;
-import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.MapContractAlreadyExist;
-import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.StateContractAlreadyExist;
+import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.MapAlreadyExist;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.BlockInfo;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.NodeInteraction;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.PlayerCoordinates;
@@ -87,6 +86,7 @@ public class MapInteraction {
         HashMap<String, Hash160> returnMap = new HashMap<>(2);
         HashMap<String, String> replaceMap = new HashMap<>(1);
         replaceMap.put("Name", mapName);
+        boolean flag = false;
 
         try {
             mapContractHash = nodeInteraction.deployContract(MapChangesContract.class.getCanonicalName(),
@@ -95,7 +95,7 @@ public class MapInteraction {
             if (e.getMessage().contains("Contract Already Exists: ")) {
                 mapContractHash = new Hash160(e.getMessage().substring(e.getMessage().indexOf("Contract Already Exists: ")
                         + "Contract Already Exists: ".length()));
-                throw new MapContractAlreadyExist(mapContractHash, mapName);
+                flag = true;
             } else {
                 throw new BlockChainException("unable to create map contract", e);
             }
@@ -111,7 +111,8 @@ public class MapInteraction {
             if (e.getMessage().contains("Contract Already Exists: ")) {
                 stateContractHash = new Hash160(e.getMessage().substring(e.getMessage().indexOf("Contract Already Exists: ")
                         + "Contract Already Exists: ".length()));
-                throw new StateContractAlreadyExist(stateContractHash, mapName);
+
+                throw new MapAlreadyExist(mapContractHash, stateContractHash, mapName);
             } else {
                 throw new BlockChainException("unable to create state contract", e);
             }
@@ -119,6 +120,9 @@ public class MapInteraction {
             throw new BlockChainException("unable to create state contract", e);
 
         }
+
+        if (flag)
+            throw new MapAlreadyExist(mapContractHash, stateContractHash, mapName);
 
     }
 

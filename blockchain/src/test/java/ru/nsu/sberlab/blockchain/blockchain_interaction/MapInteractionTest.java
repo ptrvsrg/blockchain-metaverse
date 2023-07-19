@@ -3,8 +3,8 @@ package ru.nsu.sberlab.blockchain.blockchain_interaction;
 import io.neow3j.wallet.Account;
 import org.junit.jupiter.api.*;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.BlockChainException;
+import ru.nsu.sberlab.blockchain.blockchain_interaction.exception.MapAlreadyExist;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.BlockInfo;
-import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.Coordinates;
 import ru.nsu.sberlab.blockchain.blockchain_interaction.utils.PlayerCoordinates;
 
 import java.util.ArrayList;
@@ -28,10 +28,14 @@ public class MapInteractionTest {
     @Order(0)
     @Test
     public void deploymentTest() throws BlockChainException {
-
-        mapInteraction = new MapInteraction(httpURL, account, "test5");
-        System.out.println(mapInteraction.getMapContractHash());
-        System.out.println(mapInteraction.getStateContractHash());
+        try {
+            mapInteraction = new MapInteraction(httpURL, account, "1");
+            System.out.println(mapInteraction.getMapContractHash());
+            System.out.println(mapInteraction.getStateContractHash());
+        } catch (MapAlreadyExist e) {
+            System.out.println(e.getMessage());
+            mapInteraction = new MapInteraction(httpURL, account, e.getMapContractExistHash(), e.getStateContractExistHash());
+        }
 
 
     }
