@@ -15,7 +15,7 @@
 state_t state;
 
 // Используются в callback'ах, которые вызывает OpenGL, поэтому глобальные
-static int exclusive = 1; /**< kinda focus on game window */
+// static int exclusive = 1; /**< kinda focus on game window */
 static int left_click = 0; /**< состояние нажатия ЛКМ */
 static int right_click = 0; /**< состояние нажатия ПКМ */
 static int block_type = 1; /**< тип выбранного блока */
@@ -36,7 +36,7 @@ static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     return enqueue(&in_blockchain_queue, entry);
 }
 
-void create_window(GLFWwindow** window) {
+static int create_window(GLFWwindow** window) {
     int width = WINDOW_WIDTH;
     int height = WINDOW_HEIGHT;
     GLFWmonitor *monitor = NULL;
@@ -48,6 +48,16 @@ void create_window(GLFWwindow** window) {
         height = modes[mode_count - 1].height;
     }
     *window = glfwCreateWindow(width, height, WINDOW_TITLE, monitor, NULL);
+    if (!*window) {
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(*window);
+    glfwSwapInterval(VSYNC);
+    glfwSetInputMode(*window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetKeyCallback(*window, on_key);
+    glfwSetMouseButtonCallback(*window, on_mouse_button);
+    glfwSetScrollCallback(*window, on_scroll);
 }
 
 int run(state_t loaded_state) {
@@ -56,20 +66,9 @@ int run(state_t loaded_state) {
     }
     // Инициализация окна
     GLFWwindow* window;
-    create_window(&window);
-    if (!window) {
-        glfwTerminate();
+    if (-1 == create_window(&window)) {
         return -1;
     }
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(VSYNC);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetKeyCallback(window, on_key);
-    glfwSetMouseButtonCallback(window, on_mouse_button);
-    glfwSetScrollCallback(window, on_scroll);
-
-    Chunk chunks[MAX_CHUNKS];
-    int chunk_count = 0;
 
     renderer_t renderer;
     if (-1 == init_renderer(&renderer, window)) {
@@ -80,13 +79,9 @@ int run(state_t loaded_state) {
         return -1;
     }
 
-    // state_t state;
-    // state.x = ((double) rand() / (double) RAND_MAX - 0.5) * 10000;
-    // state.z = ((double) rand() / (double) RAND_MAX - 0.5) * 10000;
-    // state.y = 0;
-    // state.rx = 0;
-    // state.ry = 0;
-    // int loaded = db_load_state(&state.x, &state.y, &state.z, &state.rx, &state.ry);
+    Chunk chunks[MAX_CHUNKS];
+    int chunk_count = 0;
+
     state = loaded_state;
     ensure_chunks(chunks, &chunk_count,
                   floorf(roundf(state.x) / CHUNK_SIZE),
@@ -105,7 +100,7 @@ int run(state_t loaded_state) {
         double now = glfwGetTime();
         double dt = MIN(now - previous, 0.2);
         previous = now;
-
+        int exclusive = glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
         if (exclusive && (px || py)) {
             double mx, my;
             glfwGetCursorPos(window, &mx, &my);
@@ -268,6 +263,7 @@ static void on_key(GLFWwindow *window, int key, int scancode, int action, int mo
     if (action != GLFW_PRESS) {
         return;
     }
+    int exclusive = glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
     if (key == GLFW_KEY_ESCAPE) {
         if (exclusive) {
             exclusive = 0;
@@ -283,6 +279,7 @@ static void on_mouse_button(GLFWwindow *window, int button, int action, int mods
     if (action != GLFW_PRESS) {
         return;
     }
+    int exclusive = glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (exclusive) {
             left_click = 1;
