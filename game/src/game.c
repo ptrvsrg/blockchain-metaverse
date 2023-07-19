@@ -15,7 +15,6 @@
 state_t state;
 
 // Используются в callback'ах, которые вызывает OpenGL, поэтому глобальные
-// static int exclusive = 1; /**< kinda focus on game window */
 static int left_click = 0; /**< состояние нажатия ЛКМ */
 static int right_click = 0; /**< состояние нажатия ПКМ */
 static int block_type = 1; /**< тип выбранного блока */
@@ -64,7 +63,6 @@ int run(state_t loaded_state) {
     if (!glfwInit()) {
         return -1;
     }
-    // Инициализация окна
     GLFWwindow* window;
     if (-1 == create_window(&window)) {
         return -1;
@@ -84,8 +82,8 @@ int run(state_t loaded_state) {
 
     state = loaded_state;
     ensure_chunks(chunks, &chunk_count,
-                  floorf(roundf(state.x) / CHUNK_SIZE),
-                  floorf(roundf(state.z) / CHUNK_SIZE), 1);
+                  chunked(state.x),
+                  chunked(state.z), 1);
     if (player_intersects_obstacle(chunks, chunk_count, 2, state.x, state.y, state.z)) {
         state.y = highest_block(chunks, chunk_count, state.x, state.z) + 2;
     }
@@ -128,8 +126,8 @@ int run(state_t loaded_state) {
                               &hx, &hy, &hz);
             if (hy > 0 && is_destructable(hw)) {
                 set_block(chunks, chunk_count, hx, hy, hz, 0);
-                int p = floorf((float) hx / CHUNK_SIZE);
-                int q = floorf((float) hz / CHUNK_SIZE);
+                int p = chunked(hx);
+                int q = chunked(hz);
                 enqueue_block(p, q, hx, hy, hz, BLOCK_EMPTY);
             }
         }
@@ -142,8 +140,8 @@ int run(state_t loaded_state) {
             if (is_obstacle(hw)) {
                 if (!player_intersects_block(2, state.x, state.y, state.z, hx, hy, hz)) {
                     set_block(chunks, chunk_count, hx, hy, hz, block_type);
-                    int p = floorf((float) hx / CHUNK_SIZE);
-                    int q = floorf((float) hz / CHUNK_SIZE);
+                    int p = chunked(hx);
+                    int q = chunked(hz);
                     enqueue_block(p, q, hx, hy, hz, block_type);
                 }
             }
@@ -222,8 +220,8 @@ int run(state_t loaded_state) {
         }
         glfwPollEvents();
 
-        int p = floorf(roundf(state.x) / CHUNK_SIZE);
-        int q = floorf(roundf(state.z) / CHUNK_SIZE);
+        int p = chunked(state.x);
+        int q = chunked(state.z);
         ensure_chunks(chunks, &chunk_count, p, q, 0);
 
         renderer.ortho = glfwGetKey(window, 'F');

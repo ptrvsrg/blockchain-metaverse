@@ -68,8 +68,8 @@ int init_renderer(renderer_t* renderer, GLFWwindow* window) {
 }
 
 void render_chunks(renderer_t* renderer, Chunk* chunks, int chunk_count, state_t* state) {
-    int p = floorf(roundf(state->x) / CHUNK_SIZE);
-    int q = floorf(roundf(state->z) / CHUNK_SIZE);
+    int p = chunked(state->x);
+    int q = chunked(state->z);
     matrix_update_3d(
             renderer->matrix, renderer->width, renderer->height,
             state->x, state->y, state->z, state->rx, state->ry,

@@ -4,6 +4,8 @@
 #include "chunk.h"
 #include "state.h"
 
+int chunked(float x);
+
 /**
  * @brief Расстояние между чанком и положением игрока (p, q)
  * 
