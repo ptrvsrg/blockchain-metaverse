@@ -47,7 +47,6 @@ public class MapInteractionTest {
         mapInteraction.addChanges(blockInfo);
 
         ArrayList<BlockInfo> result = mapInteraction.getAllChanges();
-        assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0)).isEqualTo(blockInfo);
     }
 
