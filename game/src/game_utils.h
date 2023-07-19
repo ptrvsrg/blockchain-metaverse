@@ -5,6 +5,15 @@
 #include "state.h"
 
 /**
+ * @brief Расстояние между чанком и положением игрока (p, q)
+ * 
+ * @param chunk чанк
+ * @param p координата чанка игрока
+ * @param q координата чанка игрока
+*/
+int chunk_distance(Chunk *chunk, int p, int q);
+
+/**
  * @brief По координатам поворота камеры вычисляет радиус вектор.
  * 
  * @param rx координата поворота камеры rx.
@@ -172,5 +181,7 @@ void _set_block(Chunk *chunks, int chunk_count, int p, int q, int x, int y, int 
  * @param w тип блока
 */
 void set_block(Chunk *chunks, int chunk_count, int x, int y, int z, int w);
+
+int player_intersects_obstacle(Chunk *chunks, int chunk_count, int height, float x, float y, float z);
 
 #endif // _game_utils_h_

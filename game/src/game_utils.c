@@ -8,6 +8,33 @@
 #include "config.h"
 #include "noise.h"
 
+int chunk_distance(Chunk *chunk, int p, int q) {
+    int dp = ABS(chunk->p - p);
+    int dq = ABS(chunk->q - q);
+    return MAX(dp, dq);
+}
+
+int player_intersects_obstacle(Chunk *chunks, int chunk_count, int height, float x, float y, float z) {
+    int result = 0;
+    int p = floorf(roundf(x) / CHUNK_SIZE);
+    int q = floorf(roundf(z) / CHUNK_SIZE);
+    Chunk *chunk = find_chunk(chunks, chunk_count, p, q);
+    if (chunk) {
+        Map* map = &chunk->map;
+        int nx = roundf(x);
+        int ny = roundf(y);
+        int nz = roundf(z);
+        for (int i = 0; i < height; i++) {
+            if (is_obstacle(map_get(map, nx, ny - i, nz))) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    return result;
+}
+
 void get_sight_vector(float rx, float ry, float *vx, float *vy, float *vz) {
     float m = cosf(ry);
     *vx = cosf(rx - RADIANS(90)) * m;

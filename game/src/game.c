@@ -19,32 +19,10 @@ static int exclusive = 1; /**< kinda focus on game window */
 static int left_click = 0; /**< состояние нажатия ЛКМ */
 static int right_click = 0; /**< состояние нажатия ПКМ */
 static int block_type = 1; /**< тип выбранного блока */
-static int previous_block_type = 0; /**< тип предыдущего блока */
 
 static void on_key(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void on_mouse_button(GLFWwindow *window, int button, int action, int mods);
 static void on_scroll(GLFWwindow *window, double xdelta, double ydelta);
-
-static int player_intersects_obstacle(Chunk *chunks, int chunk_count, int height, float x, float y, float z) {
-    int result = 0;
-    int p = floorf(roundf(x) / CHUNK_SIZE);
-    int q = floorf(roundf(z) / CHUNK_SIZE);
-    Chunk *chunk = find_chunk(chunks, chunk_count, p, q);
-    if (chunk) {
-        Map* map = &chunk->map;
-        int nx = roundf(x);
-        int ny = roundf(y);
-        int nz = roundf(z);
-        for (int i = 0; i < height; i++) {
-            if (is_obstacle(map_get(map, nx, ny - i, nz))) {
-                return 1;
-            }
-        }
-        return 0;
-    }
-
-    return result;
-}
 
 static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     sync_queue_entry_t entry;
@@ -117,6 +95,7 @@ int run(state_t loaded_state) {
         state.y = highest_block(chunks, chunk_count, state.x, state.z) + 2;
     }
 
+    int previous_block_type = 0;
     float dy = 0;
     double px = 0;
     double py = 0;
@@ -190,8 +169,6 @@ int run(state_t loaded_state) {
 
         int sz = 0;
         int sx = 0;
-        int ortho = glfwGetKey(window, 'F');
-        int fov = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 15.0 : 65.0;
         if (glfwGetKey(window, 'Q')) break;
         if (glfwGetKey(window, 'W')) sz--;
         if (glfwGetKey(window, 'S')) sz++;
@@ -259,9 +236,7 @@ int run(state_t loaded_state) {
         
         // Rendering
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
         render_chunks(&renderer, chunks, chunk_count, &state);
-
         // get block that player is pointing to
         int block_x, block_y, block_z;
         int block_w = hit_test(
@@ -271,10 +246,8 @@ int run(state_t loaded_state) {
         if (is_obstacle(block_w)) {
             render_wireframe(&renderer, &state, block_x, block_y, block_z);
         }
-
-        // updates matrix to draw GUI crosshairs
+        // updates matrix to draw crosshairs
         render_crosshairs(&renderer);
-
         // updates matrix to drow selected item
         if (block_type != previous_block_type) {
             previous_block_type = block_type;
@@ -283,7 +256,6 @@ int run(state_t loaded_state) {
         else {
             render_selected_item(&renderer, 0, block_type);
         }
-
         glfwSwapBuffers(window);
     }
     db_close();
