@@ -233,7 +233,8 @@ int run(state_t loaded_state) {
 
         renderer.ortho = glfwGetKey(window, 'F');
         renderer.fov = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 15.0 : 65.0;
-        
+        glfwGetFramebufferSize(window, &renderer.width, &renderer.height);
+        glViewport(0, 0, renderer.width, renderer.height);
         // Rendering
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         render_chunks(&renderer, chunks, chunk_count, &state);
