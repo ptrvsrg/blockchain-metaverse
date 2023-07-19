@@ -65,16 +65,30 @@ test-c-game:
 # Сборка и тестирование Java-модуля blockchain
 
 build-java-blockchain:
-    variables:
-        MODULE_NAME: "blockchain"
-    extends: .build-java
+  variables:
+    MODULE_NAME: "blockchain"
+  extends: .build-java
 
 test-java-blockchain:
-    variables:
-        MODULE_NAME: "blockchain"
-    extends: .test-java
-    dependencies:
-        - build-java-blockchain
+  variables:
+    MODULE_NAME: "blockchain"
+  extends: .test-java
+  dependencies:
+    - build-java-blockchain
+
+# Сборка и тестирование Java-модуля game-integration
+
+build-java-game-integration:
+  variables:
+    MODULE_NAME: "game-integration"
+  extends: .build-java
+
+test-java-game-integration:
+  variables:
+    MODULE_NAME: "game-integration"
+  extends: .test-java
+  dependencies:
+    - build-java-game-integration
 
 # Сборка и тестирование Java-модуля start-menu
 
