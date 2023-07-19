@@ -2,6 +2,18 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(craft)
 
+# config file
+if(NOT DEFINED ${TEXTURES_DIRECTORY})
+        set(TEXTURES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/texture)
+endif()
+
+if(NOT DEFINED ${SHADERS_DIRECTORY})
+        set(SHADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+endif()
+
+configure_file(src/config.h.in
+        ${CMAKE_CURRENT_BINARY_DIR}/include/config.h)
+
 # JNATIVE library
 FILE(GLOB JNATIVE_SOURCE_FILES JNI/*.c)
 add_library(jnative SHARED ${JNATIVE_SOURCE_FILES})
@@ -15,7 +27,10 @@ FILE(GLOB SOURCE_FILES src/*.c)
 add_library(
     craft SHARED
     ${SOURCE_FILES})
-target_include_directories(jnative PUBLIC src)
+target_include_directories(craft
+        PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+target_include_directories(jnative
+        PUBLIC src)
 
 # GLEW library
 find_package(OpenGL REQUIRED)

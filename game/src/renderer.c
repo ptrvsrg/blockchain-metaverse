@@ -41,10 +41,10 @@ int init_renderer(renderer_t* renderer, GLFWwindow* window) {
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    load_png_texture("texture/texture.png");
+    load_png_texture(TEXTURES_DIRECTORY TEXTURE_FILE);
 
     renderer->block_program = load_GPU_program(
-            "shaders/block_vertex.glsl", "shaders/block_fragment.glsl");
+            SHADERS_DIRECTORY BLOCK_VERTEX, SHADERS_DIRECTORY BLOCK_FRAGMENT);
     renderer->matrix_loc = glGetUniformLocation(renderer->block_program, "matrix");
     renderer->camera_loc = glGetUniformLocation(renderer->block_program, "camera");
     renderer->sampler_loc = glGetUniformLocation(renderer->block_program, "sampler");
@@ -54,7 +54,7 @@ int init_renderer(renderer_t* renderer, GLFWwindow* window) {
     renderer->uv_loc = glGetAttribLocation(renderer->block_program, "uv");
 
     renderer->line_program = load_GPU_program(
-            "shaders/line_vertex.glsl", "shaders/line_fragment.glsl");
+            SHADERS_DIRECTORY LINE_VERTEX, SHADERS_DIRECTORY LINE_FRAGMENT);
     renderer->line_matrix_loc = glGetUniformLocation(renderer->line_program, "matrix");
     renderer->line_position_loc = glGetAttribLocation(renderer->line_program, "position");
 

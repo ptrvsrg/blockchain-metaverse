@@ -15,4 +15,13 @@
 #define RENDER_CHUNK_RADIUS 6   /* Радиус вокруг игрока, в котором рендерятся чанки */
 #define DELETE_CHUNK_RADIUS 8   /* Радиус вокруг игрока, в котором чанки удаляются для освобождения памяти */
 
+#define TEXTURE_FILE "texture.png"
+#define BLOCK_VERTEX "block_vertex.glsl"
+#define BLOCK_FRAGMENT "block_fragment.glsl"
+#define LINE_VERTEX "line_vertex.glsl"
+#define LINE_FRAGMENT "line_fragment.glsl"
+
+#define TEXTURES_DIRECTORY "${TEXTURES_DIRECTORY}/"
+#define SHADERS_DIRECTORY "${SHADERS_DIRECTORY}/"
+
 #endif // _config_h_
