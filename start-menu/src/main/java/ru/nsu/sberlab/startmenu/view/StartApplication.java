@@ -7,6 +7,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Главный класс приложения для запуска JavaFX.
@@ -25,16 +26,17 @@ public class StartApplication extends Application {
      * @throws IOException Если возникают проблемы при загрузке FXML-файла.
      */
     @Override
-    public void start(Stage stage) throws IOException {
+    public void start(final Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(
-                getClass().getClassLoader().getResource("hello-view.fxml"));
+                StartApplication.class.getResource("/fxml/choice.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
 
         stage.setTitle(TITLE);
         stage.setScene(scene);
         stage.setMaximized(true);
         stage.setFullScreen(true);
-        stage.getIcons().add(new Image(StartApplication.class.getClassLoader().getResourceAsStream("icon.png")));
+        stage.getIcons().add(new Image(Objects.requireNonNull(StartApplication.class
+                .getResourceAsStream("/image/icon.png"))));
 
         stage.show();
     }
