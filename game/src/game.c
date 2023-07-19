@@ -13,6 +13,7 @@
 #include "renderer.h"
 #include "sync_queue.h"
 #include "chunk.h"
+#include "game_utils.h"
 
 state_t state;
 
@@ -26,8 +27,7 @@ static int previous_block_type = 0; /**< тип предыдущего блок�
 static void on_key(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void on_mouse_button(GLFWwindow *window, int button, int action, int mods);
 static void on_scroll(GLFWwindow *window, double xdelta, double ydelta);
-static void get_sight_vector(float rx, float ry, float *vx, float *vy, float *vz);
-static void get_motion_vector(int sz, int sx, float rx, float ry, float *vx, float *vy, float *vz);
+
 /**
  * @brief Ищет чанк в массиве с заданными координтами
  * 
@@ -162,12 +162,27 @@ static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     return enqueue(&in_blockchain_queue, entry);
 }
 
+void create_window(GLFWwindow** window) {
+    int width = WINDOW_WIDTH;
+    int height = WINDOW_HEIGHT;
+    GLFWmonitor *monitor = NULL;
+    if (FULLSCREEN) {
+        int mode_count;
+        monitor = glfwGetPrimaryMonitor();
+        const GLFWvidmode *modes = glfwGetVideoModes(monitor, &mode_count);
+        width = modes[mode_count - 1].width;
+        height = modes[mode_count - 1].height;
+    }
+    *window = glfwCreateWindow(width, height, WINDOW_TITLE, monitor, NULL);
+}
+
 int run(state_t loaded_state) {
     if (!glfwInit()) {
         return -1;
     }
     // Инициализация окна
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_TITLE, NULL, NULL);
+    GLFWwindow* window;
+    create_window(&window);
     if (!window) {
         glfwTerminate();
         return -1;
@@ -439,26 +454,6 @@ static GLuint make_line_buffer(int width, int height) {
             GL_ARRAY_BUFFER, sizeof(data), data
     );
     return buffer;
-}
-
-static void get_sight_vector(float rx, float ry, float *vx, float *vy, float *vz) {
-    float m = cosf(ry);
-    *vx = cosf(rx - RADIANS(90)) * m;
-    *vy = sinf(ry);
-    *vz = sinf(rx - RADIANS(90)) * m;
-}
-
-static void get_motion_vector(int sz, int sx, float rx, float ry, float *vx, float *vy, float *vz) {
-    *vx = 0;
-    *vy = 0;
-    *vz = 0;
-    if (!sz && !sx) {
-        return;
-    }
-    float strafe = atan2f(sz, sx);
-    *vx = cosf(rx + strafe);
-    *vy = 0;
-    *vz = sinf(rx + strafe);
 }
 
 static Chunk *find_chunk(Chunk *chunks, int chunk_count, int p, int q) {

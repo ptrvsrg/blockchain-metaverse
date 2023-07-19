@@ -2,6 +2,7 @@
 #define _config_h_
 
 #define DB_NAME "craft.sqlite"  /* Имя базы данных */
+#define FULLSCREEN 1            /* Режим окна */
 #define VSYNC 1                 /* Минимальное количество обновлений экрана для ожидания до замены буферов */
 #define WINDOW_WIDTH 1024       /* Ширина игрового окна */
 #define WINDOW_HEIGHT 768       /* Высота игрового окна */
