@@ -41,10 +41,10 @@ int init_renderer(renderer_t* renderer, GLFWwindow* window) {
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    load_png_texture("texture/texture.png");
+    load_png_texture(TEXTURES_DIRECTORY TEXTURE_FILE);
 
     renderer->block_program = load_GPU_program(
-            "shaders/block_vertex.glsl", "shaders/block_fragment.glsl");
+            SHADERS_DIRECTORY BLOCK_VERTEX, SHADERS_DIRECTORY BLOCK_FRAGMENT);
     renderer->matrix_loc = glGetUniformLocation(renderer->block_program, "matrix");
     renderer->camera_loc = glGetUniformLocation(renderer->block_program, "camera");
     renderer->sampler_loc = glGetUniformLocation(renderer->block_program, "sampler");
@@ -54,7 +54,7 @@ int init_renderer(renderer_t* renderer, GLFWwindow* window) {
     renderer->uv_loc = glGetAttribLocation(renderer->block_program, "uv");
 
     renderer->line_program = load_GPU_program(
-            "shaders/line_vertex.glsl", "shaders/line_fragment.glsl");
+            SHADERS_DIRECTORY LINE_VERTEX, SHADERS_DIRECTORY LINE_FRAGMENT);
     renderer->line_matrix_loc = glGetUniformLocation(renderer->line_program, "matrix");
     renderer->line_position_loc = glGetAttribLocation(renderer->line_program, "position");
 
@@ -62,7 +62,7 @@ int init_renderer(renderer_t* renderer, GLFWwindow* window) {
     renderer->item_normal_buffer = 0;
     renderer->item_uv_buffer = 0;
 
-    glfwGetWindowSize(window, &renderer->width, &renderer->height);
+    glfwGetFramebufferSize(window, &renderer->width, &renderer->height);
 
     return 0;
 }
@@ -70,12 +70,13 @@ int init_renderer(renderer_t* renderer, GLFWwindow* window) {
 void render_chunks(renderer_t* renderer, Chunk* chunks, int chunk_count, state_t* state) {
     int p = chunked(state->x);
     int q = chunked(state->z);
+    float matrix[16];
     matrix_update_3d(
-            renderer->matrix, renderer->width, renderer->height,
+            matrix, renderer->width, renderer->height,
             state->x, state->y, state->z, state->rx, state->ry,
             renderer->fov, renderer->ortho);
     glUseProgram(renderer->block_program);
-    glUniformMatrix4fv(renderer->matrix_loc, 1, GL_FALSE, renderer->matrix);
+    glUniformMatrix4fv(renderer->matrix_loc, 1, GL_FALSE, matrix);
     glUniform3f(renderer->camera_loc, state->x, state->y, state->z);
     glUniform1i(renderer->sampler_loc, 0);
     glUniform1f(renderer->timer_loc, glfwGetTime());
@@ -84,7 +85,7 @@ void render_chunks(renderer_t* renderer, Chunk* chunks, int chunk_count, state_t
         if (chunk_distance(chunk, p, q) > RENDER_CHUNK_RADIUS) {
             continue;
         }
-        if (!chunk_visible(chunk, renderer->matrix)) {
+        if (!chunk_visible(chunk, matrix)) {
             continue;
         }
         draw_chunk(chunk, renderer->position_loc, renderer->normal_loc, renderer->uv_loc);
@@ -92,14 +93,15 @@ void render_chunks(renderer_t* renderer, Chunk* chunks, int chunk_count, state_t
 }
 
 void render_wireframe(renderer_t* renderer, state_t* state, int hx, int hy, int hz) {
+    float matrix[16];
     matrix_update_3d(
-            renderer->matrix, renderer->width, renderer->height,
+            matrix, renderer->width, renderer->height,
             state->x, state->y, state->z, state->rx, state->ry,
             renderer->fov, renderer->ortho);
     glUseProgram(renderer->line_program);
     glLineWidth(1);
     glEnable(GL_COLOR_LOGIC_OP);
-    glUniformMatrix4fv(renderer->line_matrix_loc, 1, GL_FALSE, renderer->matrix);
+    glUniformMatrix4fv(renderer->line_matrix_loc, 1, GL_FALSE, matrix);
     GLuint buffer = make_cube_buffer(hx, hy, hz, 0.51);
     draw_lines(buffer, renderer->line_position_loc, 3, 48);
     glDeleteBuffers(1, &buffer);
@@ -107,11 +109,12 @@ void render_wireframe(renderer_t* renderer, state_t* state, int hx, int hy, int 
 }
 
 void render_crosshairs(renderer_t* renderer) {
-    matrix_update_2d(renderer->matrix, renderer->width, renderer->height);
+    float matrix[16];
+    matrix_update_2d(matrix, renderer->width, renderer->height);
     glUseProgram(renderer->line_program);
     glLineWidth(4);
     glEnable(GL_COLOR_LOGIC_OP);
-    glUniformMatrix4fv(renderer->line_matrix_loc, 1, GL_FALSE, renderer->matrix);
+    glUniformMatrix4fv(renderer->line_matrix_loc, 1, GL_FALSE, matrix);
     GLuint buffer = make_line_buffer(renderer->width, renderer->height);
     draw_lines(buffer, renderer->line_position_loc, 2, 4);
     glDeleteBuffers(1, &buffer);
@@ -119,14 +122,15 @@ void render_crosshairs(renderer_t* renderer) {
 }
 
 void render_selected_item(renderer_t* renderer, int update_item, int block_type) {
-    matrix_update_item(renderer->matrix, renderer->width, renderer->height);
+    float matrix[16];
+    matrix_update_item(matrix, renderer->width, renderer->height);
     if (update_item) {
         make_single_cube(
                 &renderer->item_position_buffer, &renderer->item_normal_buffer, &renderer->item_uv_buffer,
                 block_type);
     }
     glUseProgram(renderer->block_program);
-    glUniformMatrix4fv(renderer->matrix_loc, 1, GL_FALSE, renderer->matrix);
+    glUniformMatrix4fv(renderer->matrix_loc, 1, GL_FALSE, matrix);
     glUniform3f(renderer->camera_loc, 0, 0, 5);
     glUniform1i(renderer->sampler_loc, 0);
     glUniform1f(renderer->timer_loc, glfwGetTime());
