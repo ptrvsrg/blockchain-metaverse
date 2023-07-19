@@ -32,8 +32,6 @@ struct renderer_t_s {
     GLuint item_position_buffer; /**< Данные для отрисовки выбранного блока. */
     GLuint item_normal_buffer; /**< Данные для отрисовки выбранного блока. */
     GLuint item_uv_buffer; /**< Данные для отрисовки выбранного блока. */
-
-    float matrix[16]; /**< Матрица процекции. */
 };
 
 /**
