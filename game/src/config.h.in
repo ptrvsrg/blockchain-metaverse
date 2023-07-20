@@ -6,7 +6,7 @@
 #define VSYNC 1                 /* Минимальное количество обновлений экрана для ожидания до замены буферов */
 #define WINDOW_WIDTH 1024       /* Ширина игрового окна */
 #define WINDOW_HEIGHT 768       /* Высота игрового окна */
-#define WINDOW_TITLE "Craft"    /* Заголовок игрового окна */
+#define WINDOW_TITLE "MyCraft"    /* Заголовок игрового окна */
 #define SCROLL_THRESHOLD 0.1    /* Порог прокрутки ввода */
 #define BLOCK_COUNT 11          /* Общее количество типов блоков в игре */
 #define CHUNK_SIZE 32           /* Размер каждого чанка в игровом мире */
