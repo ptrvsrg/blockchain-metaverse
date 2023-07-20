@@ -169,7 +169,7 @@ int run(state_t loaded_state) {
 
         int sz = 0;
         int sx = 0;
-        if (glfwGetKey(window, 'Q')) break;
+
         if (glfwGetKey(window, 'W')) sz--;
         if (glfwGetKey(window, 'S')) sz++;
         if (glfwGetKey(window, 'A')) sx--;

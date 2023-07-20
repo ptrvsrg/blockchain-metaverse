@@ -2,12 +2,17 @@ package ru.nsu.sberlab.startmenu.controller;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import ru.nsu.sberlab.gameintegration.Launcher;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Objects;
 
 /**
  Класс ConnectionController отвечает за управление окном подключения к серверу.
@@ -39,7 +44,7 @@ public class ConnectionController {
      соответствующее сообщение об ошибке и очищает текстовые поля.
      */
     @FXML
-    protected void onEnterButtonClick() {
+    protected void onEnterButtonClick() throws InterruptedException {
 
         try {
             InetAddress inetAddress = getHost();
@@ -55,6 +60,12 @@ public class ConnectionController {
             clearFields(true);
             return;
         }
+
+        Stage stage = (Stage) anchorPane.getScene().getWindow();
+        stage.close();
+
+        Launcher launcher = new Launcher();
+        launcher.launch();
     }
 
     /**

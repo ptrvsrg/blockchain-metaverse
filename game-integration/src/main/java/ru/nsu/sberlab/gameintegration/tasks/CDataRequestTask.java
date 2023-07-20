@@ -15,7 +15,7 @@ public class CDataRequestTask implements Runnable{
      */
     private static final int TIME_REQUEST = 1500;
 
-    private static native Block getBlockChangeC();
+    public static native Block getBlockChangeC();
 
     /**
      * Получает изменение блока и отправляет его на запись в блокчейн.
