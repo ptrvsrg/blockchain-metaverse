@@ -23,6 +23,31 @@ static void on_key(GLFWwindow *window, int key, int scancode, int action, int mo
 static void on_mouse_button(GLFWwindow *window, int button, int action, int mods);
 static void on_scroll(GLFWwindow *window, double xdelta, double ydelta);
 
+static void handle_mouse_input(GLFWwindow* window) {
+    int exclusive = glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
+    static double px;
+    static double py;
+    if (exclusive && (px || py)) {
+        double mx, my;
+        glfwGetCursorPos(window, &mx, &my);
+        const float m = 0.0025;
+        state.rx += (mx - px) * m;
+        state.ry -= (my - py) * m;
+        if (state.rx < 0) {
+            state.rx += RADIANS(360);
+        }
+        if (state.rx >= RADIANS(360)) {
+            state.rx -= RADIANS(360);
+        }
+        state.ry = MAX(state.ry, -RADIANS(90));
+        state.ry = MIN(state.ry, RADIANS(90));
+        px = mx;
+        py = my;
+    } else {
+        glfwGetCursorPos(window, &px, &py);
+    }
+}
+
 static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     sync_queue_entry_t entry;
     entry.m_chunk_x = p;
@@ -67,12 +92,10 @@ int run(state_t loaded_state) {
     if (-1 == create_window(&window)) {
         return -1;
     }
-
     renderer_t renderer;
     if (-1 == init_renderer(&renderer, window)) {
         return -1;
     }
-    
     if (db_init()) {
         return -1;
     }
@@ -98,26 +121,8 @@ int run(state_t loaded_state) {
         double now = glfwGetTime();
         double dt = MIN(now - previous, 0.2);
         previous = now;
-        int exclusive = glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
-        if (exclusive && (px || py)) {
-            double mx, my;
-            glfwGetCursorPos(window, &mx, &my);
-            float m = 0.0025;
-            state.rx += (mx - px) * m;
-            state.ry -= (my - py) * m;
-            if (state.rx < 0) {
-                state.rx += RADIANS(360);
-            }
-            if (state.rx >= RADIANS(360)) {
-                state.rx -= RADIANS(360);
-            }
-            state.ry = MAX(state.ry, -RADIANS(90));
-            state.ry = MIN(state.ry, RADIANS(90));
-            px = mx;
-            py = my;
-        } else {
-            glfwGetCursorPos(window, &px, &py);
-        }
+
+        handle_mouse_input(window);
 
         if (left_click) {
             left_click = 0;
@@ -162,46 +167,15 @@ int run(state_t loaded_state) {
 
         int sz = 0;
         int sx = 0;
-        if (glfwGetKey(window, 'Q')) break;
-        if (glfwGetKey(window, 'W')) sz--;
-        if (glfwGetKey(window, 'S')) sz++;
-        if (glfwGetKey(window, 'A')) sx--;
-        if (glfwGetKey(window, 'D')) sx++;
-        if (dy == 0 && glfwGetKey(window, GLFW_KEY_SPACE)) {
+        if (glfwGetKey(window, CRAFT_KEY_FORWARD)) sz--;
+        if (glfwGetKey(window, CRAFT_KEY_BACKWARD)) sz++;
+        if (glfwGetKey(window, CRAFT_KEY_LEFT)) sx--;
+        if (glfwGetKey(window, CRAFT_KEY_RIGHT)) sx++;
+        if (dy == 0 && glfwGetKey(window, CRAFT_KEY_JUMP)) {
             dy = 8;
         }
         float vx, vy, vz;
         get_motion_vector(sz, sx, state.rx, state.ry, &vx, &vy, &vz);
-        if (glfwGetKey(window, 'Z')) {
-            vx = -1;
-            vy = 0;
-            vz = 0;
-        }
-        if (glfwGetKey(window, 'X')) {
-            vx = 1;
-            vy = 0;
-            vz = 0;
-        }
-        if (glfwGetKey(window, 'C')) {
-            vx = 0;
-            vy = -1;
-            vz = 0;
-        }
-        if (glfwGetKey(window, 'V')) {
-            vx = 0;
-            vy = 1;
-            vz = 0;
-        }
-        if (glfwGetKey(window, 'B')) {
-            vx = 0;
-            vy = 0;
-            vz = -1;
-        }
-        if (glfwGetKey(window, 'N')) {
-            vx = 0;
-            vy = 0;
-            vz = 1;
-        }
         float speed = 5;
         int step = 8;
         float ut = dt / step;
@@ -224,8 +198,8 @@ int run(state_t loaded_state) {
         int q = chunked(state.z);
         ensure_chunks(chunks, &chunk_count, p, q, 0);
 
-        renderer.ortho = glfwGetKey(window, 'F');
-        renderer.fov = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) ? 15.0 : 65.0;
+        renderer.ortho = glfwGetKey(window, CRAFT_KEY_ORTHO);
+        renderer.fov = glfwGetKey(window, CRAFT_KEY_ZOOM) ? 15.0 : 65.0;
         glfwGetFramebufferSize(window, &renderer.width, &renderer.height);
         glViewport(0, 0, renderer.width, renderer.height);
         // Rendering
@@ -268,7 +242,7 @@ static void on_key(GLFWwindow *window, int key, int scancode, int action, int mo
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
     }
-    if (key == 'E') {
+    if (key == CRAFT_KEY_ITEM_NEXT) {
         block_type = block_type % BLOCK_COUNT + 1;
     }
 }
