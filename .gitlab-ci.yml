@@ -23,6 +23,9 @@ build-c:
         paths:
             - game/build/
         expire_in: 1 week
+    only:
+        changes:
+            - game/**/*
 
 test-c:
     stage: test
@@ -33,6 +36,12 @@ test-c:
         paths:
             - game/build/
         expire_in: 1 week
+    only:
+        changes:
+            - game/**/*
+    needs:
+        - job: build-c
+          artifacts: true
 
 # Сборка и тестирование Java-модуля
 
@@ -42,8 +51,15 @@ build-java:
         - mvn compile $MAVEN_OPTS
     artifacts:
         paths:
+            - blockchain/target/
             - game-integration/target/
+            - start-menu/target/
         expire_in: 1 week
+    only:
+        changes:
+            - blockchain/**/*
+            - game-integration/**/*
+            - start-menu/**/*
 
 test-java:
     stage: test
@@ -55,3 +71,11 @@ test-java:
             - game-integration/target/
             - start-menu/target/
         expire_in: 1 week
+    only:
+        changes:
+            - blockchain/**/*
+            - game-integration/**/*
+            - start-menu/**/*
+    needs:
+        - job: build-java
+          artifacts: true
