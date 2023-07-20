@@ -39,6 +39,9 @@ test-c:
     only:
         changes:
             - game/**/*
+    needs:
+        - job: build-c
+          artifacts: true
 
 # Сборка и тестирование Java-модуля
 
@@ -73,3 +76,6 @@ test-java:
             - blockchain/**/*
             - game-integration/**/*
             - start-menu/**/*
+    needs:
+        - job: build-java
+          artifacts: true
