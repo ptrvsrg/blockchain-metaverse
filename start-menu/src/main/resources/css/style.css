@@ -17,6 +17,13 @@
     -fx-font-weight: BOLD;
     -fx-background-radius: 10px;
 }
+.button_1:hover {
+    -fx-background-color: #ee9b4b;
+}
+
+.button_1:pressed {
+    -fx-background-color: #ee9b4b;
+}
 
 .button_2 {
     -jfx-button-type: RAISED;
@@ -26,12 +33,12 @@
     -fx-background-radius: 10px;
 }
 
-.button_3 {
-    -jfx-button-type: RAISED;
-    -fx-background-color: #62d563;
-    -fx-text-fill: WHITE;
-    -fx-font-weight: BOLD;
-    -fx-background-radius: 10px;
+.button_2:hover {
+    -fx-background-color: #159ec7;
+}
+
+.button_2:pressed {
+    -fx-background-color: #159ec7;
 }
 
 .text_field {
