@@ -4,12 +4,20 @@ import io.neow3j.types.Hash160;
 import io.neow3j.wallet.Account;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.gameintegration.Launcher;
+import ru.nsu.sberlab.startmenu.view.StartApplication;
+
+import java.util.Objects;
+
+import static ru.nsu.sberlab.startmenu.view.StartApplication.TITLE;
 
 /**
  Класс ConnectionController отвечает за управление окном подключения к серверу.
@@ -35,10 +43,10 @@ public class ConnectionController {
     private Label messageText;
 
     @FXML
-    public TextField mapContractTextField;
+    private TextField mapContractTextField;
 
     @FXML
-    public TextField stateContractTextField;
+    private TextField stateContractTextField;
 
     @FXML
     private String privateKey;
@@ -67,13 +75,31 @@ public class ConnectionController {
                 new Hash160("c49920e21449a3fb1cd19685644093c034bb576e")
         * */
 
-        Launcher launcher = new Launcher();
-        launcher.launch(new MapInteraction(
-                "http://" + inetAddress + ":" + port,
-                Account.fromWIF(privateKey),
-                new Hash160(mapContractTextField.getText()),
-                new Hash160(stateContractTextField.getText())
-        ));
+        try {
+            Launcher launcher = new Launcher();
+            launcher.launch(new MapInteraction(
+                    "http://" + inetAddress + ":" + port,
+                    Account.fromWIF(privateKey),
+                    new Hash160(mapContractTextField.getText()),
+                    new Hash160(stateContractTextField.getText())
+            ));
+        } catch (Exception e) {
+            FXMLLoader fxmlLoader = new FXMLLoader(
+                    StartApplication.class.getResource("/fxml/connect.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+
+            stage.setTitle(TITLE);
+            stage.setScene(scene);
+            stage.setMaximized(true);
+            stage.setFullScreen(true);
+            stage.getIcons().add(new Image(Objects.requireNonNull(StartApplication.class
+                    .getResourceAsStream("/image/icon.png"))));
+            stage.show();
+
+            ConnectionController connectionController = fxmlLoader.getController();
+            connectionController.setMessageText("Invalid input");
+        }
+
     }
 
     private String getPort() throws NumberFormatException {
@@ -109,7 +135,18 @@ public class ConnectionController {
         }
     }
 
-    public void setPrivateKey(String privateKey) {
+
+    /**
+     * @param privateKey приватный ключ
+     */
+    public void setPrivateKey(final String privateKey) {
         this.privateKey = privateKey;
+    }
+
+    /**
+     * @param text текст, который необходимо установить в поле сообщений
+     */
+    public void setMessageText(final String text) {
+        messageText.setText(text);
     }
 }

@@ -7,38 +7,23 @@
 <?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" spacing="20.0" styleClass="pane" stylesheets="@../css/style.css"
-      xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="ru.nsu.sberlab.startmenu.controller.SignUpController">
-    <AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-                minWidth="-Infinity" prefHeight="384.0" prefWidth="491.0" VBox.vgrow="ALWAYS">
-        <Pane layoutX="96.0" layoutY="73.0" prefHeight="251.0" prefWidth="299.0"
-              AnchorPane.bottomAnchor="59.80000000000001" AnchorPane.leftAnchor="96.0" AnchorPane.rightAnchor="96.0"
-              AnchorPane.topAnchor="73.0">
-            <Button fx:id="signUpButton" layoutX="214.0" layoutY="122.0" mnemonicParsing="false"
-                    onAction="#signUpButtonClick" prefHeight="32.0" prefWidth="83.0" styleClass="button_1"
-                    text="SIGN UP">
+<VBox alignment="CENTER" spacing="20.0" styleClass="pane" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.nsu.sberlab.startmenu.controller.SignUpController">
+    <AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="384.0" prefWidth="491.0" VBox.vgrow="ALWAYS">
+        <Pane layoutX="96.0" layoutY="73.0" prefHeight="251.0" prefWidth="299.0" AnchorPane.bottomAnchor="59.80000000000001" AnchorPane.leftAnchor="96.0" AnchorPane.rightAnchor="96.0" AnchorPane.topAnchor="73.0">
+            <Button fx:id="signUpButton" layoutX="214.0" layoutY="122.0" mnemonicParsing="false" onAction="#signUpButtonClick" prefHeight="32.0" prefWidth="83.0" styleClass="button_1" text="SIGN UP">
                 <stylesheets>
                     <URL value="@../css/style.css" />
                     <URL value="@../css/style.css" />
                 </stylesheets>
             </Button>
-            <Button layoutX="106.0" layoutY="122.0" mnemonicParsing="false" onAction="#copyTextButtonClick"
-                    prefHeight="32.0" prefWidth="83.0" styleClass="button_3" stylesheets="@../css/style.css"
-                    text="COPY" />
-            <Label fx:id="messageText" alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="46.0"
-                   prefWidth="299.0" textAlignment="CENTER">
+            <Label fx:id="messageText" alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="46.0" prefWidth="299.0" textAlignment="CENTER">
                 <font>
                     <Font name="JetBrains Mono Regular" size="14.0" />
                 </font>
             </Label>
-            <Button layoutX="-2.0" layoutY="122.0" mnemonicParsing="false" onAction="#backButtonClick"
-                    prefHeight="32.0" prefWidth="83.0" styleClass="button_2" stylesheets="@../css/style.css"
-                    text="BACK" />
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="46.0" layoutX="-2.0" layoutY="64.0"
-                       width="299.0" />
-            <Text fx:id="wifKeyText" fill="#978f8f" fontSmoothingType="LCD" layoutY="82.0" stroke="WHITE"
-                  strokeType="INSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="299.0">
+            <Button layoutX="-2.0" layoutY="122.0" mnemonicParsing="false" onAction="#backButtonClick" prefHeight="32.0" prefWidth="83.0" styleClass="button_2" stylesheets="@../css/style.css" text="BACK" />
+            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="46.0" layoutX="-2.0" layoutY="64.0" width="299.0" />
+            <Text fx:id="wifKeyText" fill="#978f8f" fontSmoothingType="LCD" layoutY="82.0" stroke="WHITE" strokeType="INSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="299.0">
                 <font>
                     <Font name="JetBrains Mono Regular" size="18.0" />
                 </font>

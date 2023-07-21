@@ -51,9 +51,4 @@ public class LogInController {
     public void backButtonClick() throws IOException {
         Controller.loadNewPage(anchorPane, "/fxml/choice.fxml");
     }
-
-    public void pasteTextButtonClick(ActionEvent event) {
-        Clipboard clipboard = Clipboard.getSystemClipboard();
-        wifKeyTextField.setText(clipboard.getString());
-    }
 }

@@ -18,10 +18,10 @@ import java.io.IOException;
 public class SignUpController {
 
     @FXML
-    public Text wifKeyText;
+    private Text wifKeyText;
 
     @FXML
-    public Button signUpButton;
+    private Button signUpButton;
 
     @FXML
     private Label messageText;
@@ -29,6 +29,12 @@ public class SignUpController {
     @FXML
     private AnchorPane anchorPane;
 
+    /**
+     * Обработчик события нажатия кнопки "Зарегистрироваться".
+     * Создает новый аккаунт, генерирует и отображает секретный ключ в формате WIF
+     * (Wallet Import Format) и выводит сообщение для сохранения секретного ключа.
+     * Кнопка "Зарегистрироваться" становится неактивной после выполнения метода.
+     */
     public void signUpButtonClick() {
         messageText.setText("Save your secret wif key");
         Account account = Account.create();
@@ -44,13 +50,5 @@ public class SignUpController {
      */
     public void backButtonClick() throws IOException {
         Controller.loadNewPage(anchorPane, "/fxml/choice.fxml");
-    }
-
-    public void copyTextButtonClick(ActionEvent event) {
-        Clipboard clipboard = Clipboard.getSystemClipboard();
-        ClipboardContent content = new ClipboardContent();
-        content.putString(wifKeyText.getText());
-        clipboard.setContent(content);
-        messageText.setText("Copied");
     }
 }
