@@ -65,7 +65,7 @@ public class ConnectionController {
         stage.close();
 
         Launcher launcher = new Launcher();
-        launcher.launch();
+//        launcher.launch();
     }
 
     /**
