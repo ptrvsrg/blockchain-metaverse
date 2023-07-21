@@ -21,9 +21,19 @@
             <version>2.20.0</version>
         </dependency>
         <dependency>
+            <groupId>io.neow3j</groupId>
+            <artifactId>core</artifactId>
+            <version>3.20.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.18.26</version>
+        </dependency>
+        <dependency>
+            <groupId>ru.nsu.sberlab</groupId>
+            <artifactId>blockchain-integration</artifactId>
+            <version>1.0.0</version>
         </dependency>
     </dependencies>
 
