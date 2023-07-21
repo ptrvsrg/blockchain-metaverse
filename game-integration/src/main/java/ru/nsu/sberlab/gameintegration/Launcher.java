@@ -2,6 +2,7 @@ package ru.nsu.sberlab.gameintegration;
 
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
+import ru.nsu.sberlab.gameintegration.data.Block;
 import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
 import ru.nsu.sberlab.gameintegration.tasks.BlockchainDataRequestTask;
 import ru.nsu.sberlab.gameintegration.tasks.CDataRequestTask;
@@ -13,13 +14,23 @@ import ru.nsu.sberlab.gameintegration.tasks.StartTask;
 @Log4j2
 public class Launcher {
 
+    static {
+        System.loadLibrary("glew");
+        System.loadLibrary("lodepng");
+        System.loadLibrary("noise");
+        System.loadLibrary("sqlite");
+        System.loadLibrary("tinycthread");
+
+        System.loadLibrary("craft");
+        System.loadLibrary("jnative");
+    }
+
     /**
      * Запускает игру и выполняет задачи для запроса изменений данных из блокчейна.
-     *
      */
-    public void launch() {
+    public void launch() throws InterruptedException {
 
-        log.info("STARTING GAME...");
+        /*log.info("STARTING GAME...");
         Thread startTask = new Thread(new StartTask(PlayerPositionHandler.getPlayerPosition()));
         Thread blockchainDataRequestTask = new Thread(new BlockchainDataRequestTask());
         Thread cDataRequestTask = new Thread(new CDataRequestTask());
@@ -39,6 +50,21 @@ public class Launcher {
             log.catching(Level.ERROR, e);
         }
 
-        log.info("END SESSION");
+        log.info("END SESSION");*/
+
+        Thread startTask = new Thread(new StartTask(new PlayerPosition(
+                0, 0, 0, 0, 0)));
+        startTask.start();
+
+        Thread blockTask = new Thread(()->{
+            Block block = CDataRequestTask.getBlockChangeC();
+            while (block != null) {
+                System.out.println(block);
+                block = CDataRequestTask.getBlockChangeC();
+            }
+        });
+        blockTask.start();
+        blockTask.join();
+        startTask.join();
     }
 }

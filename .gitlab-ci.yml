@@ -3,89 +3,79 @@ stages:
     - test
 
 variables:
-  MAVEN_OPTS: "-Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository"
+    MAVEN_REPO_PATH: "$CI_PROJECT_PATH/.m2/repository"
+    MAVEN_OPTS: "-Dmaven.repo.local=$MAVEN_REPO_PATH"
+
+cache:
+    paths:
+        - $MAVEN_REPO_PATH/
 
 # Сборка и тестирование C-модуля
 
-.build-c:
+build-c:
     stage: build
     script:
-        - mkdir -p $MODULE_NAME/build
-        - cd $MODULE_NAME/build
+        - mkdir -p game/build
+        - cd game/build
         - cmake ..
         - cmake --build .
     artifacts:
         paths:
-            - $MODULE_NAME/build/
+            - game/build/
+        expire_in: 1 week
+    only:
+        changes:
+            - game/**/*
 
-
-.test-c:
+test-c:
     stage: test
     script:
-        - cd $MODULE_NAME/build
+        - cd game/build
         - ctest --verbose
-
-# Сборка и тестирование C-модуля game
-
-build-c-game:
-    variables:
-        MODULE_NAME: "game"
-    extends: .build-c
-
-test-c-game:
-    variables:
-        MODULE_NAME: "game"
-    extends: .test-c
-    dependencies:
-        - build-c-game
+    artifacts:
+        paths:
+            - game/build/
+        expire_in: 1 week
+    only:
+        changes:
+            - game/**/*
+    needs:
+        - job: build-c
+          artifacts: true
 
 # Сборка и тестирование Java-модуля
 
-.build-java:
+build-java:
     stage: build
     script:
-        - cd $MODULE_NAME
-        - mvn compile
+        - mvn compile $MAVEN_OPTS
     artifacts:
         paths:
-            - $MODULE_NAME/target/
-    cache:
-        paths:
-            - $CI_PROJECT_DIR/.m2/repository/
+            - blockchain/target/
+            - game-integration/target/
+            - start-menu/target/
+        expire_in: 1 week
+    only:
+        changes:
+            - blockchain/**/*
+            - game-integration/**/*
+            - start-menu/**/*
 
-.test-java:
+test-java:
     stage: test
     script:
-        - cd $MODULE_NAME
-        - mvn test
-    cache:
+        - mvn install $MAVEN_OPTS
+    artifacts:
         paths:
-            - $CI_PROJECT_DIR/.m2/repository/
-
-# Сборка и тестирование Java-модуля blockchain
-
-build-java-blockchain:
-    variables:
-        MODULE_NAME: "blockchain"
-    extends: .build-java
-
-test-java-blockchain:
-    variables:
-        MODULE_NAME: "blockchain"
-    extends: .test-java
-    dependencies:
-        - build-java-blockchain
-
-# Сборка и тестирование Java-модуля start-menu
-
-build-java-start-menu:
-    variables:
-        MODULE_NAME: "start-menu"
-    extends: .build-java
-
-test-java-start-menu:
-    variables:
-        MODULE_NAME: "start-menu"
-    extends: .test-java
-    dependencies:
-        - build-java-start-menu
+            - blockchain/target/
+            - game-integration/target/
+            - start-menu/target/
+        expire_in: 1 week
+    only:
+        changes:
+            - blockchain/**/*
+            - game-integration/**/*
+            - start-menu/**/*
+    needs:
+        - job: build-java
+          artifacts: true

@@ -104,6 +104,8 @@ elseif (UNIX)
             PRIVATE sqlite
             PRIVATE ${GLFW_LIBRARIES})
 elseif (MINGW)
+    set(CMAKE_SHARED_LIBRARY_PREFIX "")
+    set(CMAKE_STATIC_LIBRARY_PREFIX "")
     target_link_libraries(craft
             PRIVATE ws2_32.lib
             PRIVATE glfw
