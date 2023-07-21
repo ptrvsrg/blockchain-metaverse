@@ -1,5 +1,7 @@
 package ru.nsu.sberlab.startmenu.controller;
 
+import io.neow3j.types.Hash160;
+import io.neow3j.wallet.Account;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,6 +10,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.gameintegration.Launcher;
 
 import java.net.InetAddress;
@@ -44,7 +47,7 @@ public class ConnectionController {
      соответствующее сообщение об ошибке и очищает текстовые поля.
      */
     @FXML
-    protected void onEnterButtonClick() throws InterruptedException {
+    protected void onEnterButtonClick() throws Throwable {
 
         try {
             InetAddress inetAddress = getHost();
@@ -65,7 +68,12 @@ public class ConnectionController {
         stage.close();
 
         Launcher launcher = new Launcher();
-//        launcher.launch();
+        launcher.launch(new MapInteraction(
+                "http://45.9.24.41:20032",
+                Account.fromWIF("L2btC2CKdpBE32hz4qTeLjYsP9dYKWNzYQH4Bmkt8BzRSviNZW1X"),
+                new Hash160("2c88a4ff37e4e269e01c14439c7894d7c46c1a7c"),
+                new Hash160("c49920e21449a3fb1cd19685644093c034bb576e")
+        ));
     }
 
     /**
