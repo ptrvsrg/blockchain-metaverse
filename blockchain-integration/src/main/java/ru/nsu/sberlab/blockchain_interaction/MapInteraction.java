@@ -2,8 +2,10 @@ package ru.nsu.sberlab.blockchain_interaction;
 
 import io.neow3j.contract.NefFile;
 import io.neow3j.crypto.ECKeyPair;
+import io.neow3j.protocol.core.stackitem.StackItem;
 import io.neow3j.types.ContractParameter;
 import io.neow3j.types.Hash160;
+import io.neow3j.types.Hash256;
 import io.neow3j.wallet.Account;
 import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
 import ru.nsu.sberlab.blockchain_interaction.utils.NodeInteraction;
@@ -96,6 +98,17 @@ public class MapInteraction {
             System.arraycopy(infoArray[i].serialize(), 0, infoListSerialized, i * BlockInfo.BlockInfoByteSize, BlockInfo.BlockInfoByteSize);
 
         nodeInteraction.invokeFunctionInContract(mapContractHash, PUT_CHANGES_FUNCTION, ContractParameter.byteArray(infoListSerialized));
+
+    }
+
+    public Hash256 addChangesNoBlocking(BlockInfo... infoArray) throws  Throwable {
+        byte[] infoListSerialized = new byte[BlockInfo.BlockInfoByteSize * infoArray.length];
+
+        for (int i = 0; i < infoArray.length; i++)
+            System.arraycopy(infoArray[i].serialize(), 0, infoListSerialized, i * BlockInfo.BlockInfoByteSize, BlockInfo.BlockInfoByteSize);
+
+
+        return nodeInteraction.invokeFunctionNoBlocking(mapContractHash, PUT_CHANGES_FUNCTION, ContractParameter.byteArray(infoListSerialized));
 
     }
 
@@ -212,6 +225,10 @@ public class MapInteraction {
         } else {
             nodeInteraction.invokeFunctionInContract(stateContractHash, "update", ContractParameter.byteArray(nefFile.toArray()), ContractParameter.string(manifest), ContractParameter.any(data));
         }
+    }
+
+    public StackItem getResult(Hash256 transactionHash) throws Exception {
+        return nodeInteraction.getResult(transactionHash);
     }
 
     public NodeInteraction getNodeInteraction() {

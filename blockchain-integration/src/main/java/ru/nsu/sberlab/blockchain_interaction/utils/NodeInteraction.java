@@ -17,8 +17,6 @@ import io.neow3j.types.NeoVMStateType;
 import io.neow3j.utils.Await;
 import io.neow3j.wallet.Account;
 
-import java.util.Map;
-
 import static java.lang.String.format;
 
 /**
@@ -68,17 +66,15 @@ public class NodeInteraction {
 
 
     /**
-     * Метод для вызова функции в контракте.
+     * Вызвать функцию и не дожидаться ее завершения.
      *
      * @param contactHash хэш контракта у которого мы собираемся вызвать функцию
      * @param function    имя функции которую мы собираемся вызвать
      * @param params      параметры для передачи в функцию
-     * @return то что вернула функция
+     * @return Hash транзакции, в которой была вызвана функция
      * @throws Throwable если происходит ошибка при вызове функции в контракте
      */
-    public StackItem invokeFunctionInContract(Hash160 contactHash, String function, ContractParameter... params)
-            throws Throwable {
-
+    public Hash256 invokeFunctionNoBlocking(Hash160 contactHash, String function, ContractParameter... params) throws Throwable {
         Transaction transaction = new SmartContract(contactHash, node)
                 .invokeFunction(function, params)
                 .signers(signerOwner)
@@ -91,13 +87,20 @@ public class NodeInteraction {
                     response.getError().getMessage()));
         }
 
-        Hash256 txHash = response.getResult().getHash();
-        Await.waitUntilTransactionIsExecuted(txHash, node);
+        return response.getResult().getHash();
+    }
 
-
-        NeoGetApplicationLog response1 = node.getApplicationLog(txHash).send();
+    /**
+     * Получить результат транзакции.
+     *
+     * @param transactionHash Hash транзакции
+     * @return результат выполнения транзакции
+     * @throws Exception транзакция завершилась с ошибкой
+     */
+    public StackItem getResult(Hash256 transactionHash) throws Exception {
+        NeoGetApplicationLog response1 = node.getApplicationLog(transactionHash).send();
         if (response1.hasError()) {
-            throw new Exception("Error fetching transaction's app log: " + response.getError().getMessage());
+            throw new Exception("Error fetching transaction's app log: " + response1.getError().getMessage());
         }
         // Get the first execution. Usually there is only one execution.
         NeoApplicationLog.Execution execution = response1.getApplicationLog().getExecutions().get(0);
@@ -108,6 +111,26 @@ public class NodeInteraction {
         // Get the result stack.
         java.util.List<StackItem> stack = execution.getStack();
         return stack.get(0);
+    }
+
+
+    /**
+     * Метод для вызова функции в контракте.
+     *
+     * @param contactHash хэш контракта у которого мы собираемся вызвать функцию
+     * @param function    имя функции которую мы собираемся вызвать
+     * @param params      параметры для передачи в функцию
+     * @return то что вернула функция
+     * @throws Throwable если происходит ошибка при вызове функции в контракте
+     */
+    public StackItem invokeFunctionInContract(Hash160 contactHash, String function, ContractParameter... params)
+            throws Throwable {
+
+        var txHash = invokeFunctionNoBlocking(contactHash, function, params);
+        Await.waitUntilTransactionIsExecuted(txHash, node);
+
+        return getResult(txHash);
+
     }
 
     public Neow3j getNode() {
