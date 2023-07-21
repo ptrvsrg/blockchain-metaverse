@@ -39,4 +39,29 @@
 
     </dependencies>
 
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <annotationProcessorPath>
+                            <groupId>io.neow3j</groupId>
+                            <artifactId>contract</artifactId>
+                            <version>3.20.1</version>
+                        </annotationProcessorPath>
+                        <annotationProcessorPath>
+                            <groupId>io.neow3j</groupId>
+                            <artifactId>core</artifactId>
+                            <version>3.20.1</version>
+                        </annotationProcessorPath>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
