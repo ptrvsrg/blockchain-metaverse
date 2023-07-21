@@ -18,14 +18,14 @@ import ru.nsu.sberlab.gameintegration.tasks.StartTask;
 public class Launcher {
 
     static {
-        System.loadLibrary("glew");
-        System.loadLibrary("lodepng");
-        System.loadLibrary("noise");
-        System.loadLibrary("sqlite");
-        System.loadLibrary("tinycthread");
+        System.loadLibrary("libglew");
+        System.loadLibrary("liblodepng");
+        System.loadLibrary("libnoise");
+        System.loadLibrary("libsqlite");
+        System.loadLibrary("libtinycthread");
 
-        System.loadLibrary("craft");
-        System.loadLibrary("jnative");
+        System.loadLibrary("libcraft");
+        System.loadLibrary("libjnative");
     }
 
     /**

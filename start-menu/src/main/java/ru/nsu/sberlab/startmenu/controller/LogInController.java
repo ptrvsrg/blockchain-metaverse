@@ -1,8 +1,12 @@
 package ru.nsu.sberlab.startmenu.controller;
 
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
 import javafx.scene.layout.AnchorPane;
 
 import java.io.IOException;
@@ -13,7 +17,7 @@ import java.io.IOException;
 public class LogInController {
 
     @FXML
-    private TextField privateKeyTextField;
+    private TextField wifKeyTextField;
 
     @FXML
     private Label messageText;
@@ -28,8 +32,15 @@ public class LogInController {
      */
     public void logInButtonClick() throws IOException {
         //TODO CHECK ACCOUNT
-        Controller.loadNewPage(anchorPane, "/fxml/connect.fxml");
+        String privateKey = wifKeyTextField.getText();
 
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/connect.fxml"));
+        Parent root = loader.load();
+
+        ConnectionController connectionController = loader.getController();
+        connectionController.setPrivateKey(privateKey);
+
+        anchorPane.getScene().setRoot(root);
     }
 
     /**
@@ -39,5 +50,10 @@ public class LogInController {
      */
     public void backButtonClick() throws IOException {
         Controller.loadNewPage(anchorPane, "/fxml/choice.fxml");
+    }
+
+    public void pasteTextButtonClick(ActionEvent event) {
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        wifKeyTextField.setText(clipboard.getString());
     }
 }

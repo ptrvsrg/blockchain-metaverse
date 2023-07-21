@@ -41,6 +41,22 @@
     -fx-background-color: #159ec7;
 }
 
+.button_3 {
+    -jfx-button-type: RAISED;
+    -fx-background-color: #56a713;
+    -fx-text-fill: WHITE;
+    -fx-font-weight: BOLD;
+    -fx-background-radius: 10px;
+}
+
+.button_3:hover {
+    -fx-background-color: #71b43b;
+}
+
+.button_3:pressed {
+    -fx-background-color: #71b43b;
+}
+
 .text_field {
     -fx-focus-color: transparent;
 }

@@ -16,26 +16,30 @@
             <Button layoutX="216.0" layoutY="146.0" mnemonicParsing="false" onAction="#logInButtonClick"
                     prefHeight="32.0" prefWidth="83.0" styleClass="button_1" text="LOG IN">
                 <stylesheets>
-                    <URL value="@../css/style.css"/>
-                    <URL value="@../css/style.css"/>
+                    <URL value="@../css/style.css" />
+                    <URL value="@../css/style.css" />
                 </stylesheets>
             </Button>
-            <TextField fx:id="privateKeyTextField" alignment="CENTER" layoutY="86.0" prefHeight="46.0" prefWidth="299.0"
+            <Button layoutX="108.0" layoutY="146.0" mnemonicParsing="false" onAction="#pasteTextButtonClick"
+                    prefHeight="32.0" prefWidth="83.0" styleClass="button_3"
+                    stylesheets="@../css/style.css" text="PASTE " />
+            <TextField fx:id="wifKeyTextField" alignment="CENTER" layoutY="86.0" prefHeight="46.0" prefWidth="299.0"
                        promptText="PRIVATE KEY" stylesheets="@../css/style.css">
                 <font>
-                    <Font name="JetBrains Mono Regular" size="18.0"/>
+                    <Font name="JetBrains Mono Regular" size="18.0" />
                 </font>
             </TextField>
             <Label fx:id="messageText" alignment="TOP_CENTER" contentDisplay="CENTER" layoutY="22.0" prefHeight="64.0"
                    prefWidth="299.0" textAlignment="CENTER">
                 <font>
-                    <Font name="JetBrains Mono Regular" size="14.0"/>
+                    <Font name="JetBrains Mono Regular" size="14.0" />
                 </font>
             </Label>
-            <Button onAction="#backButtonClick" layoutY="146.0" mnemonicParsing="false" prefHeight="32.0"
-                    prefWidth="83.0" styleClass="button_2" stylesheets="@../css/style.css" text="BACK"/>
+            <Button layoutY="146.0" mnemonicParsing="false" onAction="#backButtonClick"
+                    prefHeight="32.0" prefWidth="83.0" styleClass="button_2" stylesheets="@../css/style.css"
+                    text="BACK" />
             <opaqueInsets>
-                <Insets/>
+                <Insets />
             </opaqueInsets>
         </Pane>
     </AnchorPane>
