@@ -8,6 +8,10 @@
 #include "config.h"
 #include "noise.h"
 
+int chunked(float x) {
+    return floorf(roundf(x) / CHUNK_SIZE);
+}
+
 int chunk_distance(Chunk *chunk, int p, int q) {
     int dp = ABS(chunk->p - p);
     int dq = ABS(chunk->q - q);
@@ -16,8 +20,8 @@ int chunk_distance(Chunk *chunk, int p, int q) {
 
 int player_intersects_obstacle(Chunk *chunks, int chunk_count, int height, float x, float y, float z) {
     int result = 0;
-    int p = floorf(roundf(x) / CHUNK_SIZE);
-    int q = floorf(roundf(z) / CHUNK_SIZE);
+    int p = chunked(x);
+    int q = chunked(z);
     Chunk *chunk = find_chunk(chunks, chunk_count, p, q);
     if (chunk) {
         Map* map = &chunk->map;
@@ -69,8 +73,8 @@ int highest_block(Chunk *chunks, int chunk_count, float x, float z) {
     int result = -1;
     int nx = roundf(x);
     int nz = roundf(z);
-    int p = floorf(roundf(x) / CHUNK_SIZE);
-    int q = floorf(roundf(z) / CHUNK_SIZE);
+    int p = chunked(x);
+    int q = chunked(z);
     Chunk *chunk = find_chunk(chunks, chunk_count, p, q);
     if (chunk) {
         Map *map = &chunk->map;
@@ -122,8 +126,8 @@ int _hit_test(Map *map, float max_distance, int previous, float x, float y, floa
 int hit_test(Chunk *chunks, int chunk_count, int previous, const state_t* state, int *bx, int *by, int *bz) {
     int result = 0;
     float best = 0;
-    int p = floorf(roundf(state->x) / CHUNK_SIZE);
-    int q = floorf(roundf(state->z) / CHUNK_SIZE);
+    int p = chunked(state->x);
+    int q = chunked(state->z);
     float vx, vy, vz;
     get_sight_vector(state->rx, state->ry, &vx, &vy, &vz);
     for (int i = 0; i < chunk_count; i++) {
@@ -151,8 +155,8 @@ int hit_test(Chunk *chunks, int chunk_count, int previous, const state_t* state,
 
 int collide(Chunk *chunks, int chunk_count, int height, float *x, float *y, float *z) {
     int result = 0;
-    int p = floorf(roundf(*x) / CHUNK_SIZE);
-    int q = floorf(roundf(*z) / CHUNK_SIZE);
+    int p = chunked(*x);
+    int q = chunked(*z);
     Chunk *chunk = find_chunk(chunks, chunk_count, p, q);
     if (!chunk) {
         return result;
@@ -425,8 +429,8 @@ void _set_block(Chunk *chunks, int chunk_count, int p, int q, int x, int y, int 
 }
 
 void set_block(Chunk *chunks, int chunk_count, int x, int y, int z, int w) {
-    int p = floorf((float) x / CHUNK_SIZE);
-    int q = floorf((float) z / CHUNK_SIZE);
+    int p = chunked(x);
+    int q = chunked(z);
     _set_block(chunks, chunk_count, p, q, x, y, z, w);
     w = w ? -1 : 0;
     int p0 = x == p * CHUNK_SIZE;
