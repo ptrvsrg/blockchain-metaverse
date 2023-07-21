@@ -13,10 +13,12 @@
 #include "game_utils.h"
 
 state_t state;
+static Chunk chunks[MAX_CHUNKS];
+static int chunk_count = 0;
 
 // Используются в callback'ах, которые вызывает OpenGL, поэтому глобальные
-static int left_click = 0; /**< состояние нажатия ЛКМ */
-static int right_click = 0; /**< состояние нажатия ПКМ */
+// static int left_click = 0; /**< состояние нажатия ЛКМ */
+// static int right_click = 0; /**< состояние нажатия ПКМ */
 static int block_type = 1; /**< тип выбранного блока */
 
 static void on_key(GLFWwindow *window, int key, int scancode, int action, int mods);
@@ -45,6 +47,39 @@ static void handle_mouse_input(GLFWwindow* window) {
         py = my;
     } else {
         glfwGetCursorPos(window, &px, &py);
+    }
+}
+
+static void handle_movement(
+    GLFWwindow* window, Chunk* chunks, int chunk_count,
+    state_t* state, float* dy, double dt
+) {
+    int sz = 0;
+    int sx = 0;
+    if (glfwGetKey(window, CRAFT_KEY_FORWARD)) sz--;
+    if (glfwGetKey(window, CRAFT_KEY_BACKWARD)) sz++;
+    if (glfwGetKey(window, CRAFT_KEY_LEFT)) sx--;
+    if (glfwGetKey(window, CRAFT_KEY_RIGHT)) sx++;
+    if (*dy == 0 && glfwGetKey(window, CRAFT_KEY_JUMP)) {
+        *dy = 8;
+    }
+    float vx, vy, vz;
+    get_motion_vector(sz, sx, state->rx, state->ry, &vx, &vy, &vz);
+    float speed = 5;
+    int step = 8;
+    float ut = dt / step;
+    vx = vx * ut * speed;
+    vy = vy * ut * speed;
+    vz = vz * ut * speed;
+    for (int i = 0; i < step; i++) {
+        *dy -= ut * 25;
+        *dy = MAX(*dy, -250);
+        state->x += vx;
+        state->y += vy + *dy * ut;
+        state->z += vz;
+        if (collide(chunks, chunk_count, 2, &state->x, &state->y, &state->z)) {
+            *dy = 0;
+        }
     }
 }
 
@@ -100,9 +135,6 @@ int run(state_t loaded_state) {
         return -1;
     }
 
-    Chunk chunks[MAX_CHUNKS];
-    int chunk_count = 0;
-
     state = loaded_state;
     ensure_chunks(chunks, &chunk_count,
                   chunked(state.x),
@@ -124,34 +156,6 @@ int run(state_t loaded_state) {
 
         handle_mouse_input(window);
 
-        if (left_click) {
-            left_click = 0;
-            int hx, hy, hz;
-            int hw = hit_test(chunks, chunk_count, 0, &state,
-                              &hx, &hy, &hz);
-            if (hy > 0 && is_destructable(hw)) {
-                set_block(chunks, chunk_count, hx, hy, hz, 0);
-                int p = chunked(hx);
-                int q = chunked(hz);
-                enqueue_block(p, q, hx, hy, hz, BLOCK_EMPTY);
-            }
-        }
-
-        if (right_click) {
-            right_click = 0;
-            int hx, hy, hz;
-            int hw = hit_test(chunks, chunk_count, 1, &state,
-                              &hx, &hy, &hz);
-            if (is_obstacle(hw)) {
-                if (!player_intersects_block(2, state.x, state.y, state.z, hx, hy, hz)) {
-                    set_block(chunks, chunk_count, hx, hy, hz, block_type);
-                    int p = chunked(hx);
-                    int q = chunked(hz);
-                    enqueue_block(p, q, hx, hy, hz, block_type);
-                }
-            }
-        }
-
         sync_queue_entry_t entry;
         if (try_dequeue(&out_blockchain_queue, &entry) != QUEUE_FAILURE) {
             set_block(chunks, chunk_count,
@@ -165,33 +169,7 @@ int run(state_t loaded_state) {
             }
         }
 
-        int sz = 0;
-        int sx = 0;
-        if (glfwGetKey(window, CRAFT_KEY_FORWARD)) sz--;
-        if (glfwGetKey(window, CRAFT_KEY_BACKWARD)) sz++;
-        if (glfwGetKey(window, CRAFT_KEY_LEFT)) sx--;
-        if (glfwGetKey(window, CRAFT_KEY_RIGHT)) sx++;
-        if (dy == 0 && glfwGetKey(window, CRAFT_KEY_JUMP)) {
-            dy = 8;
-        }
-        float vx, vy, vz;
-        get_motion_vector(sz, sx, state.rx, state.ry, &vx, &vy, &vz);
-        float speed = 5;
-        int step = 8;
-        float ut = dt / step;
-        vx = vx * ut * speed;
-        vy = vy * ut * speed;
-        vz = vz * ut * speed;
-        for (int i = 0; i < step; i++) {
-            dy -= ut * 25;
-            dy = MAX(dy, -250);
-            state.x += vx;
-            state.y += vy + dy * ut;
-            state.z += vz;
-            if (collide(chunks, chunk_count, 2, &state.x, &state.y, &state.z)) {
-                dy = 0;
-            }
-        }
+        handle_movement(window, chunks, chunk_count, &state, &dy, dt);
         glfwPollEvents();
 
         int p = chunked(state.x);
@@ -200,6 +178,7 @@ int run(state_t loaded_state) {
 
         renderer.ortho = glfwGetKey(window, CRAFT_KEY_ORTHO);
         renderer.fov = glfwGetKey(window, CRAFT_KEY_ZOOM) ? 15.0 : 65.0;
+        
         glfwGetFramebufferSize(window, &renderer.width, &renderer.height);
         glViewport(0, 0, renderer.width, renderer.height);
         // Rendering
@@ -230,6 +209,31 @@ int run(state_t loaded_state) {
     glfwTerminate();
 }
 
+static void on_left_button(void) {
+    int hx, hy, hz;
+    int hw = hit_test(chunks, chunk_count, 0, &state,
+                      &hx, &hy, &hz);
+    if (hy > 0 && is_destructable(hw)) {
+        set_block(chunks, chunk_count, hx, hy, hz, 0);
+        int p = chunked(hx);
+        int q = chunked(hz);
+        enqueue_block(p, q, hx, hy, hz, BLOCK_EMPTY);
+    }
+}
+
+static void on_right_button(void) {
+    int hx, hy, hz;
+    int hw = hit_test(chunks, chunk_count, 1, &state,
+                      &hx, &hy, &hz);
+    if (is_obstacle(hw)) {
+        if (!player_intersects_block(2, state.x, state.y, state.z, hx, hy, hz)) {
+            set_block(chunks, chunk_count, hx, hy, hz, block_type);
+            int p = chunked(hx);
+            int q = chunked(hz);
+            enqueue_block(p, q, hx, hy, hz, block_type);
+        }
+    }
+}
 
 static void on_key(GLFWwindow *window, int key, int scancode, int action, int mods) {
     if (action != GLFW_PRESS) {
@@ -254,15 +258,16 @@ static void on_mouse_button(GLFWwindow *window, int button, int action, int mods
     int exclusive = glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
     if (button == GLFW_MOUSE_BUTTON_LEFT) {
         if (exclusive) {
-            left_click = 1;
+            // left_click = 1;
+            on_left_button();
         } else {
-            exclusive = 1;
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         }
     }
     if (button == GLFW_MOUSE_BUTTON_RIGHT) {
         if (exclusive) {
-            right_click = 1;
+            // right_click = 1;
+            on_right_button();
         }
     }
 }
