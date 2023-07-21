@@ -32,7 +32,7 @@ public class MapInteractionTest {
     }
 
 
-    @Order(1)
+    @Order(2)
     @Test
     public void putGetTest() throws Throwable {
         BlockInfo blockInfo = new BlockInfo(1, 2, 3, 4, 5, 6);
@@ -43,7 +43,7 @@ public class MapInteractionTest {
         assertThat(result.get(0)).isEqualTo(blockInfo);
     }
 
-    @Order(2)
+    @Order(1)
     @Test
     public void clear() throws Throwable {
         mapInteraction.deleteAllChanges();
