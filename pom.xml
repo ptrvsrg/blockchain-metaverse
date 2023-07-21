@@ -12,7 +12,8 @@
     <modules>
         <module>start-menu</module>
         <module>game-integration</module>
-        <module>blockchain</module>
+        <module>blockchain-integration</module>
+        <module>contracts</module>
     </modules>
 
     <properties>
