@@ -23,8 +23,8 @@ public class UtilsTest {
     @Test
     public void PlayerCoordinatesTest() throws Exception {
         for (int i = 0; i < 100; i++) {
-            PlayerCoordinates playerCoordinates = new PlayerCoordinates((int) (Math.random() * 1000), (int) (Math.random() * 1000),
-                    (int) (Math.random() * 1000), (int) (Math.random() * 1000), (int) (Math.random() * 1000));
+            PlayerCoordinates playerCoordinates = new PlayerCoordinates((float) (Math.random() * 1000), (float) (Math.random() * 1000),
+                    (float) (Math.random() * 1000), (float) (Math.random() * 1000), (float) (Math.random() * 1000));
 
             assertThat(new PlayerCoordinates(playerCoordinates.serialize())).isEqualTo(playerCoordinates);
         }
