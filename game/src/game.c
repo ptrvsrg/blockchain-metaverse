@@ -12,20 +12,35 @@
 #include "chunk.h"
 #include "game_utils.h"
 
+/**
+ * глобальные, потому что используются в on_key, on_mouse_button и on_scroll
+ * и в нативных методах
+*/
 state_t state;
 static Chunk chunks[MAX_CHUNKS];
 static int chunk_count = 0;
-
-// Используются в callback'ах, которые вызывает OpenGL, поэтому глобальные
-// static int left_click = 0; /**< состояние нажатия ЛКМ */
-// static int right_click = 0; /**< состояние нажатия ПКМ */
 static int block_type = 1; /**< тип выбранного блока */
 
+/**
+ * @brief Функция обработчик нажатия на клавишу
+*/
 static void on_key(GLFWwindow *window, int key, int scancode, int action, int mods);
+/**
+ * @brief Функция обработчик нажатия на кнопку мыши
+*/
 static void on_mouse_button(GLFWwindow *window, int button, int action, int mods);
+/**
+ * @brief Функция обработчик прокрутки колеса мыши
+*/
 static void on_scroll(GLFWwindow *window, double xdelta, double ydelta);
 
-static void handle_mouse_input(GLFWwindow* window) {
+/**
+ * @brief Функция обработчик движения мыши
+ * 
+ * @param window окно, для получения контекста
+ * @param state указатель на состояние игрока
+*/
+static void handle_mouse_input(GLFWwindow* window, state_t* state) {
     int exclusive = glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
     static double px;
     static double py;
@@ -33,16 +48,16 @@ static void handle_mouse_input(GLFWwindow* window) {
         double mx, my;
         glfwGetCursorPos(window, &mx, &my);
         const float m = 0.0025;
-        state.rx += (mx - px) * m;
-        state.ry -= (my - py) * m;
-        if (state.rx < 0) {
-            state.rx += RADIANS(360);
+        state->rx += (mx - px) * m;
+        state->ry -= (my - py) * m;
+        if (state->rx < 0) {
+            state->rx += RADIANS(360);
         }
-        if (state.rx >= RADIANS(360)) {
-            state.rx -= RADIANS(360);
+        if (state->rx >= RADIANS(360)) {
+            state->rx -= RADIANS(360);
         }
-        state.ry = MAX(state.ry, -RADIANS(90));
-        state.ry = MIN(state.ry, RADIANS(90));
+        state->ry = MAX(state->ry, -RADIANS(90));
+        state->ry = MIN(state->ry, RADIANS(90));
         px = mx;
         py = my;
     } else {
@@ -50,6 +65,16 @@ static void handle_mouse_input(GLFWwindow* window) {
     }
 }
 
+/**
+ * @brief Функция обработчик клавиш движения
+ * 
+ * @param window окно, для получения контекста
+ * @param chunks массив чанков
+ * @param chunk_count количество чанков в массиве
+ * @param state указатель на состояние игрока
+ * @param dy указатель на переменную для вертикального движения
+ * @param dt время, прошедшее с предыдущего кадра
+*/
 static void handle_movement(
     GLFWwindow* window, Chunk* chunks, int chunk_count,
     state_t* state, float* dy, double dt
@@ -83,6 +108,9 @@ static void handle_movement(
     }
 }
 
+/**
+ * @brief функция-обертка над enqueue
+*/
 static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     sync_queue_entry_t entry;
     entry.m_chunk_x = p;
@@ -95,6 +123,12 @@ static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     return enqueue(&in_blockchain_queue, entry);
 }
 
+/**
+ * @brief функция для создания окна
+ * 
+ * @param window указатель на указатель на окно которое нужно создать
+ * @return 0, если удалось создать окно, -1 - иначе
+*/
 static int create_window(GLFWwindow** window) {
     int width = WINDOW_WIDTH;
     int height = WINDOW_HEIGHT;
@@ -135,27 +169,28 @@ int run(state_t loaded_state) {
         return -1;
     }
 
+    // установление состояния игрока
     state = loaded_state;
+    // подгрузка чанков
     ensure_chunks(chunks, &chunk_count,
                   chunked(state.x),
                   chunked(state.z), 1);
+    // проверка, что игрок не окажется внутри блока
     if (player_intersects_obstacle(chunks, chunk_count, 2, state.x, state.y, state.z)) {
         state.y = highest_block(chunks, chunk_count, state.x, state.z) + 2;
     }
 
     int previous_block_type = 0;
     float dy = 0;
-    double px = 0;
-    double py = 0;
-    glfwGetCursorPos(window, &px, &py);
     double previous = glfwGetTime();
     while (!glfwWindowShouldClose(window)) {
         double now = glfwGetTime();
         double dt = MIN(now - previous, 0.2);
         previous = now;
 
-        handle_mouse_input(window);
+        handle_mouse_input(window, &state);
 
+        // получение блоков из очереди
         sync_queue_entry_t entry;
         if (try_dequeue(&out_blockchain_queue, &entry) != QUEUE_FAILURE) {
             set_block(chunks, chunk_count,
@@ -170,6 +205,7 @@ int run(state_t loaded_state) {
         }
 
         handle_movement(window, chunks, chunk_count, &state, &dy, dt);
+        
         glfwPollEvents();
 
         int p = chunked(state.x);
@@ -179,9 +215,9 @@ int run(state_t loaded_state) {
         renderer.ortho = glfwGetKey(window, CRAFT_KEY_ORTHO);
         renderer.fov = glfwGetKey(window, CRAFT_KEY_ZOOM) ? 15.0 : 65.0;
         
+        // Rendering
         glfwGetFramebufferSize(window, &renderer.width, &renderer.height);
         glViewport(0, 0, renderer.width, renderer.height);
-        // Rendering
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         render_chunks(&renderer, chunks, chunk_count, &state);
         // get block that player is pointing to

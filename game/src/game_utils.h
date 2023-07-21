@@ -4,6 +4,12 @@
 #include "chunk.h"
 #include "state.h"
 
+/**
+ * @brief Функция, нужная для определения координаты чанка по координате блока.
+ * 
+ * @param x координата блока
+ * @return координата чанка
+*/
 int chunked(float x);
 
 /**

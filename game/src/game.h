@@ -8,6 +8,11 @@
 */
 extern state_t state;
 
-int run(state_t);
+/**
+ * @brief Функция, запускающая игру
+ * 
+ * @param state начальное состояние игрока.
+*/
+int run(state_t state);
 
 #endif
