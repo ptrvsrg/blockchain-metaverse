@@ -16,6 +16,7 @@ typedef struct sync_queue_entry_t {
     int m_block_y;
     int m_block_z;
     int m_block_id;
+    int m_block_old_id;
 } sync_queue_entry_t;
 
 /**

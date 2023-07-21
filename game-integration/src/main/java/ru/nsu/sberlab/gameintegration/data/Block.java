@@ -11,6 +11,7 @@ public class Block {
     int y;
     int z;
     int w;
+    int old_w;
 
     @Override
     public String toString() {
@@ -21,16 +22,18 @@ public class Block {
                 ", y=" + y +
                 ", z=" + z +
                 ", w=" + w +
+                ", old_w=" + old_w +
                 '}';
     }
 
-    public Block(int p, int q, int x, int y, int z, int w) {
+    public Block(int p, int q, int x, int y, int z, int w, int old_w) {
         this.p = p;
         this.q = q;
         this.x = x;
         this.y = y;
         this.z = z;
         this.w = w;
+        this.old_w = old_w;
     }
 
     public Block(BlockInfo blockInfo) {
@@ -40,6 +43,7 @@ public class Block {
         y = blockInfo.getCoordinates().getY();
         z = blockInfo.getCoordinates().getZ();
         w = blockInfo.getBlockId();
+        old_w = 0;
     }
 
     public BlockInfo getBlockInfoObject() {
