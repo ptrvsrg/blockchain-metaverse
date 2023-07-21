@@ -111,7 +111,7 @@ static void handle_movement(
 /**
  * @brief функция-обертка над enqueue
 */
-static int enqueue_block(int p, int q, int x, int y, int z, int w) {
+static int enqueue_block(int p, int q, int x, int y, int z, int w, int old_w) {
     sync_queue_entry_t entry;
     entry.m_chunk_x = p;
     entry.m_chunk_z = q;
@@ -119,6 +119,7 @@ static int enqueue_block(int p, int q, int x, int y, int z, int w) {
     entry.m_block_y = y;
     entry.m_block_z = z;
     entry.m_block_id = w;
+    entry.m_block_old_id = old_w;
 
     return enqueue(&in_blockchain_queue, entry);
 }
@@ -253,7 +254,7 @@ static void on_left_button(void) {
         set_block(chunks, chunk_count, hx, hy, hz, 0);
         int p = chunked(hx);
         int q = chunked(hz);
-        enqueue_block(p, q, hx, hy, hz, BLOCK_EMPTY);
+        enqueue_block(p, q, hx, hy, hz, BLOCK_EMPTY, hw);
     }
 }
 
@@ -266,7 +267,7 @@ static void on_right_button(void) {
             set_block(chunks, chunk_count, hx, hy, hz, block_type);
             int p = chunked(hx);
             int q = chunked(hz);
-            enqueue_block(p, q, hx, hy, hz, block_type);
+            enqueue_block(p, q, hx, hy, hz, block_type, hw);
         }
     }
 }
