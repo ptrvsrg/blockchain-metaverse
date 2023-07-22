@@ -62,13 +62,11 @@
     -fx-focus-color: transparent;
 }
 
-.tooltip {
+.tooltip .content {
     -fx-background-color: transparent;
     -fx-background-radius: 0;
     -fx-padding: 0;
 }
 
 .tooltip .label {
-    -fx-graphic: url(c);
-    -fx-padding: 0 10 0 10;
 }
