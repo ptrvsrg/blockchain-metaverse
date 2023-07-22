@@ -4,7 +4,6 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.shape.*?>
 <?import javafx.scene.text.*?>
 
 <VBox alignment="CENTER" spacing="20.0" styleClass="pane" stylesheets="@../css/style.css" xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.nsu.sberlab.startmenu.controller.SignUpController">
@@ -22,12 +21,10 @@
                 </font>
             </Label>
             <Button layoutX="-2.0" layoutY="122.0" mnemonicParsing="false" onAction="#backButtonClick" prefHeight="32.0" prefWidth="83.0" styleClass="button_2" stylesheets="@../css/style.css" text="BACK" />
-            <Rectangle arcHeight="5.0" arcWidth="5.0" fill="WHITE" height="46.0" layoutX="-2.0" layoutY="64.0" width="299.0" />
-            <Text fx:id="wifKeyText" fill="#978f8f" fontSmoothingType="LCD" layoutY="82.0" stroke="WHITE" strokeType="INSIDE" strokeWidth="0.0" textAlignment="CENTER" wrappingWidth="299.0">
-                <font>
-                    <Font name="JetBrains Mono Regular" size="18.0" />
-                </font>
-            </Text>
+            <TextFlow layoutY="65.0" prefHeight="46.0" prefWidth="299.0">
+            <children>
+               <TextField fx:id="wifKeyText" prefHeight="46.0" prefWidth="299.0" />
+            </children></TextFlow>
             <opaqueInsets>
                 <Insets />
             </opaqueInsets>
