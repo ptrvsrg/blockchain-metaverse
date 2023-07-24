@@ -8,17 +8,17 @@ public class TransactionInfo {
 
     private final Hash256 txHash;
 
-    private final Block block;
+    private final Block[] block;
     private final long transactionTime;
 
-    public TransactionInfo(Hash256 txHash, Block block) {
+    public TransactionInfo(Hash256 txHash, Block... block) {
         this.txHash = txHash;
         this.block = block;
         transactionTime = new Date().getTime();
 
     }
 
-    public Block getBlock() {
+    public Block[] getBlock() {
         return block;
     }
 

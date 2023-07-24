@@ -1,10 +1,8 @@
 package ru.nsu.sberlab.gameintegration.tasks;
 
 import lombok.extern.log4j.Log4j2;
-import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
 import ru.nsu.sberlab.gameintegration.data.Block;
-import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 import ru.nsu.sberlab.gameintegration.exception.QueueClosedException;
 
 import java.util.Queue;
@@ -15,17 +13,14 @@ import java.util.Queue;
  */
 @Log4j2
 public class CDataRequestTask implements Runnable {
-    private final MapInteraction mapInBlockchain;
+    private final Queue<Block> queueChanges;
 
-    private final Queue<TransactionInfo> queue;
-
-    public CDataRequestTask(MapInteraction mapInBlockchain, Queue<TransactionInfo> queue) {
-        this.mapInBlockchain = mapInBlockchain;
-        this.queue = queue;
+    public CDataRequestTask(Queue<Block> queueChanges) {
+        this.queueChanges = queueChanges;
     }
 
     /**
-     * Получает изменение блока и отправляет его на запись в блокчейн.
+     * Получает изменение блока и отправляет их в очередь.
      */
     public void getBlockChange() throws Throwable {
 
@@ -35,9 +30,7 @@ public class CDataRequestTask implements Runnable {
             throw new QueueClosedException();
         }
 
-        var txHash = mapInBlockchain.addChangesNoBlocking(block.getBlockInfoObject());
-
-        queue.add(new TransactionInfo(txHash, block));
+        queueChanges.add(block);
 
     }
 
