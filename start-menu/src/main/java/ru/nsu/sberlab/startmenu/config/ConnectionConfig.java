@@ -31,12 +31,12 @@ public class ConnectionConfig {
      * или свойство отсутствует.
      * @throws IOException если возникла ошибка при чтении файла.
      */
-    public static String getHash160_1() throws IOException {
+    public static String getHash160Map() throws IOException {
         if (properties == null) {
             readConfigFile();
         }
 
-        return properties.getProperty("connection.hash160_1");
+        return properties.getProperty("connection.hash160_map");
     }
 
     /**
@@ -47,11 +47,11 @@ public class ConnectionConfig {
      * загружены или свойство отсутствует.
      * @throws IOException если возникла ошибка при чтении файла.
      */
-    public static String getHash160_2() throws IOException {
+    public static String getHash160State() throws IOException {
         if (properties == null) {
             readConfigFile();
         }
 
-        return properties.getProperty("connection.hash160_2");
+        return properties.getProperty("connection.hash160_state");
     }
 }
