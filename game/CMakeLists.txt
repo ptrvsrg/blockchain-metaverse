@@ -4,8 +4,16 @@ project(craft)
 
 FILE(GLOB SOURCE_FILES src/*.c)
 
-add_executable(
-    craft
+# JNATIVE library
+FILE(GLOB JNATIVE_SOURCE_FILES JNI/*.c)
+add_library(jnative SHARED ${JNATIVE_SOURCE_FILES})
+
+# JNI
+find_package(JNI REQUIRED)
+target_include_directories(jnative PUBLIC ${JNI_INCLUDE_DIRS})
+
+add_library(
+    craft SHARED
     ${SOURCE_FILES}
     deps/glew/src/glew.c
     deps/lodepng/lodepng.c
@@ -22,6 +30,7 @@ include_directories(deps/lodepng)
 include_directories(deps/noise)
 include_directories(deps/sqlite)
 include_directories(deps/tinycthread)
+include_directories(src)
 
 if(APPLE)
     target_link_libraries(craft glfw ${GLFW_LIBRARIES})
@@ -30,3 +39,5 @@ elseif(UNIX)
 else()
     target_link_libraries(craft glfw ws2_32.lib ${GLFW_LIBRARIES})
 endif()
+
+target_link_libraries(jnative craft)

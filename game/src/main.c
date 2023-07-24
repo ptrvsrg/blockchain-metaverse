@@ -21,6 +21,8 @@
 #include "util.h"
 #include "world.h"
 
+#include "sync_queue.h"
+
 #define MAX_CHUNKS 1024
 #define MAX_PLAYERS 128
 #define MAX_TEXT_LENGTH 256
@@ -82,7 +84,7 @@ static int width = 0;
 static int height = 0;
 static Chunk chunks[MAX_CHUNKS];
 static int chunk_count = 0;
-static Player players[MAX_PLAYERS];
+Player players[MAX_PLAYERS];
 static int player_count = 0;
 static int exclusive = 1;
 static int left_click = 0;
@@ -1573,6 +1575,19 @@ void handle_movement(double dt) {
     }
 }
 
+static int enqueue_block(int p, int q, int x, int y, int z, int w, int old_w) {
+    sync_queue_entry_t entry;
+    entry.m_chunk_x = p;
+    entry.m_chunk_z = q;
+    entry.m_block_x = x;
+    entry.m_block_y = y;
+    entry.m_block_z = z;
+    entry.m_block_id = w;
+    entry.m_block_old_id = old_w;
+
+    return enqueue(&in_blockchain_queue, entry);
+}
+
 void handle_clicks() {
     State *s = &players->state;
     if (left_click) {
@@ -1581,10 +1596,13 @@ void handle_clicks() {
         int hw = hit_test(0, s->x, s->y, s->z, s->rx, s->ry, &hx, &hy, &hz);
         if (hy > 0 && hy < 256 && is_destructable(hw)) {
             set_block(hx, hy, hz, 0);
-            int above = get_block(hx, hy + 1, hz);
-            if (is_plant(above)) {
-                set_block(hx, hy + 1, hz, 0);
-            }
+            // int above = get_block(hx, hy + 1, hz);
+            // if (is_plant(above)) {
+            //     set_block(hx, hy + 1, hz, 0);
+            // }
+            int p = chunked(hx);
+            int q = chunked(hz);
+            enqueue_block(p, q, hx, hy, hz, 0, hw);
         }
     }
     if (right_click) {
@@ -1594,6 +1612,9 @@ void handle_clicks() {
         if (hy > 0 && hy < 256 && is_obstacle(hw)) {
             if (!player_intersects_block(2, s->x, s->y, s->z, hx, hy, hz)) {
                 set_block(hx, hy, hz, items[item_index]);
+                int p = chunked(hx);
+                int q = chunked(hz);
+                enqueue_block(p, q, hx, hy, hz, items[item_index], hw);
             }
         }
     }
@@ -1693,7 +1714,8 @@ void parse_buffer(char *buffer) {
     }
 }
 
-int main(int argc, char **argv) {
+// int main(int argc, char **argv) {
+int main(void) {
     // INITIALIZATION //
     #ifdef _WIN32
         WSADATA wsa_data;
@@ -1702,34 +1724,34 @@ int main(int argc, char **argv) {
     srand(time(NULL));
     rand();
 
-    // CHECK COMMAND LINE ARGUMENTS //
-    if (argc == 2 || argc == 3) {
-        char *hostname = argv[1];
-        int port = DEFAULT_PORT;
-        if (argc == 3) {
-            port = atoi(argv[2]);
-        }
-        if (USE_CACHE) {
-            char path[1024];
-            snprintf(path, 1024, "cache.%s.%d.db", hostname, port);
-            db_enable();
-            if (db_init(path)) {
-                return -1;
-            }
-            // TODO: support proper caching of signs (handle deletions)
-            db_delete_all_signs();
-        }
-        client_enable();
-        client_connect(hostname, port);
-        client_start();
-        client_version(1);
-    }
-    else {
+    // // CHECK COMMAND LINE ARGUMENTS //
+    // if (argc == 2 || argc == 3) {
+    //     char *hostname = argv[1];
+    //     int port = DEFAULT_PORT;
+    //     if (argc == 3) {
+    //         port = atoi(argv[2]);
+    //     }
+    //     if (USE_CACHE) {
+    //         char path[1024];
+    //         snprintf(path, 1024, "cache.%s.%d.db", hostname, port);
+    //         db_enable();
+    //         if (db_init(path)) {
+    //             return -1;
+    //         }
+    //         // TODO: support proper caching of signs (handle deletions)
+    //         db_delete_all_signs();
+    //     }
+    //     client_enable();
+    //     client_connect(hostname, port);
+    //     client_start();
+    //     client_version(1);
+    // }
+    // else {
         db_enable();
         if (db_init(DB_PATH)) {
             return -1;
         }
-    }
+    // }
 
     // WINDOW INITIALIZATION //
     if (!glfwInit()) {
@@ -1888,6 +1910,20 @@ int main(int argc, char **argv) {
         if (buffer) {
             parse_buffer(buffer);
             free(buffer);
+        }
+
+        // HANDLE DATA FROM JAVA //
+        sync_queue_entry_t entry;
+        while (try_dequeue(&out_blockchain_queue, &entry) != QUEUE_FAILURE) {
+            set_block(
+                entry.m_block_x, entry.m_block_y, entry.m_block_z, entry.m_block_id
+            );
+            if (player_intersects_block(2, s->x, s->y, s->z,
+                entry.m_block_x, entry.m_block_y, entry.m_block_z)
+                && is_obstacle(entry.m_block_id)
+            ) {
+                s->y = highest_block(s->x, s->z) + 2;
+            }
         }
 
         // FLUSH DATABASE //

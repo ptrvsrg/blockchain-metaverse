@@ -1,0 +1,1 @@
+extern Player players[];
