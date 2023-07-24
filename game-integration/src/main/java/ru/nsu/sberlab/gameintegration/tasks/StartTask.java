@@ -8,9 +8,10 @@ import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
  * Реализует интерфейс Runnable.
  */
 @RequiredArgsConstructor
-public class StartTask implements Runnable{
+public class StartTask implements Runnable {
 
     private final PlayerPosition playerPosition;
+
     public native void start(PlayerPosition playerPosition);
 
     /**

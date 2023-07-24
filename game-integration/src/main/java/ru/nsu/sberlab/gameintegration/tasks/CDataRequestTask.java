@@ -5,9 +5,10 @@ import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
 import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
 import ru.nsu.sberlab.gameintegration.data.Block;
+import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 import ru.nsu.sberlab.gameintegration.exception.QueueClosedException;
 
-import java.util.Arrays;
+import java.util.Queue;
 
 /**
  * Класс CDataRequestTask представляет поток для запроса изменений данных из C-кода.
@@ -15,43 +16,32 @@ import java.util.Arrays;
  */
 @Log4j2
 public class CDataRequestTask implements Runnable {
-    /**
-     * Время между запросами на изменение данных (в миллисекундах).
-     */
-    private static final int TIME_REQUEST = 1500;
-
-    private static final int MAX_BUFFER_SIZE = 20;
-    //    private int positionToAddNewInfo = 0;
     private final MapInteraction mapInBlockchain;
-    private final BlockInfo[] infoBuffer = new BlockInfo[MAX_BUFFER_SIZE];
-    private int positionToAddInfo = 0;
 
-    public CDataRequestTask(MapInteraction mapInBlockchain) {
+    private final Queue<TransactionInfo> queue;
+
+    public CDataRequestTask(MapInteraction mapInBlockchain, Queue<TransactionInfo> queue) {
         this.mapInBlockchain = mapInBlockchain;
+        this.queue = queue;
     }
 
     /**
      * Получает изменение блока и отправляет его на запись в блокчейн.
      */
     public void getBlockChange() throws Throwable {
-        if (positionToAddInfo == MAX_BUFFER_SIZE) {
-            mapInBlockchain.addChanges(infoBuffer);
-            positionToAddInfo = 0;
-        }
+
 
         Block block = StaticQueuesWrapper.getBlockChangeC();
         if (block == null) {
-            flush();
             throw new QueueClosedException();
         }
 
-        infoBuffer[positionToAddInfo] = block.getBlockInfoObject();
-        positionToAddInfo++;
+        var txHash = mapInBlockchain.addChangesNoBlocking(block.getBlockInfoObject());
+
+        queue.add(new TransactionInfo(txHash));
+
     }
 
-    public void flush() throws Throwable {
-        mapInBlockchain.addChanges(Arrays.copyOfRange(infoBuffer, 0, positionToAddInfo));
-    }
 
     /**
      * Запускает выполнение задачи.

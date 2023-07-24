@@ -6,10 +6,14 @@ import io.neow3j.wallet.Account;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
-import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
+import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 import ru.nsu.sberlab.gameintegration.tasks.BlockchainDataRequestTask;
 import ru.nsu.sberlab.gameintegration.tasks.CDataRequestTask;
+import ru.nsu.sberlab.gameintegration.tasks.CheckTransactionsTask;
 import ru.nsu.sberlab.gameintegration.tasks.StartTask;
+
+import java.util.ArrayDeque;
+import java.util.Queue;
 
 /**
  * Класс Launcher представляет запуск игры и выполнения задач для запроса изменений данных.
@@ -75,13 +79,15 @@ public class Launcher {
     public void launch(MapInteraction mapInBlockchain) throws Throwable {
 
         log.info("STARTING GAME...");
-//        Thread startTask = new Thread(new StartTask(PlayerPositionHandler.getPlayerPosition(mapInBlockchain)));
-        Thread startTask = new Thread(new StartTask(new PlayerPosition(0, 0, 0, 0, 0)));
+        Queue<TransactionInfo> queue = new ArrayDeque<>();
+        Thread startTask = new Thread(new StartTask(PlayerPositionHandler.getPlayerPosition(mapInBlockchain)));
         Thread blockchainDataRequestTask = new Thread(new BlockchainDataRequestTask(mapInBlockchain));
-        Thread cDataRequestTask = new Thread(new CDataRequestTask(mapInBlockchain));
+        Thread checkBlockchainSendTask = new Thread(new CheckTransactionsTask(queue, mapInBlockchain));
+        Thread cDataRequestTask = new Thread(new CDataRequestTask(mapInBlockchain, queue));
 
         startTask.start();
         blockchainDataRequestTask.start();
+        checkBlockchainSendTask.start();
         cDataRequestTask.start();
 
         try {
@@ -92,6 +98,7 @@ public class Launcher {
 
             PlayerPositionHandler.setPlayerPosition(mapInBlockchain, PlayerPositionHandler.getPlayerPositionC());
             blockchainDataRequestTask.interrupt();
+            checkBlockchainSendTask.interrupt();
         } catch (Throwable e) {
             log.catching(Level.ERROR, e);
         }
