@@ -36,7 +36,7 @@ public class ConnectionConfig {
             readConfigFile();
         }
 
-        return properties.getProperty("connection.hash160_1");
+        return properties.getProperty("connection.hash160_map");
     }
 
     /**
@@ -52,6 +52,6 @@ public class ConnectionConfig {
             readConfigFile();
         }
 
-        return properties.getProperty("connection.hash160_2");
+        return properties.getProperty("connection.hash160_state");
     }
 }

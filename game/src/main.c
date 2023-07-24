@@ -1915,6 +1915,8 @@ int main(void) {
         // HANDLE DATA FROM JAVA //
         sync_queue_entry_t entry;
         while (try_dequeue(&out_blockchain_queue, &entry) != QUEUE_FAILURE) {
+            puts("new block!!");
+            fflush(stdout);
             set_block(
                 entry.m_block_x, entry.m_block_y, entry.m_block_z, entry.m_block_id
             );
