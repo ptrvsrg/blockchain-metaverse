@@ -10,6 +10,7 @@ import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 import java.util.Queue;
 
 import static java.lang.String.format;
+import static java.lang.String.valueOf;
 
 /**
  * Задача которая каждые TIME_REQUEST миллисекунд проверяет статус транзакции.
@@ -26,16 +27,18 @@ public class CheckTransactionsTask implements Runnable {
     /**
      * @param queue очередь с информацией о транзакциях
      */
-    public CheckTransactionsTask(Queue<TransactionInfo> queue, MapInteraction mapInBlockchain) {
+    public CheckTransactionsTask(MapInteraction mapInBlockchain, Queue<TransactionInfo> queue) {
         this.queue = queue;
         this.mapInBlockchain = mapInBlockchain;
     }
 
 
+
+
     /**
      * Проверка транзакций.
      */
-    public void checkTransactions() {
+    private void checkTransactions() {
         while (!queue.isEmpty()) {
             try {
                 mapInBlockchain.getResult(queue.peek().getTxHash());
@@ -44,15 +47,16 @@ public class CheckTransactionsTask implements Runnable {
                 if (e.getError().getMessage().equals("Unknown transaction/blockhash") &&
                         queue.peek().getPastTime() > MAX_PAST_TIME
                         || !e.getError().getMessage().equals("Unknown transaction/blockhash")) {
-                    log.error(format("wait %s seconds. Didn't get result.", queue.peek().getPastTime() / 1000));
-                    StaticQueuesWrapper.sendBlockChangeC(queue.peek().getBlock().getHistoryBlock());
-                    queue.remove();
+                    var transactionInfo = queue.remove();
+                    log.error(format("wait %s seconds. Didn't get result.", transactionInfo.getPastTime() / 1000));
+                    StaticQueuesWrapper.sendHistory(transactionInfo.getBlock());
                 } else {
                     return;
                 }
             } catch (Exception e) {
+                var transactionInfo = queue.remove();
                 log.error(e.getMessage());
-                queue.remove();
+                StaticQueuesWrapper.sendHistory(transactionInfo.getBlock());
             }
         }
     }
