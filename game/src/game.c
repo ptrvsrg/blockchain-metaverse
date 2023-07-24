@@ -193,7 +193,7 @@ int run(state_t loaded_state) {
 
         // получение блоков из очереди
         sync_queue_entry_t entry;
-        if (try_dequeue(&out_blockchain_queue, &entry) != QUEUE_FAILURE) {
+        while (try_dequeue(&out_blockchain_queue, &entry) != QUEUE_FAILURE) {
             set_block(chunks, chunk_count,
                 entry.m_block_x, entry.m_block_y, entry.m_block_z, entry.m_block_id
             );
