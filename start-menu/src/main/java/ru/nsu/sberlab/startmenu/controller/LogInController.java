@@ -58,8 +58,8 @@ public class LogInController {
             Launcher launcher = new Launcher();
             launcher.launch(new MapInteraction("http://" + host + ":" + port,
                     Account.fromWIF(wifKeyTextField.getText()),
-                    new Hash160(ConnectionConfig.getHash160_1()),
-                    new Hash160(ConnectionConfig.getHash160_2())));
+                    new Hash160(ConnectionConfig.getHash160Map()),
+                    new Hash160(ConnectionConfig.getHash160State())));
         }
         catch (Exception e) {
             System.err.println(e.getMessage());
