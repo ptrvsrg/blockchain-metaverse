@@ -94,6 +94,7 @@ deploy-contracts:
             - contracts/**/*
         refs:
             - main
+            - develop
     needs:
         - job: test-java
           artifacts: true

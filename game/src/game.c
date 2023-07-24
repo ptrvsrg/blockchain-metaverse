@@ -254,7 +254,7 @@ static void on_left_button(void) {
         set_block(chunks, chunk_count, hx, hy, hz, 0);
         int p = chunked(hx);
         int q = chunked(hz);
-        enqueue_block(p, q, hx, hy, hz, BLOCK_EMPTY, hw);
+        enqueue_block(p, q, hx, hy, hz, BLOCK_EMPTY, 0);
     }
 }
 
