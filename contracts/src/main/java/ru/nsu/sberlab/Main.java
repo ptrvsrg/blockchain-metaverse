@@ -17,7 +17,7 @@ public class Main {
     private static final String CONFIG_FILE_PATH = "start-menu/src/main/resources/config/connection.properties";
 
     private static final String MAP_HASH_CONF_NAME = "connection.hash160_map";
-    private static final String STATE_HASH_CONF_NAME = "connection.hash160_state"
+    private static final String STATE_HASH_CONF_NAME = "connection.hash160_state";
 
     private static final String nameEnvVar = "NAME";
 
