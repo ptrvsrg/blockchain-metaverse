@@ -19,7 +19,7 @@ public class Controller {
      @throws IOException если возникла ошибка ввода-вывода при загрузке файла FXML
      */
     public static void loadNewPage(final AnchorPane anchorPane, final String fxmlName) throws IOException {
-        Parent root = FXMLLoader.load(Objects.requireNonNull(ConnectionController.class.getResource(fxmlName)));
+        Parent root = FXMLLoader.load(Objects.requireNonNull(Controller.class.getResource(fxmlName)));
         anchorPane.getScene().setRoot(root);
     }
 }

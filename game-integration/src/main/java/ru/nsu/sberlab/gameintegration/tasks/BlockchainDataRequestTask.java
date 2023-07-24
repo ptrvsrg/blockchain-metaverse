@@ -6,6 +6,7 @@ import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
 import ru.nsu.sberlab.gameintegration.data.Block;
 
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 
 /**
@@ -49,15 +50,17 @@ public class BlockchainDataRequestTask implements Runnable {
      * Запускает выполнение задачи.
      * Бесконечно запрашивает изменения данных из блокчейна и передает полученные
      * данные в программу на си. В случае прерывания потока выбрасывает исключение InterruptedException.
-     *
-     * @noinspection InfiniteLoopStatement
      */
     @Override
     public void run() {
         while (true) {
             try {
                 sendBlockChange();
-            } catch (Throwable e) {
+            }
+            catch (InterruptedIOException e) {
+                return;
+            }
+            catch (Throwable e) {
                 log.catching(Level.ERROR, e);
             }
         }
