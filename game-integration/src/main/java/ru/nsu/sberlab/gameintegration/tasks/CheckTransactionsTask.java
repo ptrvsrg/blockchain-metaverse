@@ -4,6 +4,7 @@ package ru.nsu.sberlab.gameintegration.tasks;
 import lombok.extern.log4j.Log4j2;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.blockchain_interaction.exception.ApplicationLogError;
+import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
 import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 
 import java.util.Queue;
@@ -44,7 +45,7 @@ public class CheckTransactionsTask implements Runnable {
                         queue.peek().getPastTime() > MAX_PAST_TIME
                         || !e.getError().getMessage().equals("Unknown transaction/blockhash")) {
                     log.error(format("wait %s seconds. Didn't get result.", queue.peek().getPastTime() / 1000));
-                    //TODO Если транзакция не прошла вернуть прошлый блок
+                    StaticQueuesWrapper.sendBlockChangeC(queue.peek().getBlock().getHistoryBlock());
                     queue.remove();
                 } else {
                     return;

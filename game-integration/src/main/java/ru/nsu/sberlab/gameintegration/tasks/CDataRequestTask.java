@@ -2,7 +2,6 @@ package ru.nsu.sberlab.gameintegration.tasks;
 
 import lombok.extern.log4j.Log4j2;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
-import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
 import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
 import ru.nsu.sberlab.gameintegration.data.Block;
 import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
@@ -38,7 +37,7 @@ public class CDataRequestTask implements Runnable {
 
         var txHash = mapInBlockchain.addChangesNoBlocking(block.getBlockInfoObject());
 
-        queue.add(new TransactionInfo(txHash));
+        queue.add(new TransactionInfo(txHash, block));
 
     }
 
