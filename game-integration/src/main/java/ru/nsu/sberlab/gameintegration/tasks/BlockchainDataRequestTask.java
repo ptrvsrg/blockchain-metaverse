@@ -4,6 +4,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
+import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
 import ru.nsu.sberlab.gameintegration.data.Block;
 
 import java.io.InterruptedIOException;
@@ -30,8 +31,6 @@ public class BlockchainDataRequestTask implements Runnable {
         this.mapInBlockchain = mapInBlockchain;
     }
 
-    private static native void sendBlockChangeC(Block block);
-
     /**
      * Отправляет уведомление об изменении блока в блокчейне.
      */
@@ -41,7 +40,7 @@ public class BlockchainDataRequestTask implements Runnable {
 
         for (BlockInfo blockInfo : changes){
             Block block = new Block(blockInfo);
-            sendBlockChangeC(block);
+            StaticQueuesWrapper.sendBlockChangeC(block);
         }
 
     }

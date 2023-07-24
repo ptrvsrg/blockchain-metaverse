@@ -2,8 +2,8 @@
 
 #include <stdlib.h>
 
-sync_queue_t in_blockchain_queue;
-sync_queue_t out_blockchain_queue;
+sync_queue_t in_blockchain_queue = {0};
+sync_queue_t out_blockchain_queue = {0};
 
 void queue_enable(sync_queue_t *queue) {
     mtx_lock(&queue->mutex);

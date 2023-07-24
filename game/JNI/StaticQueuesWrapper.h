@@ -23,6 +23,14 @@ JNIEXPORT void JNICALL Java_ru_nsu_sberlab_gameintegration_StaticQueuesWrapper_s
 JNIEXPORT jobject JNICALL Java_ru_nsu_sberlab_gameintegration_StaticQueuesWrapper_getBlockChangeC
   (JNIEnv *, jclass);
 
+/*
+ * Class:     ru_nsu_sberlab_gameintegration_StaticQueuesWrapper
+ * Method:    init
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_ru_nsu_sberlab_gameintegration_StaticQueuesWrapper_init
+  (JNIEnv *, jclass);
+
 #ifdef __cplusplus
 }
 #endif
