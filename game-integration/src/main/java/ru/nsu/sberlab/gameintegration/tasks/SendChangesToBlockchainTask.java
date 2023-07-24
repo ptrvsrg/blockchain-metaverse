@@ -15,7 +15,7 @@ import java.util.Queue;
  * Посылает изменения из очереди в блокчейн.
  */
 public class SendChangesToBlockchainTask implements Runnable {
-    private static final int TIME_REQUEST = 5000;
+    private static final int TIME_REQUEST = 10000;
     private static final int MAX_BUFFER_SIZE = 20;
     private final MapInteraction mapInBlockchain;
     private final Queue<TransactionInfo> queueTransactions;

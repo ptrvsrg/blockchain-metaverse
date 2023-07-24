@@ -7,6 +7,7 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.gameintegration.data.Block;
+import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
 import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 import ru.nsu.sberlab.gameintegration.tasks.*;
 
@@ -79,7 +80,7 @@ public class Launcher {
         log.info("STARTING GAME...");
         Queue<TransactionInfo> transactionInfos = new ArrayBlockingQueue<>(100);
         Queue<Block> blocksChanges = new ArrayBlockingQueue<>(100);
-        Thread startTask = new Thread(new StartTask(PlayerPositionHandler.getPlayerPosition(mapInBlockchain)));
+        Thread startTask = new Thread(new StartTask(new PlayerPosition(0,0,0,0,0)));
         Thread blockchainDataRequestTask = new Thread(new BlockchainDataRequestTask(mapInBlockchain));
         Thread checkBlockchainSendTask = new Thread(new CheckTransactionsTask(mapInBlockchain, transactionInfos));
         Thread cDataRequestTask = new Thread(new CDataRequestTask(blocksChanges));
@@ -100,6 +101,7 @@ public class Launcher {
             PlayerPositionHandler.setPlayerPosition(mapInBlockchain, PlayerPositionHandler.getPlayerPositionC());
             blockchainDataRequestTask.interrupt();
             checkBlockchainSendTask.interrupt();
+            sendChangesToBlockchainTask.interrupt();
         } catch (Throwable e) {
             log.catching(Level.ERROR, e);
         }
