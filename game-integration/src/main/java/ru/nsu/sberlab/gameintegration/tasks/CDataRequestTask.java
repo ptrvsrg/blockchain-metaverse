@@ -3,6 +3,7 @@ package ru.nsu.sberlab.gameintegration.tasks;
 import lombok.extern.log4j.Log4j2;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
+import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
 import ru.nsu.sberlab.gameintegration.data.Block;
 import ru.nsu.sberlab.gameintegration.exception.QueueClosedException;
 
@@ -29,8 +30,6 @@ public class CDataRequestTask implements Runnable {
         this.mapInBlockchain = mapInBlockchain;
     }
 
-    private static native Block getBlockChangeC();
-
     /**
      * Получает изменение блока и отправляет его на запись в блокчейн.
      */
@@ -40,7 +39,7 @@ public class CDataRequestTask implements Runnable {
             positionToAddInfo = 0;
         }
 
-        Block block = getBlockChangeC();
+        Block block = StaticQueuesWrapper.getBlockChangeC();
         if (block == null) {
             flush();
             throw new QueueClosedException();
