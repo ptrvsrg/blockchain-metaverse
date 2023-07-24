@@ -12,6 +12,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.gameintegration.Launcher;
+import ru.nsu.sberlab.startmenu.config.ConnectionConfig;
 import ru.nsu.sberlab.startmenu.view.StartApplication;
 
 import java.io.IOException;
@@ -53,23 +54,15 @@ public class LogInController {
         Stage stage = (Stage) anchorPane.getScene().getWindow();
         stage.close();
 
-        /*
-        Пример ввода
-         launcher.launch(new MapInteraction(
-                "http://45.9.24.41:20032",
-                Account.fromWIF("L2btC2CKdpBE32hz4qTeLjYsP9dYKWNzYQH4Bmkt8BzRSviNZW1X"),
-                new Hash160("2c88a4ff37e4e269e01c14439c7894d7c46c1a7c"),
-                new Hash160("c49920e21449a3fb1cd19685644093c034bb576e")
-        * */
-
         try {
             Launcher launcher = new Launcher();
             launcher.launch(new MapInteraction("http://" + host + ":" + port,
                     Account.fromWIF(wifKeyTextField.getText()),
-                    new Hash160("2c88a4ff37e4e269e01c14439c7894d7c46c1a7c"),
-                    new Hash160("c49920e21449a3fb1cd19685644093c034bb576e")));
+                    new Hash160(ConnectionConfig.getHash160_1()),
+                    new Hash160(ConnectionConfig.getHash160_2())));
         }
         catch (Exception e) {
+            System.err.println(e.getMessage());
             FXMLLoader fxmlLoader = new FXMLLoader(
                     LogInController.class.getResource("/fxml/log-in.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
@@ -83,7 +76,6 @@ public class LogInController {
             stage.show();
         }
     }
-
 
     /**
      * Обработчик события нажатия на кнопку "Back".
