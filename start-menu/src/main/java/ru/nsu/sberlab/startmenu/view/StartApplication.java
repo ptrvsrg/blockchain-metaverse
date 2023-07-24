@@ -41,12 +41,7 @@ public class StartApplication extends Application {
         stage.show();
     }
 
-    /**
-     * Точка входа в приложение.
-     *
-     * @param args Аргументы командной строки (не используются).
-     */
-    public static void main(String[] args) {
+    public void launchApplication() {
         launch();
     }
 }
