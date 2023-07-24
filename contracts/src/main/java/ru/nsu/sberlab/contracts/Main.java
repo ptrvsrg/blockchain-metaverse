@@ -1,18 +1,15 @@
-package ru.nsu.sberlab;
+package ru.nsu.sberlab.contracts;
 
 import io.neow3j.types.ContractParameter;
 import io.neow3j.types.Hash160;
 import io.neow3j.wallet.Account;
-import ru.nsu.sberlab.contracts.CompilationDeploying;
-import ru.nsu.sberlab.contracts.MapContractAlreadyExist;
-import ru.nsu.sberlab.contracts.StateContractAlreadyExist;
-
-import java.io.*;
+import java.io.FileWriter;
+import java.io.PrintWriter;
 
 public class Main {
 
-    private static final String ownerWifEnvVar = "OWNER_WIF";
-    private static final String nodeURLEnvVar = "NODE_URL";
+    private static final String ownerWifEnvVar = "MAIN_OWNER_WIF";
+    private static final String nodeURLEnvVar = "MAIN_NODE_URL";
 
     private static final String CONFIG_FILE_PATH = "start-menu/src/main/resources/config/connection.properties";
 
