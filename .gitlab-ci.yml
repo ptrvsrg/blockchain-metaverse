@@ -1,6 +1,7 @@
 stages:
     - build
     - test
+    - deploy
 
 variables:
     MAVEN_REPO_PATH: "$CI_PROJECT_PATH/.m2/repository"
@@ -51,13 +52,15 @@ build-java:
         - mvn compile $MAVEN_OPTS
     artifacts:
         paths:
-            - blockchain/target/
+            - contracts/target/
+            - blockchain-integration/target/
             - game-integration/target/
             - start-menu/target/
         expire_in: 1 week
     only:
         changes:
-            - blockchain/**/*
+            - contracts/**/*
+            - blockchain-integration/**/*
             - game-integration/**/*
             - start-menu/**/*
 
@@ -67,15 +70,30 @@ test-java:
         - mvn install $MAVEN_OPTS
     artifacts:
         paths:
-            - blockchain/target/
+            - contracts/target/
+            - blockchain-integration/target/
             - game-integration/target/
             - start-menu/target/
         expire_in: 1 week
     only:
         changes:
-            - blockchain/**/*
+            - contracts/**/*
+            - blockchain-integration/**/*
             - game-integration/**/*
             - start-menu/**/*
     needs:
         - job: build-java
+          artifacts: true
+
+deploy-contracts:
+    stage: deploy
+    script:
+        - java -jar contracts/target/contracts-1.0.0-jar-with-dependencies.jar 
+    only:
+        changes:
+            - contracts/**/*
+        refs:
+            - main
+    needs:
+        - job: test-java
           artifacts: true
