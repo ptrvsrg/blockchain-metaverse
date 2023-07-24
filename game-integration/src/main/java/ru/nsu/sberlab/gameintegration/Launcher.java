@@ -96,6 +96,7 @@ public class Launcher {
 
             PlayerPositionHandler.setPlayerPosition(mapInBlockchain, PlayerPositionHandler.getPlayerPositionC());
             blockchainDataRequestTask.interrupt();
+            checkBlockchainSendTask.interrupt();
         } catch (Throwable e) {
             log.catching(Level.ERROR, e);
         }

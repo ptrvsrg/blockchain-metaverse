@@ -38,7 +38,7 @@ public class BlockchainDataRequestTask implements Runnable {
         ArrayList<BlockInfo> changes = mapInBlockchain.getAllChangesWithoutFirstN(takenChangesNumber);
         takenChangesNumber += changes.size();
 
-        for (BlockInfo blockInfo : changes){
+        for (BlockInfo blockInfo : changes) {
             Block block = new Block(blockInfo);
             sendBlockChangeC(block);
         }

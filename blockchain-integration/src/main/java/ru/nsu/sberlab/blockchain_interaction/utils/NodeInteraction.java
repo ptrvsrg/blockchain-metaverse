@@ -16,6 +16,8 @@ import io.neow3j.types.Hash256;
 import io.neow3j.types.NeoVMStateType;
 import io.neow3j.utils.Await;
 import io.neow3j.wallet.Account;
+import ru.nsu.sberlab.blockchain_interaction.exception.ApplicationLogError;
+import ru.nsu.sberlab.blockchain_interaction.exception.BlockChainException;
 
 import static java.lang.String.format;
 
@@ -100,7 +102,7 @@ public class NodeInteraction {
     public StackItem getResult(Hash256 transactionHash) throws Exception {
         NeoGetApplicationLog response1 = node.getApplicationLog(transactionHash).send();
         if (response1.hasError()) {
-            throw new Exception("Error fetching transaction's app log: " + response1.getError().getMessage());
+            throw new ApplicationLogError(response1.getError());
         }
         // Get the first execution. Usually there is only one execution.
         NeoApplicationLog.Execution execution = response1.getApplicationLog().getExecutions().get(0);

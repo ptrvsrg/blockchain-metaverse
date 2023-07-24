@@ -2,12 +2,10 @@ package ru.nsu.sberlab.gameintegration.tasks;
 
 import lombok.extern.log4j.Log4j2;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
-import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
 import ru.nsu.sberlab.gameintegration.data.Block;
 import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 import ru.nsu.sberlab.gameintegration.exception.QueueClosedException;
 
-import java.util.Arrays;
 import java.util.Queue;
 
 /**
@@ -43,7 +41,6 @@ public class CDataRequestTask implements Runnable {
         queue.add(new TransactionInfo(txHash));
 
     }
-
 
 
     /**

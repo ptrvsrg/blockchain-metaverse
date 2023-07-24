@@ -31,7 +31,7 @@ public class PlayerPosition {
     }
 
     public PlayerCoordinates getPlayerCoordinates() {
-        return new PlayerCoordinates( rx,  ry,  x,  y,  z);
+        return new PlayerCoordinates(rx, ry, x, y, z);
     }
 
     public PlayerPosition(PlayerCoordinates cords) {
