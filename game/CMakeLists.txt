@@ -37,6 +37,8 @@ if(APPLE)
 elseif(UNIX)
     target_link_libraries(craft glfw dl ${GLFW_LIBRARIES})
 else()
+    set(CMAKE_SHARED_LIBRARY_PREFIX "")
+    set(CMAKE_STATIC_LIBRARY_PREFIX "")
     target_link_libraries(craft glfw ws2_32.lib ${GLFW_LIBRARIES})
 endif()
 

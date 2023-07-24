@@ -7,10 +7,11 @@ JNIEXPORT jobject JNICALL Java_ru_nsu_sberlab_gameintegration_PlayerPositionHand
 (JNIEnv* env, jclass) {
     jclass PlayerPosition = (*env)->FindClass(env, "ru/nsu/sberlab/gameintegration/data/PlayerPosition");
     jmethodID init = (*env)->GetMethodID(env, PlayerPosition, "<init>", "(FFFFF)V");
+    State *state = &players->state;
     jobject playerPosition = (*env)->NewObject(
         env, PlayerPosition, init,
-        state.x, state.y, state.z,
-        state.rx, state.ry
+        state->x, state->y, state->z,
+        state->rx, state->ry
     );
 
     return playerPosition;

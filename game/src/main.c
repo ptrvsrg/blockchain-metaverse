@@ -1614,7 +1614,7 @@ void handle_clicks() {
                 set_block(hx, hy, hz, items[item_index]);
                 int p = chunked(hx);
                 int q = chunked(hz);
-                enqueue_block(p, q, hx, hy, hz, items[item_index], hw);
+                enqueue_block(p, q, hx, hy, hz, items[item_index], 0);
             }
         }
     }
