@@ -6,7 +6,7 @@ import io.neow3j.wallet.Account;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.Level;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
-import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
+import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 import ru.nsu.sberlab.gameintegration.tasks.BlockchainDataRequestTask;
 import ru.nsu.sberlab.gameintegration.tasks.CDataRequestTask;
 import ru.nsu.sberlab.gameintegration.tasks.CheckTransactionsTask;
