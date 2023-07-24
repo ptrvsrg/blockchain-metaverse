@@ -4,8 +4,6 @@
 
 JNIEXPORT void JNICALL Java_ru_nsu_sberlab_gameintegration_tasks_StartTask_start
 (JNIEnv* env, jobject, jobject playerPosition) {
-    queue_init(&in_blockchain_queue);
-    queue_init(&out_blockchain_queue);
     state_t state;
     jclass PlayerPosition = (*env)->GetObjectClass(env, playerPosition);
     jmethodID getX = (*env)->GetMethodID(env, PlayerPosition, "getX", "()F");

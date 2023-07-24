@@ -26,6 +26,8 @@ public class Launcher {
 
         System.loadLibrary("craft");
         System.loadLibrary("jnative");
+
+        StaticQueuesWrapper.init();
     }
 
     /**
