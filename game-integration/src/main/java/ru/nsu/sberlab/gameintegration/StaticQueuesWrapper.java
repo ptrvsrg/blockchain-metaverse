@@ -4,7 +4,6 @@ import ru.nsu.sberlab.gameintegration.data.Block;
 
 public class StaticQueuesWrapper {
 
-
     /**
      * Посылает в очередь си блоки предшествующие блокам из blockArray.
      *

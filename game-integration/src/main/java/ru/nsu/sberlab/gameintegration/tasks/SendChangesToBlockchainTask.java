@@ -10,7 +10,6 @@ import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 import java.util.Arrays;
 import java.util.Queue;
 
-
 /**
  * Посылает изменения из очереди в блокчейн.
  */
@@ -22,7 +21,8 @@ public class SendChangesToBlockchainTask implements Runnable {
     private final Queue<Block> queueChanges;
 
 
-    public SendChangesToBlockchainTask(MapInteraction mapInBlockchain, Queue<TransactionInfo> queueTransactions, Queue<Block> queueChanges) {
+    public SendChangesToBlockchainTask(MapInteraction mapInBlockchain, Queue<TransactionInfo> queueTransactions,
+                                       Queue<Block> queueChanges) {
         this.mapInBlockchain = mapInBlockchain;
         this.queueTransactions = queueTransactions;
         this.queueChanges = queueChanges;
@@ -53,14 +53,9 @@ public class SendChangesToBlockchainTask implements Runnable {
         } catch (Throwable e) {
             StaticQueuesWrapper.sendHistory(blockArray);
         }
-
-
     }
-
-
     @Override
     public void run() {
-
         while (true) {
             try {
                 Thread.sleep(TIME_REQUEST);
@@ -69,6 +64,5 @@ public class SendChangesToBlockchainTask implements Runnable {
                 return;
             }
         }
-
     }
 }
