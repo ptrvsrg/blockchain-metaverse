@@ -80,7 +80,7 @@ public class Launcher {
         log.info("STARTING GAME...");
         Queue<TransactionInfo> transactionInfos = new ArrayBlockingQueue<>(100);
         Queue<Block> blocksChanges = new ArrayBlockingQueue<>(100);
-        Thread startTask = new Thread(new StartTask(new PlayerPosition(0,0,0,0,0)));
+        Thread startTask = new Thread(new StartTask(PlayerPositionHandler.getPlayerPosition(mapInBlockchain)));
         Thread blockchainDataRequestTask = new Thread(new BlockchainDataRequestTask(mapInBlockchain));
         Thread checkBlockchainSendTask = new Thread(new CheckTransactionsTask(mapInBlockchain, transactionInfos));
         Thread cDataRequestTask = new Thread(new CDataRequestTask(blocksChanges));

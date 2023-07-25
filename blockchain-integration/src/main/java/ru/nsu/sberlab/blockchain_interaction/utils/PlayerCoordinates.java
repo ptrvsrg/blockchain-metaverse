@@ -26,9 +26,9 @@ public class PlayerCoordinates {
 
         rx = intBitsToFloat(Utils.byteToInt(serializedObject, 0));
         ry = intBitsToFloat(Utils.byteToInt(serializedObject, 4));
-        x = intBitsToFloat(Utils.byteToInt(serializedObject, 12));
-        y = intBitsToFloat(Utils.byteToInt(serializedObject, 16));
-        z = intBitsToFloat(Utils.byteToInt(serializedObject, 20));
+        x = intBitsToFloat(Utils.byteToInt(serializedObject, 8));
+        y = intBitsToFloat(Utils.byteToInt(serializedObject, 12));
+        z = intBitsToFloat(Utils.byteToInt(serializedObject, 16));
 
     }
 
