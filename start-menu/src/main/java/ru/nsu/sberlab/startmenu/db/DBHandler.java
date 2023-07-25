@@ -67,26 +67,10 @@ public class DBHandler {
             preparedStatementHost.setString(1, host.getHostAddress());
             preparedStatementPort.setInt(1, port);
 
-            int rowsInserted = preparedStatementWif.executeUpdate();
-            if (rowsInserted > 0) {
-                log.info("The row has been successfully added to the 'account' table!");
-            } else {
-                log.error("Failed to add a row to the 'account' table!");
-            }
+            preparedStatementWif.executeUpdate();
+            preparedStatementHost.executeUpdate();
+            preparedStatementPort.executeUpdate();
 
-            rowsInserted = preparedStatementHost.executeUpdate();
-            if (rowsInserted > 0) {
-                log.info("The row has been successfully added to the 'account' table!");
-            } else {
-                log.error("Failed to add a row to the 'account' table!");
-            }
-
-            rowsInserted = preparedStatementPort.executeUpdate();
-            if (rowsInserted > 0) {
-                log.info("The row has been successfully added to the 'account' table!");
-            } else {
-                log.error("Failed to add a row to the 'account' table!");
-            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
