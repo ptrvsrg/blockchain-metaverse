@@ -55,7 +55,7 @@
                     <!-- MainClass in mainfest make a executable jar -->
                     <archive>
                         <manifest>
-                            <mainClass>ru.nsu.sberlab.Main</mainClass>
+                            <mainClass>ru.nsu.sberlab.contracts.Main</mainClass>
                         </manifest>
                     </archive>
 

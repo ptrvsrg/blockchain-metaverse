@@ -12,7 +12,7 @@ public class StaticQueuesWrapper {
      */
     public static void sendHistory(Block... blockArray) {
         for (int j = blockArray.length - 1; j >= 0; j--) {
-            StaticQueuesWrapper.sendBlockChangeC(blockArray[j]);
+            StaticQueuesWrapper.sendBlockChangeC(blockArray[j].getHistoryBlock());
         }
     }
 

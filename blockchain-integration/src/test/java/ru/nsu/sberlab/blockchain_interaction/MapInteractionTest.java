@@ -12,10 +12,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class MapInteractionTest {
-    private static final String ownerWifEnvVar = "OWNER_WIF";
-    private static final String nodeURLEnvVar = "NODE_URL";
-    private static final String mapContractHashEnvVar = "MAP_HASH";
-    private static final String stateContractHashEnvVar = "STATE_HASH";
+    private static final String ownerWifEnvVar = "TEST_OWNER_WIF";
+    private static final String nodeURLEnvVar = "TEST_NODE_URL";
+    private static final String mapContractHashEnvVar = "TEST_MAP_HASH";
+    private static final String stateContractHashEnvVar = "TEST_STATE_HASH";
 
     private static MapInteraction mapInteraction;
 
