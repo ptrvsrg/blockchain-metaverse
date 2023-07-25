@@ -21,11 +21,11 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class Launcher {
 
     static {
-//        System.loadLibrary("glew");
-//        System.loadLibrary("lodepng");
-//        System.loadLibrary("noise");
-//        System.loadLibrary("sqlite");
-//        System.loadLibrary("tinycthread");
+        System.loadLibrary("glew");
+        System.loadLibrary("lodepng");
+        System.loadLibrary("noise");
+        System.loadLibrary("sqlite");
+        System.loadLibrary("tinycthread");
 
         System.loadLibrary("craft");
         System.loadLibrary("jnative");
