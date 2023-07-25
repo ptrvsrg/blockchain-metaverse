@@ -7,6 +7,8 @@ module ru.nsu.sberlab.startmenu {
     requires ru.nsu.sberlab.gameintegration;
     requires blockchainintegration;
     requires core;
+    requires java.sql;
+    requires org.apache.logging.log4j;
 
     exports ru.nsu.sberlab.startmenu.view;
     opens ru.nsu.sberlab.startmenu.view to javafx.fxml;
