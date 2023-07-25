@@ -40,6 +40,8 @@ add_library(glew SHARED
         ${GLEW_SOURCE_FILES})
 target_include_directories(glew
         PUBLIC ${GLEW_INCLUDE_DIR})
+target_include_directories(craft
+        PUBLIC ${GLEW_INCLUDE_DIR})
 target_link_libraries(glew
         PUBLIC ${OPENGL_LIBRARIES}
         PUBLIC ${X11_LIBRARIES})
