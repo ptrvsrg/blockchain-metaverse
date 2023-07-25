@@ -5,17 +5,14 @@ import io.neow3j.wallet.Account;
 
 import java.net.InetAddress;
 
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
@@ -59,9 +56,6 @@ public class LogInController implements Initializable {
     private TextField wifKeyTextField;
 
     @FXML
-    private Label messageText;
-
-    @FXML
     private AnchorPane anchorPane;
 
     /**
@@ -71,30 +65,41 @@ public class LogInController implements Initializable {
      * @throws IOException если возникла ошибка ввода-вывода при загрузке страницы
      */
     public void logInButtonClick() throws Throwable {
-        Account account;
+        boolean errorFlag = false;
+
+        restoreTextFieldStyle();
+
+        Account account = null;
+        InetAddress host = null;
+        int port = 0;
+
         try {
             account = Account.fromWIF(wifKeyTextField.getText());
-        }
-        catch (Exception ex) {
-            // TODO: печать ошибки на окне
-            return;
+        } catch (Exception ex) {
+            wifKeyTextField.setStyle("-fx-border-color: RED; -fx-border-width: 1; -fx-border-radius: 5;");
+            errorFlag = true;
         }
 
-        InetAddress host;
         try {
+            if (hostTextField.getText().isEmpty()) {
+                hostTextField.setStyle("-fx-border-color: RED; -fx-border-width: 1; -fx-border-radius: 5;");
+                errorFlag = true;
+            }
             host = InetAddress.getByName(hostTextField.getText());
-        }
-        catch (Exception ex) {
-            // TODO: печать ошибки на окне
-            return;
+        } catch (Exception ex) {
+            hostTextField.setStyle("-fx-border-color: RED; -fx-border-width: 1; -fx-border-radius: 5;");
+            errorFlag = true;
         }
 
-        int port;
         try {
             port = Integer.parseInt(portTextField.getText());
+            checkPort(port);
+        } catch (Exception ex) {
+            portTextField.setStyle("-fx-border-color: RED; -fx-border-width: 1; -fx-border-radius: 5;");
+            errorFlag = true;
         }
-        catch (Exception ex) {
-            // TODO: печать ошибки на окне
+
+        if (errorFlag) {
             return;
         }
 
@@ -109,8 +114,7 @@ public class LogInController implements Initializable {
             Launcher launcher = new Launcher();
             launcher.launch(new MapInteraction("http://" + host.getHostAddress() + ":" + port, account,
                     new Hash160(ConnectionConfig.getHash160Map()), new Hash160(ConnectionConfig.getHash160State())));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
             FXMLLoader fxmlLoader = new FXMLLoader(LogInController.class.getResource("/fxml/log-in.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
@@ -126,6 +130,24 @@ public class LogInController implements Initializable {
     }
 
     /**
+     * Проверяет, что указанный порт находится в допустимом диапазоне от 0 до 65535 (включительно).
+     *
+     * @param port Порт для проверки.
+     * @throws IllegalArgumentException если порт находится за пределами допустимого диапазона (от 0 до 65535).
+     */
+    private static void checkPort(int port) {
+        if (port < 0 || port > 0xFFFF)
+            throw new IllegalArgumentException("port out of range:" + port);
+    }
+
+
+    private void restoreTextFieldStyle() {
+        wifKeyTextField.setStyle("-fx-border-color: WHITE; -fx-border-width: 1; -fx-border-radius: 5;");
+        hostTextField.setStyle("-fx-border-color: WHITE; -fx-border-width: 1; -fx-border-radius: 5;");
+        portTextField.setStyle("-fx-border-color: WHITE; -fx-border-width: 1; -fx-border-radius: 5;");
+    }
+
+    /**
      * Обработчик события нажатия на кнопку "Back".
      * Возвращает пользователя на страницу выбора (choice).
      *
@@ -138,7 +160,8 @@ public class LogInController implements Initializable {
     /**
      * Метод инициализации, вызывается после загрузки FXML-файла.
      * Создает таблицу в базе данных, обрабатывает текстовые поля и список предложений.
-     * @param url Путь к FXML-файлу (не используется).
+     *
+     * @param url            Путь к FXML-файлу (не используется).
      * @param resourceBundle Ресурсные бандлы (не используются).
      */
     @Override
@@ -151,9 +174,10 @@ public class LogInController implements Initializable {
 
     /**
      * Обрабатывает текстовые поля и список предложений для автозаполнения.
-     * @param listView Список предложений для автозаполнения.
+     *
+     * @param listView  Список предложений для автозаполнения.
      * @param textField Текстовое поле, которое будет обрабатываться.
-     * @param set Набор предложений для автозаполнения.
+     * @param set       Набор предложений для автозаполнения.
      */
     private void textFieldHandle(ListView listView, TextField textField, Set<String> set) {
 
