@@ -88,7 +88,10 @@ test-java:
 deploy-contracts:
     stage: deploy
     script:
-        - java -jar contracts/target/contracts-1.0.0-jar-with-dependencies.jar 
+        - echo "Main Network..."
+        - java -jar contracts/target/contracts-1.0.0-jar-with-dependencies.jar $MAIN_OWNER_WIF $MAIN_NODE_URL $NAME
+        - echo "Test Network..."
+        - java -jar contracts/target/contracts-1.0.0-jar-with-dependencies.jar $TEST_OWNER_WIF $TEST_NODE_URL $NAME
     only:
         changes:
             - contracts/**/*
