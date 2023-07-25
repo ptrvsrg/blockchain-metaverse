@@ -1,61 +1,29 @@
-/**
- * @file db.h
- * @brief Модуль базы данных для хранения и получения данных блоков и состояния.
- */
 #ifndef _db_h_
 #define _db_h_
 
 #include "map.h"
+#include "sign.h"
 
-/**
- * @brief Инициализирует базу данных и подготавливает необходимые выражения.
- * @return 0 в случае успешной инициализации или код ошибки SQLite, если произошла ошибка.
- */
-int db_init();
-
-/**
- * @brief Закрывает базу данных и освобождает ресурсы связанные с подготовленными выражениями.
- */
+void db_enable();
+void db_disable();
+int get_db_enabled();
+int db_init(char *path);
 void db_close();
-
-/**
- * @brief Сохраняет состояние мира (позицию и вращение) в базу данных.
- * @param x Координата X позиции игрока.
- * @param y Координата Y позиции игрока.
- * @param z Координата Z позиции игрока.
- * @param rx Вращение по оси X игрока.
- * @param ry Вращение по оси Y игрока.
- */
+void db_commit();
 void db_save_state(float x, float y, float z, float rx, float ry);
-
-/**
- * @brief Загружает состояние мира (позицию и вращение) из базы данных.
- * @param[out] x Загруженная координата X позиции игрока.
- * @param[out] y Загруженная координата Y позиции игрока.
- * @param[out] z Загруженная координата Z позиции игрока.
- * @param[out] rx Загруженное вращение по оси X игрока.
- * @param[out] ry Загруженное вращение по оси Y игрока.
- * @return 0, если данные были успешно загружены, 1 в противном случае.
- */
 int db_load_state(float *x, float *y, float *z, float *rx, float *ry);
-
-/**
- * @brief Вставляет блок в базу данных.
- * @param p Значение P блока.
- * @param q Значение Q блока.
- * @param x Координата X блока.
- * @param y Координата Y блока.
- * @param z Координата Z блока.
- * @param w Тип блока.
- */
 void db_insert_block(int p, int q, int x, int y, int z, int w);
+void db_insert_sign(
+    int p, int q, int x, int y, int z, int face, const char *text);
+void db_delete_sign(int x, int y, int z, int face);
+void db_delete_signs(int x, int y, int z);
+void db_delete_all_signs();
+void db_load_map(Map *map, int p, int q);
+void db_load_signs(SignList *list, int p, int q);
+int db_get_key(int p, int q);
+void db_set_key(int p, int q, int key);
+void db_worker_start();
+void db_worker_stop();
+int db_worker_run(void *arg);
 
-/**
- * @brief Обновляет данные блоков в указанном чанке карты.
- * @param map Указатель на карту для обновления данных блоков.
- * @param p Значение P чанка.
- * @param q Значение Q чанка.
- */
-void db_update_chunk(Map *map, int p, int q);
-
-#endif // DB_H
+#endif

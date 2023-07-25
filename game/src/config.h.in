@@ -1,47 +1,79 @@
 #ifndef _config_h_
 #define _config_h_
 
-// #include "GLFW/glfw3.h"
+// app parameters
+#define DEBUG 0
+#define FULLSCREEN 0
+#define WINDOW_WIDTH 1024
+#define WINDOW_HEIGHT 768
+#define VSYNC 1
+#define SCROLL_THRESHOLD 0.1
+#define MAX_MESSAGES 4
+#define DB_PATH "craft.sqlite"
+#define USE_CACHE 1
+#define DAY_LENGTH 300
+#define INVERT_MOUSE 0
 
-#define DB_NAME "craft.sqlite"  /* Имя базы данных */
-#define FULLSCREEN 0            /* Режим окна */
-#define VSYNC 1                 /* Минимальное количество обновлений экрана для ожидания до замены буферов */
-#define WINDOW_WIDTH 1024       /* Ширина игрового окна */
-#define WINDOW_HEIGHT 768       /* Высота игрового окна */
-#define WINDOW_TITLE "MyCraft"    /* Заголовок игрового окна */
-#define SCROLL_THRESHOLD 0.1    /* Порог прокрутки ввода */
-#define BLOCK_COUNT 11          /* Общее количество типов блоков в игре */
-#define CHUNK_SIZE 32           /* Размер каждого чанка в игровом мире */
-#define MAX_CHUNKS 1024         /* Максимальное количество загружаемых одновременно чанков */
-#define CREATE_CHUNK_RADIUS 6   /* Радиус вокруг игрока, в котором создаются новые чанки */
-#define RENDER_CHUNK_RADIUS 6   /* Радиус вокруг игрока, в котором рендерятся чанки */
-#define DELETE_CHUNK_RADIUS 8   /* Радиус вокруг игрока, в котором чанки удаляются для освобождения памяти */
+// rendering options
+#define SHOW_PLANTS 1
+#define SHOW_CLOUDS 1
+#define SHOW_TREES 1
+#define SHOW_ITEM 1
+#define SHOW_CROSSHAIRS 1
+#define SHOW_WIREFRAME 1
+#define SHOW_INFO_TEXT 1
+#define SHOW_CHAT_TEXT 1
+#define SHOW_PLAYER_NAMES 1
 
 // key bindings
+#define CRAFT_KEY_QUIT 'Q'
 #define CRAFT_KEY_FORWARD 'W'
 #define CRAFT_KEY_BACKWARD 'S'
 #define CRAFT_KEY_LEFT 'A'
 #define CRAFT_KEY_RIGHT 'D'
 #define CRAFT_KEY_JUMP GLFW_KEY_SPACE
-#define CRAFT_KEY_CROUCH GLFW_KEY_LEFT_SHIFT
 #define CRAFT_KEY_FLY GLFW_KEY_TAB
 #define CRAFT_KEY_OBSERVE 'O'
 #define CRAFT_KEY_OBSERVE_INSET 'P'
 #define CRAFT_KEY_ITEM_NEXT 'E'
 #define CRAFT_KEY_ITEM_PREV 'R'
-#define CRAFT_KEY_ZOOM 'Z'
+#define CRAFT_KEY_ZOOM GLFW_KEY_LEFT_SHIFT
 #define CRAFT_KEY_ORTHO 'F'
 #define CRAFT_KEY_CHAT 't'
 #define CRAFT_KEY_COMMAND '/'
 #define CRAFT_KEY_SIGN '`'
 
+// keys for moving along axes
+#define CRAFT_KEY_XM 'Z'
+#define CRAFT_KEY_XP 'X'
+#define CRAFT_KEY_YM 'C'
+#define CRAFT_KEY_YP 'V'
+#define CRAFT_KEY_ZM 'B'
+#define CRAFT_KEY_ZP 'N'
+
+// advanced parameters
+#define CREATE_CHUNK_RADIUS 6
+#define RENDER_CHUNK_RADIUS 6
+#define RENDER_SIGN_RADIUS 3
+#define DELETE_CHUNK_RADIUS 12
+#define CHUNK_SIZE 32
+#define COMMIT_INTERVAL 5
+
+// resources
 #define TEXTURE_FILE "texture.png"
+#define FONT_FILE "font.png"
+#define SIGN_FILE "sign.png"
+#define SKY_FILE "sky.png"
+#define TEXTURES_DIRECTORY "${TEXTURES_DIRECTORY}/"
+
 #define BLOCK_VERTEX "block_vertex.glsl"
 #define BLOCK_FRAGMENT "block_fragment.glsl"
 #define LINE_VERTEX "line_vertex.glsl"
 #define LINE_FRAGMENT "line_fragment.glsl"
-
-#define TEXTURES_DIRECTORY "${TEXTURES_DIRECTORY}/"
+#define SKY_VERTEX "sky_vertex.glsl"
+#define SKY_FRAGMENT "sky_fragment.glsl"
+#define TEXT_VERTEX "text_vertex.glsl"
+#define TEXT_FRAGMENT "text_fragment.glsl"
 #define SHADERS_DIRECTORY "${SHADERS_DIRECTORY}/"
 
-#endif // _config_h_
+#endif

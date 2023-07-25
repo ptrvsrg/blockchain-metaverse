@@ -4,7 +4,7 @@
 
 JNIEXPORT void JNICALL Java_ru_nsu_sberlab_gameintegration_tasks_StartTask_start
 (JNIEnv* env, jobject, jobject playerPosition) {
-    state_t state;
+    State state;
     jclass PlayerPosition = (*env)->GetObjectClass(env, playerPosition);
     jmethodID getX = (*env)->GetMethodID(env, PlayerPosition, "getX", "()F");
     jmethodID getY = (*env)->GetMethodID(env, PlayerPosition, "getY", "()F");

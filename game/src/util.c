@@ -1,68 +1,70 @@
-#include "util.h"
-
-#include <errno.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-
-#include <GL/glew.h>
-
 #include "lodepng.h"
 #include "matrix.h"
+#include "util.h"
 
-static char *load_file(const char *path) {
-    FILE *file = fopen(path, "rb");
-    if (!file) {
-        fprintf(stderr, "fopen %s failed: %d %s\n",
-                path, errno, strerror(errno));
-        exit(1);
+int rand_int(int n) {
+    int result;
+    while (n <= (result = rand() / (RAND_MAX / n)));
+    return result;
+}
+
+double rand_double() {
+    return (double)rand() / (double)RAND_MAX;
+}
+
+void update_fps(FPS *fps) {
+    fps->frames++;
+    double now = glfwGetTime();
+    double elapsed = now - fps->since;
+    if (elapsed >= 1) {
+        fps->fps = round(fps->frames / elapsed);
+        fps->frames = 0;
+        fps->since = now;
     }
-    // Get file content's size
+}
+
+char *load_file(const char *path) {
+    FILE *file = fopen(path, "rb");
     fseek(file, 0, SEEK_END);
     int length = ftell(file);
     rewind(file);
-    // Allocate space and read in the data
     char *data = calloc(length + 1, sizeof(char));
-    if (!data) {
-        fclose(file);
-        fprintf(stderr, "calloc failed: %d %s\n",
-                errno, strerror(errno));
-        exit(1);
-    }
     fread(data, 1, length, file);
     fclose(file);
     return data;
 }
 
-void load_png_texture(const char *file_name) {
-    unsigned error;
-    unsigned char *image;
-    unsigned width;
-    unsigned height;
-    error = lodepng_decode32_file(&image, &width, &height, file_name);
-    if (error) {
-        fprintf(stderr, "error %u: %s\n", error, lodepng_error_text(error));
-        exit(1);
-    }
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
-                 GL_UNSIGNED_BYTE, image);
-    free(image);
-}
-
-GLuint make_buffer(GLenum target, GLsizei size, const void *data) {
+GLuint gen_buffer(GLsizei size, GLfloat *data) {
     GLuint buffer;
     glGenBuffers(1, &buffer);
-    glBindBuffer(target, buffer);
-    glBufferData(target, size, data, GL_STATIC_DRAW);
-    glBindBuffer(target, 0);
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
     return buffer;
 }
 
-static GLuint make_shader(GLenum type, const char *source) {
+void del_buffer(GLuint buffer) {
+    glDeleteBuffers(1, &buffer);
+}
+
+GLfloat *malloc_faces(int components, int faces) {
+    return malloc(sizeof(GLfloat) * 6 * components * faces);
+}
+
+GLuint gen_faces(int components, int faces, GLfloat *data) {
+    GLuint buffer = gen_buffer(
+        sizeof(GLfloat) * 6 * components * faces, data);
+    free(data);
+    return buffer;
+}
+
+GLuint make_shader(GLenum type, const char *source) {
     GLuint shader = glCreateShader(type);
     glShaderSource(shader, 1, &source, NULL);
     glCompileShader(shader);
-    // Get shader status, so we can print an error if compiling it failed
     GLint status;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
     if (status == GL_FALSE) {
@@ -76,17 +78,17 @@ static GLuint make_shader(GLenum type, const char *source) {
     return shader;
 }
 
-static GLuint load_shader(GLenum type, const char *path) {
+GLuint load_shader(GLenum type, const char *path) {
     char *data = load_file(path);
     GLuint result = make_shader(type, data);
     free(data);
     return result;
 }
 
-static GLuint make_GPU_program(GLuint vertex_shader, GLuint fragment_shader) {
+GLuint make_program(GLuint shader1, GLuint shader2) {
     GLuint program = glCreateProgram();
-    glAttachShader(program, vertex_shader);
-    glAttachShader(program, fragment_shader);
+    glAttachShader(program, shader1);
+    glAttachShader(program, shader2);
     glLinkProgram(program);
     GLint status;
     glGetProgramiv(program, GL_LINK_STATUS, &status);
@@ -98,16 +100,120 @@ static GLuint make_GPU_program(GLuint vertex_shader, GLuint fragment_shader) {
         fprintf(stderr, "glLinkProgram failed: %s\n", info);
         free(info);
     }
-    glDetachShader(program, vertex_shader);
-    glDetachShader(program, fragment_shader);
-    glDeleteShader(vertex_shader);
-    glDeleteShader(fragment_shader);
+    glDetachShader(program, shader1);
+    glDetachShader(program, shader2);
+    glDeleteShader(shader1);
+    glDeleteShader(shader2);
     return program;
 }
 
-GLuint load_GPU_program(const char *vertex_path, const char *fragments_path) {
-    GLuint vertex_shader = load_shader(GL_VERTEX_SHADER, vertex_path);
-    GLuint fragment_shader = load_shader(GL_FRAGMENT_SHADER, fragments_path);
-    GLuint program = make_GPU_program(vertex_shader, fragment_shader);
+GLuint load_program(const char *path1, const char *path2) {
+    GLuint shader1 = load_shader(GL_VERTEX_SHADER, path1);
+    GLuint shader2 = load_shader(GL_FRAGMENT_SHADER, path2);
+    GLuint program = make_program(shader1, shader2);
     return program;
+}
+
+void flip_image_vertical(
+    unsigned char *data, unsigned int width, unsigned int height)
+{
+    unsigned int size = width * height * 4;
+    unsigned int stride = sizeof(char) * width * 4;
+    unsigned char *new_data = malloc(sizeof(unsigned char) * size);
+    for (unsigned int i = 0; i < height; i++) {
+        unsigned int j = height - i - 1;
+        memcpy(new_data + j * stride, data + i * stride, stride);
+    }
+    memcpy(data, new_data, size);
+    free(new_data);
+}
+
+void load_png_texture(const char *file_name) {
+    unsigned int error;
+    unsigned char *data;
+    unsigned int width, height;
+    error = lodepng_decode32_file(&data, &width, &height, file_name);
+    if (error) {
+        fprintf(stderr, "error %u: %s\n", error, lodepng_error_text(error));
+    }
+    flip_image_vertical(data, width, height);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA,
+        GL_UNSIGNED_BYTE, data);
+    free(data);
+}
+
+char *tokenize(char *str, const char *delim, char **key) {
+    char *result;
+    if (str == NULL) {
+        str = *key;
+    }
+    str += strspn(str, delim);
+    if (*str == '\0') {
+        return NULL;
+    }
+    result = str;
+    str += strcspn(str, delim);
+    if (*str) {
+        *str++ = '\0';
+    }
+    *key = str;
+    return result;
+}
+
+int char_width(char input) {
+    static const int lookup[128] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        4, 2, 4, 7, 6, 9, 7, 2, 3, 3, 4, 6, 3, 5, 2, 7,
+        6, 3, 6, 6, 6, 6, 6, 6, 6, 6, 2, 3, 5, 6, 5, 7,
+        8, 6, 6, 6, 6, 6, 6, 6, 6, 4, 6, 6, 5, 8, 8, 6,
+        6, 7, 6, 6, 6, 6, 8,10, 8, 6, 6, 3, 6, 3, 6, 6,
+        4, 7, 6, 6, 6, 6, 5, 6, 6, 2, 5, 5, 2, 9, 6, 6,
+        6, 6, 6, 6, 5, 6, 6, 6, 6, 6, 6, 4, 2, 5, 7, 0
+    };
+    return lookup[input];
+}
+
+int string_width(const char *input) {
+    int result = 0;
+    int length = strlen(input);
+    for (int i = 0; i < length; i++) {
+        result += char_width(input[i]);
+    }
+    return result;
+}
+
+int wrap(const char *input, int max_width, char *output, int max_length) {
+    *output = '\0';
+    char *text = malloc(sizeof(char) * (strlen(input) + 1));
+    strcpy(text, input);
+    int space_width = char_width(' ');
+    int line_number = 0;
+    char *key1, *key2;
+    char *line = tokenize(text, "\r\n", &key1);
+    while (line) {
+        int line_width = 0;
+        char *token = tokenize(line, " ", &key2);
+        while (token) {
+            int token_width = string_width(token);
+            if (line_width) {
+                if (line_width + token_width > max_width) {
+                    line_width = 0;
+                    line_number++;
+                    strncat(output, "\n", max_length);
+                }
+                else {
+                    strncat(output, " ", max_length);
+                }
+            }
+            strncat(output, token, max_length);
+            line_width += token_width + space_width;
+            token = tokenize(NULL, " ", &key2);
+        }
+        line_number++;
+        strncat(output, "\n", max_length);
+        line = tokenize(NULL, "\r\n", &key1);
+    }
+    free(text);
+    return line_number;
 }

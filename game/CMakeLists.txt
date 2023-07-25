@@ -4,7 +4,7 @@ project(craft)
 
 # config file
 if(NOT DEFINED ${TEXTURES_DIRECTORY})
-        set(TEXTURES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/texture)
+        set(TEXTURES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/textures)
 endif()
 
 if(NOT DEFINED ${SHADERS_DIRECTORY})
@@ -14,32 +14,33 @@ endif()
 configure_file(src/config.h.in
         ${CMAKE_CURRENT_BINARY_DIR}/include/config.h)
 
-# JNATIVE library
-FILE(GLOB JNATIVE_SOURCE_FILES JNI/*.c)
-add_library(jnative SHARED ${JNATIVE_SOURCE_FILES})
-
-# JNI
-find_package(JNI REQUIRED)
-target_include_directories(jnative PUBLIC ${JNI_INCLUDE_DIRS})
-
 # CRAFT library
 FILE(GLOB SOURCE_FILES src/*.c)
 add_library(
     craft SHARED
     ${SOURCE_FILES})
 target_include_directories(craft
-        PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
-target_include_directories(jnative
-        PUBLIC src)
+    PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+        
+# JNI
+find_package(JNI REQUIRED)
+
+# JNATIVE library
+FILE(GLOB JNATIVE_SOURCE_FILES JNI/*.c)
+add_library(jnative SHARED ${JNATIVE_SOURCE_FILES})
+target_include_directories(jnative PUBLIC ${JNI_INCLUDE_DIRS})
+target_include_directories(jnative PUBLIC src)
 
 # GLEW library
 find_package(OpenGL REQUIRED)
 find_package(X11 REQUIRED)
-FILE(GLOB GLEW_SOURCE_FILES deps/glew/src/*.c)
+FILE(GLOB GLEW_SOURCE_FILES deps/glew/src/glew.c)
 SET(GLEW_INCLUDE_DIR deps/glew/include)
 add_library(glew SHARED
         ${GLEW_SOURCE_FILES})
 target_include_directories(glew
+        PUBLIC ${GLEW_INCLUDE_DIR})
+target_include_directories(craft
         PUBLIC ${GLEW_INCLUDE_DIR})
 target_link_libraries(glew
         PUBLIC ${OPENGL_LIBRARIES}
