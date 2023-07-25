@@ -1,7 +1,5 @@
 package ru.nsu.sberlab.gameintegration.tasks;
 
-
-import lombok.extern.log4j.Log4j2;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.blockchain_interaction.exception.ApplicationLogError;
 import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
@@ -15,14 +13,12 @@ import static java.lang.String.valueOf;
 /**
  * Задача которая каждые TIME_REQUEST миллисекунд проверяет статус транзакции.
  */
-@Log4j2
 public class CheckTransactionsTask implements Runnable {
 
     private static final int TIME_REQUEST = 500;
     private static final long MAX_PAST_TIME = 30000;
     private final Queue<TransactionInfo> queue;
     private final MapInteraction mapInBlockchain;
-
 
     /**
      * @param queue очередь с информацией о транзакциях
@@ -31,9 +27,6 @@ public class CheckTransactionsTask implements Runnable {
         this.queue = queue;
         this.mapInBlockchain = mapInBlockchain;
     }
-
-
-
 
     /**
      * Проверка транзакций.
@@ -48,19 +41,16 @@ public class CheckTransactionsTask implements Runnable {
                         queue.peek().getPastTime() > MAX_PAST_TIME
                         || !e.getError().getMessage().equals("Unknown transaction/blockhash")) {
                     var transactionInfo = queue.remove();
-                    log.error(format("wait %s seconds. Didn't get result.", transactionInfo.getPastTime() / 1000));
                     StaticQueuesWrapper.sendHistory(transactionInfo.getBlock());
                 } else {
                     return;
                 }
             } catch (Exception e) {
                 var transactionInfo = queue.remove();
-                log.error(e.getMessage());
                 StaticQueuesWrapper.sendHistory(transactionInfo.getBlock());
             }
         }
     }
-
 
     @Override
     public void run() {
@@ -72,7 +62,5 @@ public class CheckTransactionsTask implements Runnable {
                 return;
             }
         }
-
-
     }
 }
