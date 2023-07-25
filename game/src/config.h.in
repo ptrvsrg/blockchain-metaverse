@@ -9,7 +9,7 @@
 #define VSYNC 1
 #define SCROLL_THRESHOLD 0.1
 #define MAX_MESSAGES 4
-#define DB_PATH "craft.db"
+#define DB_PATH "craft.sqlite"
 #define USE_CACHE 1
 #define DAY_LENGTH 300
 #define INVERT_MOUSE 0
@@ -58,5 +58,22 @@
 #define DELETE_CHUNK_RADIUS 12
 #define CHUNK_SIZE 32
 #define COMMIT_INTERVAL 5
+
+// resources
+#define TEXTURE_FILE "texture.png"
+#define FONT_FILE "font.png"
+#define SIGN_FILE "sign.png"
+#define SKY_FILE "sky.png"
+#define TEXTURES_DIRECTORY "${TEXTURES_DIRECTORY}/"
+
+#define BLOCK_VERTEX "block_vertex.glsl"
+#define BLOCK_FRAGMENT "block_fragment.glsl"
+#define LINE_VERTEX "line_vertex.glsl"
+#define LINE_FRAGMENT "line_fragment.glsl"
+#define SKY_VERTEX "sky_vertex.glsl"
+#define SKY_FRAGMENT "sky_fragment.glsl"
+#define TEXT_VERTEX "text_vertex.glsl"
+#define TEXT_FRAGMENT "text_fragment.glsl"
+#define SHADERS_DIRECTORY "${SHADERS_DIRECTORY}/"
 
 #endif
