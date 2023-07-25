@@ -4,7 +4,7 @@ project(craft)
 
 # config file
 if(NOT DEFINED ${TEXTURES_DIRECTORY})
-        set(TEXTURES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/texture)
+        set(TEXTURES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/textures)
 endif()
 
 if(NOT DEFINED ${SHADERS_DIRECTORY})

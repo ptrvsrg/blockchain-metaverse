@@ -30,4 +30,4 @@ typedef struct {
 
 extern Player players[];
 
-int main(void);
+int run(State state);

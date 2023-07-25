@@ -1714,8 +1714,31 @@ void parse_buffer(char *buffer) {
     }
 }
 
+int player_intersects_obstacle(
+    int height,
+    float x, float y, float z)
+{
+    int p = chunked(x);
+    int q = chunked(z);
+    Chunk *chunk = find_chunk(p, q);
+    if (chunk) {
+        Map* map = &chunk->map;
+        int nx = roundf(x);
+        int ny = roundf(y);
+        int nz = roundf(z);
+        for (int i = 0; i < height; i++) {
+            if (is_obstacle(map_get(map, nx, ny - i, nz))) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    return 0;
+}
+
 // int main(int argc, char **argv) {
-int main(void) {
+int run(State state) {
     // INITIALIZATION //
     #ifdef _WIN32
         WSADATA wsa_data;
@@ -1884,9 +1907,11 @@ int main(void) {
     player_count = 1;
 
     // LOAD STATE FROM DATABASE //
-    int loaded = db_load_state(&s->x, &s->y, &s->z, &s->rx, &s->ry);
+    // int loaded = db_load_state(&s->x, &s->y, &s->z, &s->rx, &s->ry);
+    // LOAD STATE FROM JAVA
+    *s = state;
     ensure_chunks(me, 1);
-    if (!loaded) {
+    if (player_intersects_obstacle(2, s->x, s->y, s->z)) {
         s->y = highest_block(s->x, s->z) + 2;
     }
 
@@ -1923,8 +1948,6 @@ int main(void) {
         // HANDLE DATA FROM JAVA //
         sync_queue_entry_t entry;
         while (try_dequeue(&out_blockchain_queue, &entry) != QUEUE_FAILURE) {
-            puts("new block!!");
-            fflush(stdout);
             set_block(
                 entry.m_block_x, entry.m_block_y, entry.m_block_z, entry.m_block_id
             );
