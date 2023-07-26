@@ -16,6 +16,8 @@ public class StaticQueuesWrapper {
     }
 
     public static native void sendBlockChangeC(Block block);
+
     public static native Block getBlockChangeC();
+
     public static native void init();
 }

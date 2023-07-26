@@ -1,4 +1,4 @@
-package ru.nsu.sberlab.blockchain_interaction.utils;
+package ru.nsu.sberlab.blockchainintegration.utils;
 
 /**
  * Класс Utils предоставляет утилитарные методы для преобразования данных.

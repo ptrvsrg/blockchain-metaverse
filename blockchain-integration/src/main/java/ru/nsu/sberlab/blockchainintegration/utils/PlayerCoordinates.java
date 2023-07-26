@@ -1,9 +1,9 @@
-package ru.nsu.sberlab.blockchain_interaction.utils;
-
-import java.util.Objects;
+package ru.nsu.sberlab.blockchainintegration.utils;
 
 import static java.lang.Float.floatToIntBits;
 import static java.lang.Float.intBitsToFloat;
+
+import java.util.Objects;
 
 /**
  * Класс для представления координат игрока в Майнкрафте
@@ -19,17 +19,17 @@ public class PlayerCoordinates {
     private float ry;
 
     /**
-     * @param serializedObject массив из COORDINATES_BYTE_SIZE + 8 байтов, в котором по порядку идут: rx, ry, x, y, z
+     * @param serializedObject массив из COORDINATES_BYTE_SIZE + 8 байтов, в котором по порядку
+     *                         идут: rx, ry, x, y, z
      * @throws Exception если массив некорректного размера
      */
-    public PlayerCoordinates(byte[] serializedObject) throws Exception {
-
+    public PlayerCoordinates(byte[] serializedObject)
+        throws Exception {
         rx = intBitsToFloat(Utils.byteToInt(serializedObject, 0));
         ry = intBitsToFloat(Utils.byteToInt(serializedObject, 4));
         x = intBitsToFloat(Utils.byteToInt(serializedObject, 8));
         y = intBitsToFloat(Utils.byteToInt(serializedObject, 12));
         z = intBitsToFloat(Utils.byteToInt(serializedObject, 16));
-
     }
 
     public PlayerCoordinates(float rx, float ry, float x, float y, float z) {
@@ -41,7 +41,8 @@ public class PlayerCoordinates {
     }
 
     /**
-     * @return байтовое представление полей объекта в порядке: байтовое представление rx, ry, x, y, z
+     * @return байтовое представление полей объекта в порядке: байтовое представление rx, ry, x, y,
+     * z
      */
     public byte[] serialize() {
         byte[] serializedObject = new byte[BLOCK_COORDINATES_SIZE];
@@ -57,9 +58,15 @@ public class PlayerCoordinates {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         PlayerCoordinates that = (PlayerCoordinates) o;
         return rx == that.rx && ry == that.ry;
     }
@@ -108,6 +115,4 @@ public class PlayerCoordinates {
     public int hashCode() {
         return Objects.hash(rx, ry, x, y, z);
     }
-
-
 }

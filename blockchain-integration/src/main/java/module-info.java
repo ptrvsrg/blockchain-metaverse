@@ -1,8 +1,7 @@
 module blockchainintegration {
-    exports ru.nsu.sberlab.blockchain_interaction;
-    exports ru.nsu.sberlab.blockchain_interaction.utils;
-    exports ru.nsu.sberlab.blockchain_interaction.exception;
+    exports ru.nsu.sberlab.blockchainintegration;
+    exports ru.nsu.sberlab.blockchainintegration.utils;
+    exports ru.nsu.sberlab.blockchainintegration.exception;
     requires contract;
     requires core;
-
 }
