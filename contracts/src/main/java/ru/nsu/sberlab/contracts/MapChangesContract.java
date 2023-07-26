@@ -94,7 +94,7 @@ public class MapChangesContract {
 
         int actualSize = Math.min(allChanges.length / 24 - i, n);
 
-        return Helper.range(allChanges, i, actualSize);
+        return Helper.range(allChanges, i * 24, actualSize * 24);
     }
 
     /**
