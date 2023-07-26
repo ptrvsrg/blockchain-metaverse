@@ -1,7 +1,5 @@
 package ru.nsu.sberlab.gameintegration.tasks;
 
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
 import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
@@ -14,13 +12,15 @@ import java.util.ArrayList;
  * Класс BlockchainDataRequestTask представляет поток для запроса данных из блокчейна и
  * взаимодействия с кодом на языке C/C++. Имплементирует класс Runnable.
  **/
-@Log4j2
+
 public class BlockchainDataRequestTask implements Runnable {
 
     /**
      * Время между запросами на изменение данных в блокчейне (в миллисекундах).
      */
     private static final int TIME_REQUEST = 1500;
+
+    private static final int REQUEST_MAX_SIZE = 1000;
 
     private int takenChangesNumber = 0;
 
@@ -35,7 +35,7 @@ public class BlockchainDataRequestTask implements Runnable {
      * Отправляет уведомление об изменении блока в блокчейне.
      */
     public void sendBlockChange() throws Throwable {
-        ArrayList<BlockInfo> changes = mapInBlockchain.getAllChangesWithoutFirstN(takenChangesNumber);
+        ArrayList<BlockInfo> changes = mapInBlockchain.getRangeChanges(takenChangesNumber, REQUEST_MAX_SIZE);
         takenChangesNumber += changes.size();
 
         for (BlockInfo blockInfo : changes) {
@@ -59,8 +59,8 @@ public class BlockchainDataRequestTask implements Runnable {
             catch (InterruptedIOException e) {
                 return;
             }
-            catch (Throwable e) {
-                log.catching(Level.ERROR, e);
+            catch (Throwable ignore) {
+
             }
         }
     }

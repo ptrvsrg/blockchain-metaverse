@@ -2,13 +2,18 @@ cmake_minimum_required(VERSION 3.22.1)
 
 project(craft)
 
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib)
+
 # config file
 if(NOT DEFINED ${TEXTURES_DIRECTORY})
-        set(TEXTURES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/textures)
+        # set(TEXTURES_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/texture)
+        set(TEXTURES_DIRECTORY ./texture)
 endif()
 
 if(NOT DEFINED ${SHADERS_DIRECTORY})
-        set(SHADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+        # set(SHADERS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+        set(SHADERS_DIRECTORY ./shaders)
 endif()
 
 configure_file(src/config.h.in
@@ -105,9 +110,8 @@ elseif (UNIX)
             PRIVATE sqlite
             PRIVATE ${GLFW_LIBRARIES})
 elseif (MINGW)
-    set(CMAKE_SHARED_LIBRARY_PREFIX "")
-    set(CMAKE_STATIC_LIBRARY_PREFIX "")
-    target_link_libraries(craft
+        set(CMAKE_SHARED_LIBRARY_PREFIX "")
+        target_link_libraries(craft
             PRIVATE ws2_32.lib
             PRIVATE glfw
             PRIVATE glew

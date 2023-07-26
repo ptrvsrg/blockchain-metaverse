@@ -46,7 +46,7 @@ public class CompilationDeploying {
      * @param name      название контракта
      * @return возвращает ScriptHash развернутого контракта
      * @throws MapContractAlreadyExist если контракт с таким именем уже существует
-     * @throws Throwable если происходит ошибка при развертывании
+     * @throws Throwable               если происходит ошибка при развертывании
      */
     public Hash160 deployMapContract(ContractParameter parameter, String name) throws Throwable {
         HashMap<String, String> replaceMap = new HashMap<>(1);

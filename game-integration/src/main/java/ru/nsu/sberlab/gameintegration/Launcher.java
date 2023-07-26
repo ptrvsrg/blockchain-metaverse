@@ -3,11 +3,8 @@ package ru.nsu.sberlab.gameintegration;
 import io.neow3j.crypto.ECKeyPair;
 import io.neow3j.types.Hash160;
 import io.neow3j.wallet.Account;
-import lombok.extern.log4j.Log4j2;
-import org.apache.logging.log4j.Level;
 import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
 import ru.nsu.sberlab.gameintegration.data.Block;
-import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
 import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 import ru.nsu.sberlab.gameintegration.tasks.*;
 
@@ -17,18 +14,17 @@ import java.util.concurrent.ArrayBlockingQueue;
 /**
  * Класс Launcher представляет запуск игры и выполнения задач для запроса изменений данных.
  */
-@Log4j2
 public class Launcher {
 
     static {
-        System.loadLibrary("glew");
-        System.loadLibrary("lodepng");
-        System.loadLibrary("noise");
-        System.loadLibrary("sqlite");
-        System.loadLibrary("tinycthread");
+        System.loadLibrary("cygglew");
+        System.loadLibrary("cyglodepng");
+        System.loadLibrary("cygnoise");
+        System.loadLibrary("cygsqlite");
+        System.loadLibrary("cygtinycthread");
 
-        System.loadLibrary("craft");
-        System.loadLibrary("jnative");
+        System.loadLibrary("cygcraft");
+        System.loadLibrary("cygjnative");
 
         StaticQueuesWrapper.init();
     }
@@ -77,7 +73,6 @@ public class Launcher {
      */
     public void launch(MapInteraction mapInBlockchain) throws Throwable {
 
-        log.info("STARTING GAME...");
         Queue<TransactionInfo> transactionInfos = new ArrayBlockingQueue<>(100);
         Queue<Block> blocksChanges = new ArrayBlockingQueue<>(100);
         Thread startTask = new Thread(new StartTask(PlayerPositionHandler.getPlayerPosition(mapInBlockchain)));
@@ -95,32 +90,12 @@ public class Launcher {
         try {
             startTask.join();
             cDataRequestTask.join();
-            log.info("ENDING GAME ...");
-
 
             PlayerPositionHandler.setPlayerPosition(mapInBlockchain, PlayerPositionHandler.getPlayerPositionC());
             blockchainDataRequestTask.interrupt();
             checkBlockchainSendTask.interrupt();
             sendChangesToBlockchainTask.interrupt();
-        } catch (Throwable e) {
-            log.catching(Level.ERROR, e);
+        } catch (Throwable ignore) {
         }
-
-        log.info("END SESSION");
-
-//        Thread startTask = new Thread(new StartTask(new PlayerPosition(
-//                0, 0, 0, 0, 0)));
-//        startTask.start();
-//
-//        Thread blockTask = new Thread(()->{
-//            Block block = CDataRequestTask.getBlockChangeC();
-//            while (block != null) {
-//                System.out.println(block);
-//                block = CDataRequestTask.getBlockChangeC();
-//            }
-//        });
-//        blockTask.start();
-//        blockTask.join();
-//        startTask.join();
     }
 }

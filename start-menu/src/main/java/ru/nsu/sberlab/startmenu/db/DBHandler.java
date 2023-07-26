@@ -9,13 +9,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
-import lombok.extern.log4j.Log4j2;
 
 /**
  * Класс DBHandler предоставляет методы для работы с базой данных,
  * хранящей информацию о сетевых подключениях.
  */
-@Log4j2
 public class DBHandler {
 
     private static final String SQL_TABLE_URL = "jdbc:sqlite:./login.sqlite";
@@ -43,9 +41,7 @@ public class DBHandler {
             statement.execute(SQL_CREATE_WIF_TABLE);
             statement.execute(SQL_CREATE_HOST_TABLE);
             statement.execute(SQL_CREATE_PORT_TABLE);
-            log.info("Table 'account' successfully created");
         } catch (Exception e) {
-            log.error(e.getMessage());
         }
     }
 

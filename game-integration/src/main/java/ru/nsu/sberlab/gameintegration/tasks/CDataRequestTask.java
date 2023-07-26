@@ -1,6 +1,5 @@
 package ru.nsu.sberlab.gameintegration.tasks;
 
-import lombok.extern.log4j.Log4j2;
 import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
 import ru.nsu.sberlab.gameintegration.data.Block;
 import ru.nsu.sberlab.gameintegration.exception.QueueClosedException;
@@ -11,7 +10,6 @@ import java.util.Queue;
  * Класс CDataRequestTask представляет поток для запроса изменений данных из C-кода.
  * Реализует интерфейс Runnable.
  */
-@Log4j2
 public class CDataRequestTask implements Runnable {
     private final Queue<Block> queueChanges;
 
@@ -48,7 +46,7 @@ public class CDataRequestTask implements Runnable {
             } catch (QueueClosedException e) {
                 return;
             } catch (Throwable e) {
-                log.error(e.getMessage());
+
             }
         }
     }
