@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox alignment="CENTER" spacing="20.0" styleClass="pane" stylesheets="@../css/style.css"
+      xmlns="http://javafx.com/javafx/11.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="ru.nsu.sberlab.startmenu.controller.LogInController">
+    <AnchorPane fx:id="anchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+                prefHeight="384.0" prefWidth="491.0" VBox.vgrow="ALWAYS">
+        <Pane layoutX="96.0" layoutY="37.0" prefHeight="281.0" prefWidth="299.0" styleClass="small_pane"
+              stylesheets="@../css/style.css" AnchorPane.leftAnchor="96.0" AnchorPane.topAnchor="37.0">
+
+            <Button layoutX="216.0" layoutY="248.0" mnemonicParsing="false" onAction="#logInButtonClick"
+                    prefHeight="32.0" prefWidth="83.0" styleClass="button_1" text="LOG IN">
+                <stylesheets>
+                    <URL value="@../css/style.css"/>
+                    <URL value="@../css/style.css"/>
+                </stylesheets>
+            </Button>
+
+            <TextField fx:id="hostTextField" layoutY="68.0" prefHeight="46.0" prefWidth="299.0" promptText="HOST"
+                       styleClass="text_field" stylesheets="@../css/style.css">
+                <font>
+                    <Font name="JetBrains Mono Regular" size="18.0"/>
+                </font>
+            </TextField>
+            <TextField fx:id="portTextField" layoutY="136.0" prefHeight="46.0" prefWidth="299.0" promptText="PORT"
+                       styleClass="text_field" stylesheets="@../css/style.css">
+                <font>
+                    <Font name="JetBrains Mono Regular" size="18.0"/>
+                </font>
+            </TextField>
+            <TextField fx:id="wifKeyTextField" prefHeight="46.0" prefWidth="299.0" promptText="WIF"
+                       styleClass="text_field" stylesheets="@../css/style.css">
+                <font>
+                    <Font name="JetBrains Mono Regular" size="18.0"/>
+                </font>
+            </TextField>
+            <Button layoutY="248.0" mnemonicParsing="false" onAction="#backButtonClick" prefHeight="32.0"
+                    prefWidth="83.0" styleClass="button_2" stylesheets="@../css/style.css" text="BACK"/>
+            <CheckBox fx:id="checkBox" layoutY="205.0" mnemonicParsing="false" styleClass="box"
+                      stylesheets="@../css/style.css" text="save data" textAlignment="JUSTIFY" textFill="#878787">
+                <font>
+                    <Font name="JetBrains Mono Regular" size="14.0"/>
+                </font>
+                <padding>
+                    <Insets right="5.0"/>
+                </padding>
+            </CheckBox>
+            <ListView fx:id="listViewWif" layoutY="46.0" prefHeight="32.0" prefWidth="299.0" visible="false"/>
+            <ListView fx:id="listViewHost" layoutY="113.0" prefHeight="32.0" prefWidth="299.0" visible="false"/>
+            <ListView fx:id="listViewPort" layoutY="182.0" prefHeight="32.0" prefWidth="299.0" visible="false"/>
+            <opaqueInsets>
+                <Insets/>
+            </opaqueInsets>
+        </Pane>
+    </AnchorPane>
+</VBox>

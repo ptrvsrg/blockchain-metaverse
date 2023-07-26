@@ -1,0 +1,98 @@
+.pane {
+    -fx-background-image: url("../image/background.jpg");
+    -fx-background-repeat: stretch;
+    -fx-background-size: cover;
+    -fx-background-position: center center;
+    -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0);
+}
+
+.button_1 {
+    -jfx-button-type: RAISED;
+    -fx-background-color: rgb(223, 147, 71);
+    -fx-text-fill: WHITE;
+    -fx-font-weight: BOLD;
+    -fx-background-radius: 10px;
+}
+
+.button_1:hover {
+    -fx-background-color: #ee9b4b;
+}
+
+.button_1:pressed {
+    -fx-background-color: #ee9b4b;
+}
+
+.button_2 {
+    -jfx-button-type: RAISED;
+    -fx-background-color: #1385A7;
+    -fx-text-fill: WHITE;
+    -fx-font-weight: BOLD;
+    -fx-background-radius: 10px;
+}
+
+.button_2:hover {
+    -fx-background-color: #159ec7;
+}
+
+.button_2:pressed {
+    -fx-background-color: #159ec7;
+}
+
+.button_3 {
+    -jfx-button-type: RAISED;
+    -fx-background-color: #56a713;
+    -fx-text-fill: WHITE;
+    -fx-font-weight: BOLD;
+    -fx-background-radius: 10px;
+}
+
+.button_3:hover {
+    -fx-background-color: #71b43b;
+}
+
+.button_3:pressed {
+    -fx-background-color: #71b43b;
+}
+
+.text_field {
+    -fx-font-family: TRON;
+    -fx-text-fill: #5e5e5e;
+    -fx-font-size: 16px;
+    -fx-focus-color: transparent;
+}
+
+.tooltip .content {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0;
+    -fx-padding: 0;
+}
+
+.check-box {
+    -fx-background-color: #f5f1f1;
+    -fx-border-radius: 5px;
+}
+
+.check-box .box {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #92d7a8;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: #494343;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #d4fad4;
+}
+
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: rgb(136, 213, 241);
+}
+
+.list-cell:even {
+    -fx-background-color: white;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: rgb(101, 163, 211);
+}
