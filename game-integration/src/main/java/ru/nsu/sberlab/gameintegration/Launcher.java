@@ -17,14 +17,14 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class Launcher {
 
     static {
-        System.loadLibrary("cygglew");
-        System.loadLibrary("cyglodepng");
-        System.loadLibrary("cygnoise");
-        System.loadLibrary("cygsqlite");
-        System.loadLibrary("cygtinycthread");
+        System.loadLibrary("glew");
+        System.loadLibrary("lodepng");
+        System.loadLibrary("noise");
+        System.loadLibrary("sqlite");
+        System.loadLibrary("tinycthread");
 
-        System.loadLibrary("cygcraft");
-        System.loadLibrary("cygjnative");
+        System.loadLibrary("craft");
+        System.loadLibrary("jnative");
 
         StaticQueuesWrapper.init();
     }
