@@ -17,14 +17,14 @@ import java.util.concurrent.ArrayBlockingQueue;
 public class Launcher {
 
     static {
-        System.loadLibrary("glew");
-        System.loadLibrary("lodepng");
-        System.loadLibrary("noise");
-        System.loadLibrary("sqlite");
-        System.loadLibrary("tinycthread");
+        System.loadLibrary("cygglew");
+        System.loadLibrary("cyglodepng");
+        System.loadLibrary("cygnoise");
+        System.loadLibrary("cygsqlite");
+        System.loadLibrary("cygtinycthread");
 
-        System.loadLibrary("craft");
-        System.loadLibrary("jnative");
+        System.loadLibrary("cygcraft");
+        System.loadLibrary("cygjnative");
 
         StaticQueuesWrapper.init();
     }
@@ -67,6 +67,7 @@ public class Launcher {
         launch(new MapInteraction(httpUrl, account, mapHash, stateHash));
     }
 
+
     /**
      * Запускает игру и выполняет задачи для запроса изменений данных из блокчейна.
      */
@@ -94,7 +95,7 @@ public class Launcher {
             blockchainDataRequestTask.interrupt();
             checkBlockchainSendTask.interrupt();
             sendChangesToBlockchainTask.interrupt();
-        } catch (Throwable e) {
+        } catch (Throwable ignore) {
         }
     }
 }

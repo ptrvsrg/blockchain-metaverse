@@ -21,6 +21,8 @@ public class MapInteraction {
     private static final String PUT_CHANGES_FUNCTION = "putChanges";
     private static final String GET_ALL_CHANGES = "getAllChanges";
 
+    private static final String GET_RANGE = "getRangeOfChanges";
+
     private static final String GET_CHANGES_WITHOUT_FIRST_N = "getChangesWithoutFirstN";
 
     private static final String CLEAR_MAP = "clear";
@@ -32,7 +34,6 @@ public class MapInteraction {
     private final NodeInteraction nodeInteraction;
     private final Hash160 mapContractHash;
     private final Hash160 stateContractHash;
-
 
 
     /**
@@ -101,7 +102,7 @@ public class MapInteraction {
 
     }
 
-    public Hash256 addChangesNoBlocking(BlockInfo... infoArray) throws  Throwable {
+    public Hash256 addChangesNoBlocking(BlockInfo... infoArray) throws Throwable {
         byte[] infoListSerialized = new byte[BlockInfo.BlockInfoByteSize * infoArray.length];
 
         for (int i = 0; i < infoArray.length; i++)
@@ -143,6 +144,14 @@ public class MapInteraction {
      */
     public void deleteAllChanges() throws Throwable {
         nodeInteraction.invokeFunctionInContract(mapContractHash, CLEAR_MAP);
+    }
+
+
+    public ArrayList<BlockInfo> getRangeChanges(int i, int n) throws Throwable {
+        byte[] result = nodeInteraction.invokeFunctionInContract(mapContractHash, GET_RANGE, ContractParameter.integer(i),
+                ContractParameter.integer(n)).getByteArray();
+
+        return BlockInfo.getInfoArrayFromByteRepresentation(result);
     }
 
     /**
