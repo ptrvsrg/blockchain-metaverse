@@ -10,7 +10,7 @@ mvn -f ../ install
 # Create archive
 tar -cvf ../release-win64-$1.tar -C ../start-menu/target start-menu-1.0.0-jar-with-dependencies.jar
 tar -rvf ../release-win64-$1.tar -C ../build lib
-tar -rvf ../release-win64-$1.tar -C ../game texture shaders
+tar -rvf ../release-win64-$1.tar -C ../game textures shaders
 
 # Create and add launch script
 echo "java -D"java.library.path=lib" -jar start-menu-1.0.0-jar-with-dependencies.jar" >> launch.bat
