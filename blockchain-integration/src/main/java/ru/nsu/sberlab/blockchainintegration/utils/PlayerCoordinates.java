@@ -58,17 +58,10 @@ public class PlayerCoordinates {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         PlayerCoordinates that = (PlayerCoordinates) o;
-        return rx == that.rx && ry == that.ry;
+        return Float.compare(that.x, x) == 0 && Float.compare(that.y, y) == 0 && Float.compare(that.z, z) == 0 && Float.compare(that.rx, rx) == 0 && Float.compare(that.ry, ry) == 0;
     }
 
     public float getX() {
