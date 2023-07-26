@@ -17,6 +17,7 @@ public class MapChangesContract {
 
     public static final int BYTE_BLOCK_SIZE = 24;
     private static final byte[] allChangesListKey = new byte[]{0x01};
+    private static final byte[] sizeOfAllChangesKey = new byte[]{0x02};
     private static final byte[] contractOwnerKey = new byte[]{0x00};
 
     /**
@@ -78,6 +79,22 @@ public class MapChangesContract {
                 allChanges.length - BYTE_BLOCK_SIZE * N);
 
         return lastLengthMinusNChanges;
+    }
+
+    /**
+     * Возвращает range изменений n штук начиная с i-того.
+     *
+     * @param i начальный индекс
+     * @param n количество запрашиваемых изменений
+     * @return n изменений, начиная с i-того
+     */
+    public static byte[] getRangeOfChanges(final int i, final int n) {
+
+        byte[] allChanges = Storage.getByteArray(Storage.getStorageContext(), allChangesListKey);
+
+        int actualSize = Math.min(allChanges.length / 24 - i, n);
+
+        return Helper.range(allChanges, i, actualSize);
     }
 
     /**

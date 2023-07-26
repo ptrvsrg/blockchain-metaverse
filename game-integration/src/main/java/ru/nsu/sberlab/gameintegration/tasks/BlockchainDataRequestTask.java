@@ -20,6 +20,8 @@ public class BlockchainDataRequestTask implements Runnable {
      */
     private static final int TIME_REQUEST = 1500;
 
+    private static final int REQUEST_MAX_SIZE = 1000;
+
     private int takenChangesNumber = 0;
 
     private final MapInteraction mapInBlockchain;
@@ -33,7 +35,7 @@ public class BlockchainDataRequestTask implements Runnable {
      * Отправляет уведомление об изменении блока в блокчейне.
      */
     public void sendBlockChange() throws Throwable {
-        ArrayList<BlockInfo> changes = mapInBlockchain.getAllChangesWithoutFirstN(takenChangesNumber);
+        ArrayList<BlockInfo> changes = mapInBlockchain.getRangeChanges(takenChangesNumber, REQUEST_MAX_SIZE);
         takenChangesNumber += changes.size();
 
         for (BlockInfo blockInfo : changes) {
@@ -57,7 +59,7 @@ public class BlockchainDataRequestTask implements Runnable {
             catch (InterruptedIOException e) {
                 return;
             }
-            catch (Throwable e) {
+            catch (Throwable ignore) {
 
             }
         }
