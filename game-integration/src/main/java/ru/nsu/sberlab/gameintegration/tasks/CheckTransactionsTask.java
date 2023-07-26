@@ -1,19 +1,19 @@
 package ru.nsu.sberlab.gameintegration.tasks;
 
-import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
-import ru.nsu.sberlab.blockchain_interaction.exception.ApplicationLogError;
+import java.util.Queue;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
+import ru.nsu.sberlab.blockchainintegration.MapInteraction;
+import ru.nsu.sberlab.blockchainintegration.exception.ApplicationLogError;
 import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
 import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
-
-import java.util.Queue;
-
-import static java.lang.String.format;
-import static java.lang.String.valueOf;
 
 /**
  * Задача которая каждые TIME_REQUEST миллисекунд проверяет статус транзакции.
  */
-public class CheckTransactionsTask implements Runnable {
+@Log4j2
+public class CheckTransactionsTask
+    implements Runnable {
 
     private static final int TIME_REQUEST = 500;
     private static final long MAX_PAST_TIME = 30000;
@@ -34,13 +34,21 @@ public class CheckTransactionsTask implements Runnable {
     private void checkTransactions() {
         while (!queue.isEmpty()) {
             try {
-                mapInBlockchain.getResult(queue.peek().getTxHash());
+                mapInBlockchain.getResult(queue.peek()
+                                               .getTxHash());
                 queue.remove();
             } catch (ApplicationLogError e) {
-                if (e.getError().getMessage().equals("Unknown transaction/blockhash") &&
-                        queue.peek().getPastTime() > MAX_PAST_TIME
-                        || !e.getError().getMessage().equals("Unknown transaction/blockhash")) {
+                if (e.getError()
+                     .getMessage()
+                     .equals("Unknown transaction/blockhash") && queue.peek()
+                                                                      .getPastTime() >
+                                                                 MAX_PAST_TIME || !e.getError()
+                                                                                    .getMessage()
+                                                                                    .equals(
+                                                                                        "Unknown transaction/blockhash")) {
                     var transactionInfo = queue.remove();
+                    log.error(String.format("wait %s seconds. Didn't get result.",
+                                            transactionInfo.getPastTime() / 1000));
                     StaticQueuesWrapper.sendHistory(transactionInfo.getBlock());
                 } else {
                     return;
@@ -48,6 +56,7 @@ public class CheckTransactionsTask implements Runnable {
             } catch (Exception e) {
                 var transactionInfo = queue.remove();
                 StaticQueuesWrapper.sendHistory(transactionInfo.getBlock());
+                log.catching(Level.ERROR, e);
             }
         }
     }

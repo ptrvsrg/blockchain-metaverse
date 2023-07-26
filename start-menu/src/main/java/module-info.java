@@ -1,10 +1,10 @@
-module ru.nsu.sberlab.startmenu {
+module startmenu {
+    requires javafx.base;
     requires javafx.controls;
     requires javafx.fxml;
-//    requires wallet;
-//    requires crypto;
     requires lombok;
-    requires ru.nsu.sberlab.gameintegration;
+    requires org.apache.logging.log4j;
+    requires gameintegration;
     requires blockchainintegration;
     requires core;
     requires java.sql;

@@ -1,10 +1,10 @@
-package ru.nsu.sberlab.blockchain_interaction;
+package ru.nsu.sberlab.blockchainintegration;
 
 import io.neow3j.types.Hash160;
 import io.neow3j.wallet.Account;
 import org.junit.jupiter.api.*;
-import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
-import ru.nsu.sberlab.blockchain_interaction.utils.PlayerCoordinates;
+import ru.nsu.sberlab.blockchainintegration.utils.BlockInfo;
+import ru.nsu.sberlab.blockchainintegration.utils.PlayerCoordinates;
 
 import java.util.ArrayList;
 
@@ -19,7 +19,6 @@ public class MapInteractionTest {
 
     private static MapInteraction mapInteraction;
 
-
     @BeforeAll
     public static void beforeAll() {
         Account account = Account.fromWIF(System.getenv(ownerWifEnvVar));
@@ -28,9 +27,7 @@ public class MapInteractionTest {
         Hash160 stateContractHash = new Hash160(System.getenv(stateContractHashEnvVar));
 
         mapInteraction = new MapInteraction(httpURL, account, mapContractHash, stateContractHash);
-
     }
-
 
     @Order(2)
     @Test
@@ -69,7 +66,6 @@ public class MapInteractionTest {
         assertThat(result.get(0)).isEqualTo(blockInfo1);
     }
 
-
     @Order(4)
     @Test
     public void putGetCordsTest() throws Throwable {
@@ -84,8 +80,5 @@ public class MapInteractionTest {
         mapInteraction.putPlayerCoordinates(cords);
 
         assertThat(mapInteraction.getCoordinates()).isEqualTo(cords);
-
     }
-
-
 }

@@ -1,7 +1,7 @@
 package ru.nsu.sberlab.gameintegration;
 
-import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
-import ru.nsu.sberlab.blockchain_interaction.utils.PlayerCoordinates;
+import ru.nsu.sberlab.blockchainintegration.MapInteraction;
+import ru.nsu.sberlab.blockchainintegration.utils.PlayerCoordinates;
 import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
 
 public class PlayerPositionHandler {
@@ -13,7 +13,8 @@ public class PlayerPositionHandler {
      *
      * @return объект PlayerPosition с изменением состояния
      */
-    public static PlayerPosition getPlayerPosition(MapInteraction mapInBlockchain) throws Throwable {
+    public static PlayerPosition getPlayerPosition(MapInteraction mapInBlockchain)
+        throws Throwable {
         PlayerCoordinates cords = mapInBlockchain.getCoordinates();
         return new PlayerPosition(cords);
     }
@@ -23,8 +24,12 @@ public class PlayerPositionHandler {
      *
      * @param playerPosition состояние игрока
      */
-    public static void setPlayerPosition(MapInteraction mapInBlockchain, PlayerPosition playerPosition) throws Throwable {
-        if (playerPosition == null) return;
+    public static void setPlayerPosition(MapInteraction mapInBlockchain,
+                                         PlayerPosition playerPosition)
+        throws Throwable {
+        if (playerPosition == null) {
+            return;
+        }
         mapInBlockchain.putPlayerCoordinates(playerPosition.getPlayerCoordinates());
     }
 }

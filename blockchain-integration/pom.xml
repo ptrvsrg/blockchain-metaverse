@@ -22,23 +22,15 @@
     <dependencies>
         <dependency>
             <groupId>io.neow3j</groupId>
-            <artifactId>contract</artifactId>
+            <artifactId>core</artifactId>
             <version>3.20.1</version>
         </dependency>
         <dependency>
             <groupId>io.neow3j</groupId>
-            <artifactId>core</artifactId>
+            <artifactId>contract</artifactId>
             <version>3.20.1</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.junit.jupiter</groupId>-->
-<!--            <artifactId>junit-jupiter</artifactId>-->
-<!--            <version>5.9.2</version>-->
-<!--            <scope>test</scope>-->
-<!--        </dependency>-->
-
     </dependencies>
-
 
     <build>
         <plugins>
