@@ -1,23 +1,23 @@
 package ru.nsu.sberlab.startmenu.controller;
 
 import io.neow3j.wallet.Account;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.AnchorPane;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
-
 /**
- Класс SignUpController обрабатывает взаимодействие с графическим интерфейсом страницы регистрации пользователя.
+ * Класс SignUpController обрабатывает взаимодействие с графическим интерфейсом страницы регистрации
+ * пользователя.
  */
-public class SignUpController implements Initializable {
+public class SignUpController
+    implements Initializable {
 
     @FXML
     private TextField wifKeyText;
@@ -29,14 +29,15 @@ public class SignUpController implements Initializable {
     private AnchorPane anchorPane;
 
     /**
-     * Обработчик события нажатия кнопки "Зарегистрироваться".
-     * Создает новый аккаунт, генерирует и отображает секретный ключ в формате WIF
-     * (Wallet Import Format) и выводит сообщение для сохранения секретного ключа.
-     * Кнопка "Зарегистрироваться" становится неактивной после выполнения метода.
+     * Обработчик события нажатия кнопки "Зарегистрироваться". Создает новый аккаунт, генерирует и
+     * отображает секретный ключ в формате WIF (Wallet Import Format) и выводит сообщение для
+     * сохранения секретного ключа. Кнопка "Зарегистрироваться" становится неактивной после
+     * выполнения метода.
      */
     public void signUpButtonClick() {
         Account account = Account.create();
-        String key = account.getECKeyPair().exportAsWIF();
+        String key = account.getECKeyPair()
+                            .exportAsWIF();
         wifKeyText.setVisible(true);
         signUpButton.setVisible(false);
 
@@ -49,11 +50,13 @@ public class SignUpController implements Initializable {
     }
 
     /**
-     Обработчик события нажатия на кнопку "Back".
-     Возвращает пользователя на страницу выбора (choice).
-     @throws IOException если возникла ошибка ввода-вывода при загрузке страницы
+     * Обработчик события нажатия на кнопку "Back". Возвращает пользователя на страницу выбора
+     * (choice).
+     *
+     * @throws IOException если возникла ошибка ввода-вывода при загрузке страницы
      */
-    public void backButtonClick() throws IOException {
+    public void backButtonClick()
+        throws IOException {
         Controller.loadNewPage(anchorPane, "/fxml/choice.fxml");
     }
 

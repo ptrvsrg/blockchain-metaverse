@@ -71,6 +71,7 @@
     -fx-background-color: #f5f1f1;
     -fx-border-radius: 5px;
 }
+
 .check-box .box {
     -fx-background-color: #ffffff;
     -fx-border-color: #92d7a8;
@@ -79,6 +80,7 @@
 .check-box:selected .mark {
     -fx-background-color: #494343;
 }
+
 .check-box:selected .box {
     -fx-background-color: #d4fad4;
 }

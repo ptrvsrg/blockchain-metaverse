@@ -1,19 +1,20 @@
 package ru.nsu.sberlab.gameintegration.tasks;
 
 import io.neow3j.types.Hash256;
-import ru.nsu.sberlab.blockchain_interaction.MapInteraction;
-import ru.nsu.sberlab.blockchain_interaction.utils.BlockInfo;
+import java.util.Arrays;
+import java.util.Queue;
+import ru.nsu.sberlab.blockchainintegration.MapInteraction;
+import ru.nsu.sberlab.blockchainintegration.utils.BlockInfo;
 import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
 import ru.nsu.sberlab.gameintegration.data.Block;
 import ru.nsu.sberlab.gameintegration.data.TransactionInfo;
 
-import java.util.Arrays;
-import java.util.Queue;
-
 /**
  * Посылает изменения из очереди в блокчейн.
  */
-public class SendChangesToBlockchainTask implements Runnable {
+public class SendChangesToBlockchainTask
+    implements Runnable {
+
     private static final int TIME_REQUEST = 10000;
     private static final int MAX_BUFFER_SIZE = 100;
     private final MapInteraction mapInBlockchain;
@@ -21,7 +22,8 @@ public class SendChangesToBlockchainTask implements Runnable {
     private final Queue<Block> queueChanges;
 
 
-    public SendChangesToBlockchainTask(MapInteraction mapInBlockchain, Queue<TransactionInfo> queueTransactions,
+    public SendChangesToBlockchainTask(MapInteraction mapInBlockchain,
+                                       Queue<TransactionInfo> queueTransactions,
                                        Queue<Block> queueChanges) {
         this.mapInBlockchain = mapInBlockchain;
         this.queueTransactions = queueTransactions;
@@ -44,7 +46,6 @@ public class SendChangesToBlockchainTask implements Runnable {
         blockInfoArray = Arrays.copyOfRange(blockInfoArray, 0, i);
         blockArray = Arrays.copyOfRange(blockArray, 0, i);
 
-
         Hash256 txHash;
 
         try {
@@ -54,6 +55,7 @@ public class SendChangesToBlockchainTask implements Runnable {
             StaticQueuesWrapper.sendHistory(blockArray);
         }
     }
+
     @Override
     public void run() {
         while (true) {

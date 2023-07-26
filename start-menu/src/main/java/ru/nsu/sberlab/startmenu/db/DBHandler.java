@@ -9,20 +9,20 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
 
 /**
- * Класс DBHandler предоставляет методы для работы с базой данных,
- * хранящей информацию о сетевых подключениях.
+ * Класс DBHandler предоставляет методы для работы с базой данных, хранящей информацию о сетевых
+ * подключениях.
  */
+@Log4j2
 public class DBHandler {
 
     private static final String SQL_TABLE_URL = "jdbc:sqlite:./login.sqlite";
-    private static final String SQL_CREATE_WIF_TABLE =
-        "CREATE TABLE IF NOT EXISTS wif (wif STRING NOT NULL UNIQUE);";
-    private static final String SQL_CREATE_HOST_TABLE =
-        "CREATE TABLE IF NOT EXISTS host (host STRING NOT NULL UNIQUE);";
-    private static final String SQL_CREATE_PORT_TABLE =
-        "CREATE TABLE IF NOT EXISTS port (port INT NOT NULL UNIQUE);";
+    private static final String SQL_CREATE_WIF_TABLE = "CREATE TABLE IF NOT EXISTS wif (wif STRING NOT NULL UNIQUE);";
+    private static final String SQL_CREATE_HOST_TABLE = "CREATE TABLE IF NOT EXISTS host (host STRING NOT NULL UNIQUE);";
+    private static final String SQL_CREATE_PORT_TABLE = "CREATE TABLE IF NOT EXISTS port (port INT NOT NULL UNIQUE);";
     private static final String SQL_INSERT_WIF = "INSERT OR IGNORE INTO wif (wif) VALUES (?);";
     private static final String SQL_INSERT_HOST = "INSERT OR IGNORE INTO host (host) VALUES (?);";
     private static final String SQL_INSERT_PORT = "INSERT OR IGNORE INTO port (port) VALUES (?);";
@@ -31,8 +31,8 @@ public class DBHandler {
     private static final String SQL_GET_ALL_PORTS = "SELECT port FROM port;";
 
     /**
-     * Создает таблицы в базе данных для хранения сетевых данных, если они еще не существуют.
-     * Если таблицы уже существуют, метод не выполняет никаких действий.
+     * Создает таблицы в базе данных для хранения сетевых данных, если они еще не существуют. Если
+     * таблицы уже существуют, метод не выполняет никаких действий.
      */
     public static void createTable() {
         try (Connection connection = DriverManager.getConnection(SQL_TABLE_URL);
@@ -42,14 +42,16 @@ public class DBHandler {
             statement.execute(SQL_CREATE_HOST_TABLE);
             statement.execute(SQL_CREATE_PORT_TABLE);
         } catch (Exception e) {
+            log.catching(Level.ERROR, e);
         }
     }
 
     /**
-     * Вставляет информацию о сетевом подключении в соответствующие таблицы базы данных.
-     * Если переданные значения уже существуют в таблицах, они игнорируются.
+     * Вставляет информацию о сетевом подключении в соответствующие таблицы базы данных. Если
+     * переданные значения уже существуют в таблицах, они игнорируются.
      *
-     * @param wif  Строковое значение WIF (Wallet Import Format), которое будет добавлено в таблицу 'wif'.
+     * @param wif  Строковое значение WIF (Wallet Import Format), которое будет добавлено в таблицу
+     *             'wif'.
      * @param host IP-адрес или хост, который будет добавлен в таблицу 'host'.
      * @param port Порт, который будет добавлен в таблицу 'port'.
      */
@@ -57,7 +59,8 @@ public class DBHandler {
         try (Connection connection = DriverManager.getConnection(SQL_TABLE_URL);
              PreparedStatement preparedStatementWif = connection.prepareStatement(SQL_INSERT_WIF);
              PreparedStatement preparedStatementHost = connection.prepareStatement(SQL_INSERT_HOST);
-             PreparedStatement preparedStatementPort = connection.prepareStatement(SQL_INSERT_PORT)) {
+             PreparedStatement preparedStatementPort = connection.prepareStatement(
+                 SQL_INSERT_PORT)) {
 
             preparedStatementWif.setString(1, wif);
             preparedStatementHost.setString(1, host.getHostAddress());
@@ -68,13 +71,13 @@ public class DBHandler {
             preparedStatementPort.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.catching(Level.ERROR, e);
         }
     }
 
     /**
-     * Возвращает множество уникальных значений WIF (Wallet Import Format),
-     * которые хранятся в таблице 'wif' базы данных.
+     * Возвращает множество уникальных значений WIF (Wallet Import Format), которые хранятся в
+     * таблице 'wif' базы данных.
      *
      * @return Множество уникальных WIF-значений.
      */
@@ -90,15 +93,15 @@ public class DBHandler {
                 wifSet.add(wif);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.catching(Level.ERROR, e);
         }
 
         return wifSet;
     }
 
     /**
-     * Возвращает множество уникальных IP-адресов или хостов,
-     * которые хранятся в таблице 'host' базы данных.
+     * Возвращает множество уникальных IP-адресов или хостов, которые хранятся в таблице 'host' базы
+     * данных.
      *
      * @return Множество уникальных IP-адресов или хостов.
      */
@@ -114,15 +117,14 @@ public class DBHandler {
                 hostSet.add(host);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.catching(Level.ERROR, e);
         }
 
         return hostSet;
     }
 
     /**
-     * Возвращает множество уникальных портов,
-     * которые хранятся в таблице 'port' базы данных.
+     * Возвращает множество уникальных портов, которые хранятся в таблице 'port' базы данных.
      *
      * @return Множество уникальных портов в виде строковых значений.
      */
@@ -138,7 +140,7 @@ public class DBHandler {
                 portSet.add(Integer.toString(port));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.catching(Level.ERROR, e);
         }
 
         return portSet;

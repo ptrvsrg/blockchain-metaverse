@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import ru.nsu.sberlab.gameintegration.data.PlayerPosition;
 
 /**
- * Класс Start представляет задачу для запуска стартовой операции.
- * Реализует интерфейс Runnable.
+ * Класс Start представляет задачу для запуска стартовой операции. Реализует интерфейс Runnable.
  */
 @RequiredArgsConstructor
-public class StartTask implements Runnable {
+public class StartTask
+    implements Runnable {
 
     private final PlayerPosition playerPosition;
 

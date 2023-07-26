@@ -1,16 +1,20 @@
 package ru.nsu.sberlab.gameintegration.tasks;
 
+import java.util.Queue;
+import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.Level;
 import ru.nsu.sberlab.gameintegration.StaticQueuesWrapper;
 import ru.nsu.sberlab.gameintegration.data.Block;
 import ru.nsu.sberlab.gameintegration.exception.QueueClosedException;
 
-import java.util.Queue;
-
 /**
- * Класс CDataRequestTask представляет поток для запроса изменений данных из C-кода.
- * Реализует интерфейс Runnable.
+ * Класс CDataRequestTask представляет поток для запроса изменений данных из C-кода. Реализует
+ * интерфейс Runnable.
  */
-public class CDataRequestTask implements Runnable {
+@Log4j2
+public class CDataRequestTask
+    implements Runnable {
+
     private final Queue<Block> queueChanges;
 
     public CDataRequestTask(Queue<Block> queueChanges) {
@@ -20,23 +24,19 @@ public class CDataRequestTask implements Runnable {
     /**
      * Получает изменение блока и отправляет их в очередь.
      */
-    public void getBlockChange() throws Throwable {
-
-
+    public void getBlockChange()
+        throws Throwable {
         Block block = StaticQueuesWrapper.getBlockChangeC();
         if (block == null) {
             throw new QueueClosedException();
         }
 
         queueChanges.add(block);
-
     }
 
-
     /**
-     * Запускает выполнение задачи.
-     * Бесконечно запрашивает изменения данных с помощью нативных методов.
-     * В случае прерывания потока выбрасывает исключение InterruptedException.
+     * Запускает выполнение задачи. Бесконечно запрашивает изменения данных с помощью нативных
+     * методов. В случае прерывания потока выбрасывает исключение InterruptedException.
      */
     @Override
     public void run() {
@@ -46,7 +46,7 @@ public class CDataRequestTask implements Runnable {
             } catch (QueueClosedException e) {
                 return;
             } catch (Throwable e) {
-
+                log.catching(Level.ERROR, e);
             }
         }
     }

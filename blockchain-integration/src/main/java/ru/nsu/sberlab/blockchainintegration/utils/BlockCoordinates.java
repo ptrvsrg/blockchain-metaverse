@@ -1,4 +1,4 @@
-package ru.nsu.sberlab.blockchain_interaction.utils;
+package ru.nsu.sberlab.blockchainintegration.utils;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -6,20 +6,21 @@ import java.util.Objects;
 /**
  * Класс для представления координат блока в Майнкрафте.
  */
-public class BlockCoordinates extends Coordinates {
+public class BlockCoordinates
+    extends Coordinates {
 
     public static final int BLOCK_COORDINATES_SIZE = COORDINATES_BYTE_SIZE + 4 * 2;
 
     private int chunkX;
     private int chunkY;
 
-
     /**
-     * @param serializedObject массив из COORDINATES_BYTE_SIZE + 8 байтов, в котором по порядку идут: chunkX, chunkY,
-     *                         байтовое представление координат
+     * @param serializedObject массив из COORDINATES_BYTE_SIZE + 8 байтов, в котором по порядку
+     *                         идут: chunkX, chunkY, байтовое представление координат
      * @throws Exception если массив некорректного размера
      */
-    public BlockCoordinates(byte[] serializedObject) throws Exception {
+    public BlockCoordinates(byte[] serializedObject)
+        throws Exception {
         super(Arrays.copyOfRange(serializedObject, 4 * 2, 4 * 2 + COORDINATES_BYTE_SIZE));
 
         if (serializedObject.length != BLOCK_COORDINATES_SIZE) {
@@ -37,7 +38,8 @@ public class BlockCoordinates extends Coordinates {
     }
 
     /**
-     * @return байтовое представление полей объекта в порядке: байтовое представление chunkX, chunkY, Coordinates
+     * @return байтовое представление полей объекта в порядке: байтовое представление chunkX,
+     * chunkY, Coordinates
      */
     @Override
     public byte[] serialize() {
@@ -53,9 +55,15 @@ public class BlockCoordinates extends Coordinates {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         BlockCoordinates that = (BlockCoordinates) o;
         return chunkX == that.chunkX && chunkY == that.chunkY;
     }
