@@ -1222,3 +1222,5 @@ FodyWeavers.xsd
 # End of https://www.toptal.com/developers/gitignore/api/java,c,c++,python,cmake,maven,gradle,intellij,intellij+iml,intellij+all,clion,clion+iml,clion+all,visualstudiocode,visualstudio,linux,macos,windows
 
 .vscode
+
+release.tar
