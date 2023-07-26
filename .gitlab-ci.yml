@@ -2,6 +2,7 @@ stages:
     - build
     - test
     - deploy
+    - release
 
 variables:
     MAVEN_REPO_PATH: "$CI_PROJECT_PATH/.m2/repository"
@@ -88,16 +89,25 @@ test-java:
 deploy-contracts:
     stage: deploy
     script:
-        - echo "Main Network..."
         - java -jar contracts/target/contracts-1.0.0-jar-with-dependencies.jar $MAIN_OWNER_WIF $MAIN_NODE_URL $NAME
-        - echo "Test Network..."
         - java -jar contracts/target/contracts-1.0.0-jar-with-dependencies.jar $TEST_OWNER_WIF $TEST_NODE_URL $NAME
     only:
-        changes:
-            - contracts/**/*
         refs:
             - main
-            - develop
     needs:
         - job: test-java
           artifacts: true
+
+release:
+    stage: release
+    image: registry.gitlab.com/gitlab-org/release-cli:latest
+    rules:
+        - if: $CI_COMMIT_TAG && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    script:
+        - echo "Running release"
+    release:
+        tag_name: '$CI_COMMIT_TAG'
+        description: '$CI_COMMIT_TAG'
+    needs:
+        - job: test-c
+        - job: deploy-contracts
