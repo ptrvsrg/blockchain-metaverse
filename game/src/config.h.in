@@ -1,0 +1,47 @@
+#ifndef _config_h_
+#define _config_h_
+
+// #include "GLFW/glfw3.h"
+
+#define DB_NAME "craft.sqlite"  /* Имя базы данных */
+#define FULLSCREEN 0            /* Режим окна */
+#define VSYNC 1                 /* Минимальное количество обновлений экрана для ожидания до замены буферов */
+#define WINDOW_WIDTH 1024       /* Ширина игрового окна */
+#define WINDOW_HEIGHT 768       /* Высота игрового окна */
+#define WINDOW_TITLE "MyCraft"    /* Заголовок игрового окна */
+#define SCROLL_THRESHOLD 0.1    /* Порог прокрутки ввода */
+#define BLOCK_COUNT 11          /* Общее количество типов блоков в игре */
+#define CHUNK_SIZE 32           /* Размер каждого чанка в игровом мире */
+#define MAX_CHUNKS 1024         /* Максимальное количество загружаемых одновременно чанков */
+#define CREATE_CHUNK_RADIUS 6   /* Радиус вокруг игрока, в котором создаются новые чанки */
+#define RENDER_CHUNK_RADIUS 6   /* Радиус вокруг игрока, в котором рендерятся чанки */
+#define DELETE_CHUNK_RADIUS 8   /* Радиус вокруг игрока, в котором чанки удаляются для освобождения памяти */
+
+// key bindings
+#define CRAFT_KEY_FORWARD 'W'
+#define CRAFT_KEY_BACKWARD 'S'
+#define CRAFT_KEY_LEFT 'A'
+#define CRAFT_KEY_RIGHT 'D'
+#define CRAFT_KEY_JUMP GLFW_KEY_SPACE
+#define CRAFT_KEY_CROUCH GLFW_KEY_LEFT_SHIFT
+#define CRAFT_KEY_FLY GLFW_KEY_TAB
+#define CRAFT_KEY_OBSERVE 'O'
+#define CRAFT_KEY_OBSERVE_INSET 'P'
+#define CRAFT_KEY_ITEM_NEXT 'E'
+#define CRAFT_KEY_ITEM_PREV 'R'
+#define CRAFT_KEY_ZOOM 'Z'
+#define CRAFT_KEY_ORTHO 'F'
+#define CRAFT_KEY_CHAT 't'
+#define CRAFT_KEY_COMMAND '/'
+#define CRAFT_KEY_SIGN '`'
+
+#define TEXTURE_FILE "texture.png"
+#define BLOCK_VERTEX "block_vertex.glsl"
+#define BLOCK_FRAGMENT "block_fragment.glsl"
+#define LINE_VERTEX "line_vertex.glsl"
+#define LINE_FRAGMENT "line_fragment.glsl"
+
+#define TEXTURES_DIRECTORY "${TEXTURES_DIRECTORY}/"
+#define SHADERS_DIRECTORY "${SHADERS_DIRECTORY}/"
+
+#endif // _config_h_

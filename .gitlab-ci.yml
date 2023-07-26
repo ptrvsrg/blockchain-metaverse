@@ -1,0 +1,113 @@
+stages:
+    - build
+    - test
+    - deploy
+    - release
+
+variables:
+    MAVEN_REPO_PATH: "$CI_PROJECT_PATH/.m2/repository"
+    MAVEN_OPTS: "-Dmaven.repo.local=$MAVEN_REPO_PATH"
+
+cache:
+    paths:
+        - $MAVEN_REPO_PATH/
+
+# Сборка и тестирование C-модуля
+
+build-c:
+    stage: build
+    script:
+        - mkdir -p game/build
+        - cd game/build
+        - cmake ..
+        - cmake --build .
+    artifacts:
+        paths:
+            - game/build/
+        expire_in: 1 week
+    only:
+        changes:
+            - game/**/*
+
+test-c:
+    stage: test
+    script:
+        - cd game/build
+        - ctest --verbose
+    artifacts:
+        paths:
+            - game/build/
+        expire_in: 1 week
+    only:
+        changes:
+            - game/**/*
+    needs:
+        - job: build-c
+          artifacts: true
+
+# Сборка и тестирование Java-модуля
+
+build-java:
+    stage: build
+    script:
+        - mvn compile $MAVEN_OPTS
+    artifacts:
+        paths:
+            - contracts/target/
+            - blockchain-integration/target/
+            - game-integration/target/
+            - start-menu/target/
+        expire_in: 1 week
+    only:
+        changes:
+            - contracts/**/*
+            - blockchain-integration/**/*
+            - game-integration/**/*
+            - start-menu/**/*
+
+test-java:
+    stage: test
+    script:
+        - mvn install $MAVEN_OPTS
+    artifacts:
+        paths:
+            - contracts/target/
+            - blockchain-integration/target/
+            - game-integration/target/
+            - start-menu/target/
+        expire_in: 1 week
+    only:
+        changes:
+            - contracts/**/*
+            - blockchain-integration/**/*
+            - game-integration/**/*
+            - start-menu/**/*
+    needs:
+        - job: build-java
+          artifacts: true
+
+deploy-contracts:
+    stage: deploy
+    script:
+        - java -jar contracts/target/contracts-1.0.0-jar-with-dependencies.jar $MAIN_OWNER_WIF $MAIN_NODE_URL $NAME
+        - java -jar contracts/target/contracts-1.0.0-jar-with-dependencies.jar $TEST_OWNER_WIF $TEST_NODE_URL $NAME
+    only:
+        refs:
+            - main
+    needs:
+        - job: test-java
+          artifacts: true
+
+release:
+    stage: release
+    image: registry.gitlab.com/gitlab-org/release-cli:latest
+    rules:
+        - if: $CI_COMMIT_TAG
+    script:
+        - echo "Running release"
+    release:
+        tag_name: '$CI_COMMIT_TAG'
+        description: '$CI_COMMIT_TAG'
+    needs:
+        - job: test-c
+        - job: test-java
