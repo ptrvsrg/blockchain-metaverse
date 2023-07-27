@@ -84,6 +84,9 @@ target_include_directories(sqlite
         PUBLIC ${SQLITE_INCLUDE_DIR})
 
 # GLFW library
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 SET(GLFW_INCLUDE_DIR deps/glfw/include)
 add_subdirectory(deps/glfw)
 target_include_directories(craft
