@@ -1,19 +1,45 @@
-# External junk
-.DS_Store
+# The canonical out-of-tree build subdirectory
+build
+
+# Visual Studio clutter
 _ReSharper*
-*.opensdf
 *.sdf
+*.suo
 *.dir
 *.vcxproj*
 *.sln
+.vs
+CMakeSettings.json
 Win32
+x64
 Debug
 Release
+MinSizeRel
+RelWithDebInfo
+*.opensdf
 
-# CMake files
+# Xcode clutter
+GLFW.build
+GLFW.xcodeproj
+
+# macOS clutter
+.DS_Store
+
+# Makefile generator clutter
 Makefile
+
+# Ninja generator clutter
+build.ninja
+rules.ninja
+.ninja_deps
+.ninja_log
+
+# CMake clutter
 CMakeCache.txt
 CMakeFiles
+CMakeScripts
+CMakeDoxyfile.in
+CMakeDoxygenDefaults.cmake
 cmake_install.cmake
 cmake_uninstall.cmake
 
@@ -21,50 +47,57 @@ cmake_uninstall.cmake
 docs/Doxyfile
 docs/html
 docs/warnings.txt
-src/config.h
+docs/doxygen_sqlite3.db
+src/glfw_config.h
 src/glfw3.pc
-src/glfwConfig.cmake
-src/glfwConfigVersion.cmake
+src/glfw3Config.cmake
+src/glfw3ConfigVersion.cmake
 
 # Compiled binaries
 src/libglfw.so
 src/libglfw.so.3
-src/libglfw.so.3.0
+src/libglfw.so.3.4
 src/libglfw.dylib
 src/libglfw.dylib
 src/libglfw.3.dylib
-src/libglfw.3.0.dylib
+src/libglfw.3.4.dylib
 src/libglfw3.a
 src/glfw3.lib
 src/glfw3.dll
 src/glfw3dll.lib
-src/glfw3dll.a
+src/libglfw3dll.a
 examples/*.app
 examples/*.exe
 examples/boing
 examples/gears
 examples/heightmap
+examples/offscreen
+examples/particles
 examples/splitview
-examples/simple
+examples/sharing
+examples/triangle-opengl
 examples/wave
+examples/windows
 tests/*.app
 tests/*.exe
-tests/accuracy
 tests/clipboard
-tests/defaults
+tests/cursor
+tests/empty
 tests/events
-tests/fsaa
 tests/gamma
 tests/glfwinfo
+tests/icon
 tests/iconify
+tests/inputlag
 tests/joysticks
-tests/modes
-tests/peter
+tests/monitors
+tests/msaa
 tests/reopen
-tests/sharing
 tests/tearing
 tests/threads
+tests/timeout
 tests/title
-tests/version
+tests/triangle-vulkan
+tests/window
 tests/windows
 

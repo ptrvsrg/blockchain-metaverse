@@ -1,7 +1,7 @@
 //========================================================================
-// GLFW 3.0 OS X - www.glfw.org
+// GLFW 3.4 macOS - www.glfw.org
 //------------------------------------------------------------------------
-// Copyright (c) 2009-2010 Camilla Berglund <elmindreda@elmindreda.org>
+// Copyright (c) 2009-2016 Camilla Löwy <elmindreda@glfw.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -23,49 +23,37 @@
 //    distribution.
 //
 //========================================================================
+// It is fine to use C99 in this file because it will not be built with VS
+//========================================================================
 
 #include "internal.h"
 
+#if defined(GLFW_BUILD_COCOA_TIMER)
+
 #include <mach/mach_time.h>
-
-
-// Return raw time
-//
-static uint64_t getRawTime(void)
-{
-    return mach_absolute_time();
-}
-
-
-//////////////////////////////////////////////////////////////////////////
-//////                       GLFW internal API                      //////
-//////////////////////////////////////////////////////////////////////////
-
-// Initialise timer
-//
-void _glfwInitTimer(void)
-{
-    mach_timebase_info_data_t info;
-    mach_timebase_info(&info);
-
-    _glfw.ns.timer.resolution = (double) info.numer / (info.denom * 1.0e9);
-    _glfw.ns.timer.base = getRawTime();
-}
 
 
 //////////////////////////////////////////////////////////////////////////
 //////                       GLFW platform API                      //////
 //////////////////////////////////////////////////////////////////////////
 
-double _glfwPlatformGetTime(void)
+void _glfwPlatformInitTimer(void)
 {
-    return (double) (getRawTime() - _glfw.ns.timer.base) *
-        _glfw.ns.timer.resolution;
+    mach_timebase_info_data_t info;
+    mach_timebase_info(&info);
+
+    _glfw.timer.ns.frequency = (info.denom * 1e9) / info.numer;
 }
 
-void _glfwPlatformSetTime(double time)
+uint64_t _glfwPlatformGetTimerValue(void)
 {
-    _glfw.ns.timer.base = getRawTime() -
-        (uint64_t) (time / _glfw.ns.timer.resolution);
+    return mach_absolute_time();
 }
+
+uint64_t _glfwPlatformGetTimerFrequency(void)
+{
+    return _glfw.timer.ns.frequency;
+}
+
+#endif // GLFW_BUILD_COCOA_TIMER
 

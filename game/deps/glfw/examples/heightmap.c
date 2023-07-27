@@ -28,37 +28,11 @@
 #include <math.h>
 #include <assert.h>
 #include <stddef.h>
-#include "getopt.h"
 
+#define GLAD_GL_IMPLEMENTATION
+#include <glad/gl.h>
+#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-#include <GL/glext.h>
-
-/* OpenGL function pointers */
-static PFNGLGENBUFFERSPROC              pglGenBuffers = NULL;
-static PFNGLGENVERTEXARRAYSPROC         pglGenVertexArrays = NULL;
-static PFNGLDELETEVERTEXARRAYSPROC      pglDeleteVertexArrays = NULL;
-static PFNGLCREATESHADERPROC            pglCreateShader = NULL;
-static PFNGLSHADERSOURCEPROC            pglShaderSource = NULL;
-static PFNGLCOMPILESHADERPROC           pglCompileShader = NULL;
-static PFNGLGETSHADERIVPROC             pglGetShaderiv = NULL;
-static PFNGLGETSHADERINFOLOGPROC        pglGetShaderInfoLog = NULL;
-static PFNGLDELETESHADERPROC            pglDeleteShader = NULL;
-static PFNGLCREATEPROGRAMPROC           pglCreateProgram = NULL;
-static PFNGLATTACHSHADERPROC            pglAttachShader = NULL;
-static PFNGLLINKPROGRAMPROC             pglLinkProgram = NULL;
-static PFNGLUSEPROGRAMPROC              pglUseProgram = NULL;
-static PFNGLGETPROGRAMIVPROC            pglGetProgramiv = NULL;
-static PFNGLGETPROGRAMINFOLOGPROC       pglGetProgramInfoLog = NULL;
-static PFNGLDELETEPROGRAMPROC           pglDeleteProgram = NULL;
-static PFNGLGETUNIFORMLOCATIONPROC      pglGetUniformLocation = NULL;
-static PFNGLUNIFORMMATRIX4FVPROC        pglUniformMatrix4fv = NULL;
-static PFNGLGETATTRIBLOCATIONPROC       pglGetAttribLocation = NULL;
-static PFNGLBINDVERTEXARRAYPROC         pglBindVertexArray = NULL;
-static PFNGLBUFFERDATAPROC              pglBufferData = NULL;
-static PFNGLBINDBUFFERPROC              pglBindBuffer = NULL;
-static PFNGLBUFFERSUBDATAPROC           pglBufferSubData = NULL;
-static PFNGLENABLEVERTEXATTRIBARRAYPROC pglEnableVertexAttribArray = NULL;
-static PFNGLVERTEXATTRIBPOINTERPROC     pglVertexAttribPointer = NULL;
 
 /* Map height updates */
 #define MAX_CIRCLE_SIZE (5.0f)
@@ -75,54 +49,11 @@ static PFNGLVERTEXATTRIBPOINTERPROC     pglVertexAttribPointer = NULL;
                2 * (MAP_NUM_VERTICES - 1))
 
 
-/* OpenGL function pointers */
-
-#define RESOLVE_GL_FCN(type, var, name) \
-    if (status == GL_TRUE) \
-    {\
-        var = (type) glfwGetProcAddress((name));\
-        if ((var) == NULL)\
-        {\
-            status = GL_FALSE;\
-        }\
-    }
-
-
-static GLboolean init_opengl(void)
-{
-    GLboolean status = GL_TRUE;
-    RESOLVE_GL_FCN(PFNGLCREATESHADERPROC, pglCreateShader, "glCreateShader");
-    RESOLVE_GL_FCN(PFNGLSHADERSOURCEPROC, pglShaderSource, "glShaderSource");
-    RESOLVE_GL_FCN(PFNGLCOMPILESHADERPROC, pglCompileShader, "glCompileShader");
-    RESOLVE_GL_FCN(PFNGLGETSHADERIVPROC, pglGetShaderiv, "glGetShaderiv");
-    RESOLVE_GL_FCN(PFNGLGETSHADERINFOLOGPROC, pglGetShaderInfoLog, "glGetShaderInfoLog");
-    RESOLVE_GL_FCN(PFNGLDELETESHADERPROC, pglDeleteShader, "glDeleteShader");
-    RESOLVE_GL_FCN(PFNGLCREATEPROGRAMPROC, pglCreateProgram, "glCreateProgram");
-    RESOLVE_GL_FCN(PFNGLATTACHSHADERPROC, pglAttachShader, "glAttachShader");
-    RESOLVE_GL_FCN(PFNGLLINKPROGRAMPROC, pglLinkProgram, "glLinkProgram");
-    RESOLVE_GL_FCN(PFNGLUSEPROGRAMPROC, pglUseProgram, "glUseProgram");
-    RESOLVE_GL_FCN(PFNGLGETPROGRAMIVPROC, pglGetProgramiv, "glGetProgramiv");
-    RESOLVE_GL_FCN(PFNGLGETPROGRAMINFOLOGPROC, pglGetProgramInfoLog, "glGetProgramInfoLog");
-    RESOLVE_GL_FCN(PFNGLDELETEPROGRAMPROC, pglDeleteProgram, "glDeleteProgram");
-    RESOLVE_GL_FCN(PFNGLGETUNIFORMLOCATIONPROC, pglGetUniformLocation, "glGetUniformLocation");
-    RESOLVE_GL_FCN(PFNGLUNIFORMMATRIX4FVPROC, pglUniformMatrix4fv, "glUniformMatrix4fv");
-    RESOLVE_GL_FCN(PFNGLGETATTRIBLOCATIONPROC, pglGetAttribLocation, "glGetAttribLocation");
-    RESOLVE_GL_FCN(PFNGLGENVERTEXARRAYSPROC, pglGenVertexArrays, "glGenVertexArrays");
-    RESOLVE_GL_FCN(PFNGLDELETEVERTEXARRAYSPROC, pglDeleteVertexArrays, "glDeleteVertexArrays");
-    RESOLVE_GL_FCN(PFNGLBINDVERTEXARRAYPROC, pglBindVertexArray, "glBindVertexArray");
-    RESOLVE_GL_FCN(PFNGLGENBUFFERSPROC, pglGenBuffers, "glGenBuffers");
-    RESOLVE_GL_FCN(PFNGLBINDBUFFERPROC, pglBindBuffer, "glBindBuffer");
-    RESOLVE_GL_FCN(PFNGLBUFFERDATAPROC, pglBufferData, "glBufferData");
-    RESOLVE_GL_FCN(PFNGLBUFFERSUBDATAPROC, pglBufferSubData, "glBufferSubData");
-    RESOLVE_GL_FCN(PFNGLENABLEVERTEXATTRIBARRAYPROC, pglEnableVertexAttribArray, "glEnableVertexAttribArray");
-    RESOLVE_GL_FCN(PFNGLVERTEXATTRIBPOINTERPROC, pglVertexAttribPointer, "glVertexAttribPointer");
-    return status;
-}
 /**********************************************************************
  * Default shader programs
  *********************************************************************/
 
-static const char* default_vertex_shader =
+static const char* vertex_shader_text =
 "#version 150\n"
 "uniform mat4 project;\n"
 "uniform mat4 modelview;\n"
@@ -135,12 +66,12 @@ static const char* default_vertex_shader =
 "   gl_Position = project * modelview * vec4(x, y, z, 1.0);\n"
 "}\n";
 
-static const char* default_fragment_shader =
+static const char* fragment_shader_text =
 "#version 150\n"
-"out vec4 gl_FragColor;\n"
+"out vec4 color;\n"
 "void main()\n"
 "{\n"
-"    gl_FragColor = vec4(0.2, 1.0, 0.2, 1.0); \n"
+"    color = vec4(0.2, 1.0, 0.2, 1.0); \n"
 "}\n";
 
 /**********************************************************************
@@ -188,53 +119,27 @@ static GLuint mesh_vbo[4];
  * OpenGL helper functions
  *********************************************************************/
 
-/* Load a (text) file into memory and return its contents
- */
-static char* read_file_content(const char* filename)
-{
-    FILE* fd;
-    size_t size = 0;
-    char* result = NULL;
-
-    fd = fopen(filename, "r");
-    if (fd != NULL)
-    {
-        size = fseek(fd, 0, SEEK_END);
-        (void) fseek(fd, 0, SEEK_SET);
-
-        result = malloc(size + 1);
-        result[size] = '\0';
-        if (fread(result, size, 1, fd) != 1)
-        {
-            free(result);
-            result = NULL;
-        }
-        (void) fclose(fd);
-    }
-    return result;
-}
-
 /* Creates a shader object of the specified type using the specified text
  */
-static GLuint make_shader(GLenum type, const char* shader_src)
+static GLuint make_shader(GLenum type, const char* text)
 {
     GLuint shader;
     GLint shader_ok;
     GLsizei log_length;
     char info_log[8192];
 
-    shader = pglCreateShader(type);
+    shader = glCreateShader(type);
     if (shader != 0)
     {
-        pglShaderSource(shader, 1, (const GLchar**)&shader_src, NULL);
-        pglCompileShader(shader);
-        pglGetShaderiv(shader, GL_COMPILE_STATUS, &shader_ok);
+        glShaderSource(shader, 1, (const GLchar**)&text, NULL);
+        glCompileShader(shader);
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &shader_ok);
         if (shader_ok != GL_TRUE)
         {
             fprintf(stderr, "ERROR: Failed to compile %s shader\n", (type == GL_FRAGMENT_SHADER) ? "fragment" : "vertex" );
-            pglGetShaderInfoLog(shader, 8192, &log_length,info_log);
+            glGetShaderInfoLog(shader, 8192, &log_length,info_log);
             fprintf(stderr, "ERROR: \n%s\n\n", info_log);
-            pglDeleteShader(shader);
+            glDeleteShader(shader);
             shader = 0;
         }
     }
@@ -243,7 +148,7 @@ static GLuint make_shader(GLenum type, const char* shader_src)
 
 /* Creates a program object using the specified vertex and fragment text
  */
-static GLuint make_shader_program(const char* vertex_shader_src, const char* fragment_shader_src)
+static GLuint make_shader_program(const char* vs_text, const char* fs_text)
 {
     GLuint program = 0u;
     GLint program_ok;
@@ -252,30 +157,30 @@ static GLuint make_shader_program(const char* vertex_shader_src, const char* fra
     GLsizei log_length;
     char info_log[8192];
 
-    vertex_shader = make_shader(GL_VERTEX_SHADER, (vertex_shader_src == NULL) ? default_vertex_shader : vertex_shader_src);
+    vertex_shader = make_shader(GL_VERTEX_SHADER, vs_text);
     if (vertex_shader != 0u)
     {
-        fragment_shader = make_shader(GL_FRAGMENT_SHADER, (fragment_shader_src == NULL) ? default_fragment_shader : fragment_shader_src);
+        fragment_shader = make_shader(GL_FRAGMENT_SHADER, fs_text);
         if (fragment_shader != 0u)
         {
             /* make the program that connect the two shader and link it */
-            program = pglCreateProgram();
+            program = glCreateProgram();
             if (program != 0u)
             {
                 /* attach both shader and link */
-                pglAttachShader(program, vertex_shader);
-                pglAttachShader(program, fragment_shader);
-                pglLinkProgram(program);
-                pglGetProgramiv(program, GL_LINK_STATUS, &program_ok);
+                glAttachShader(program, vertex_shader);
+                glAttachShader(program, fragment_shader);
+                glLinkProgram(program);
+                glGetProgramiv(program, GL_LINK_STATUS, &program_ok);
 
                 if (program_ok != GL_TRUE)
                 {
                     fprintf(stderr, "ERROR, failed to link shader program\n");
-                    pglGetProgramInfoLog(program, 8192, &log_length, info_log);
+                    glGetProgramInfoLog(program, 8192, &log_length, info_log);
                     fprintf(stderr, "ERROR: \n%s\n\n", info_log);
-                    pglDeleteProgram(program);
-                    pglDeleteShader(fragment_shader);
-                    pglDeleteShader(vertex_shader);
+                    glDeleteProgram(program);
+                    glDeleteShader(fragment_shader);
+                    glDeleteShader(vertex_shader);
                     program = 0u;
                 }
             }
@@ -283,7 +188,7 @@ static GLuint make_shader_program(const char* vertex_shader_src, const char* fra
         else
         {
             fprintf(stderr, "ERROR: Unable to load fragment shader\n");
-            pglDeleteShader(vertex_shader);
+            glDeleteShader(vertex_shader);
         }
     }
     else
@@ -388,12 +293,12 @@ static void generate_heightmap__circle(float* center_x, float* center_y,
 {
     float sign;
     /* random value for element in between [0-1.0] */
-    *center_x = (MAP_SIZE * rand()) / (1.0f * RAND_MAX);
-    *center_y = (MAP_SIZE * rand()) / (1.0f * RAND_MAX);
-    *size = (MAX_CIRCLE_SIZE * rand()) / (1.0f * RAND_MAX);
-    sign = (1.0f * rand()) / (1.0f * RAND_MAX);
+    *center_x = (MAP_SIZE * rand()) / (float) RAND_MAX;
+    *center_y = (MAP_SIZE * rand()) / (float) RAND_MAX;
+    *size = (MAX_CIRCLE_SIZE * rand()) / (float) RAND_MAX;
+    sign = (1.0f * rand()) / (float) RAND_MAX;
     sign = (sign < DISPLACEMENT_SIGN_LIMIT) ? -1.0f : 1.0f;
-    *displacement = (sign * (MAX_DISPLACEMENT * rand())) / (1.0f * RAND_MAX);
+    *displacement = (sign * (MAX_DISPLACEMENT * rand())) / (float) RAND_MAX;
 }
 
 /* Run the specified number of iterations of the generation process for the
@@ -416,7 +321,7 @@ static void update_map(int num_iter)
         {
             GLfloat dx = center_x - map_vertices[0][ii];
             GLfloat dz = center_z - map_vertices[2][ii];
-            GLfloat pd = (2.0f * sqrtf((dx * dx) + (dz * dz))) / circle_size;
+            GLfloat pd = (2.0f * (float) sqrt((dx * dx) + (dz * dz))) / circle_size;
             if (fabs(pd) <= 1.0f)
             {
                 /* tx,tz is within the circle */
@@ -439,38 +344,38 @@ static void make_mesh(GLuint program)
 {
     GLuint attrloc;
 
-    pglGenVertexArrays(1, &mesh);
-    pglGenBuffers(4, mesh_vbo);
-    pglBindVertexArray(mesh);
+    glGenVertexArrays(1, &mesh);
+    glGenBuffers(4, mesh_vbo);
+    glBindVertexArray(mesh);
     /* Prepare the data for drawing through a buffer inidices */
-    pglBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_vbo[3]);
-    pglBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)* MAP_NUM_LINES * 2, map_line_indices, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mesh_vbo[3]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint)* MAP_NUM_LINES * 2, map_line_indices, GL_STATIC_DRAW);
 
     /* Prepare the attributes for rendering */
-    attrloc = pglGetAttribLocation(program, "x");
-    pglBindBuffer(GL_ARRAY_BUFFER, mesh_vbo[0]);
-    pglBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &map_vertices[0][0], GL_STATIC_DRAW);
-    pglEnableVertexAttribArray(attrloc);
-    pglVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+    attrloc = glGetAttribLocation(program, "x");
+    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbo[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &map_vertices[0][0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(attrloc);
+    glVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
 
-    attrloc = pglGetAttribLocation(program, "z");
-    pglBindBuffer(GL_ARRAY_BUFFER, mesh_vbo[2]);
-    pglBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &map_vertices[2][0], GL_STATIC_DRAW);
-    pglEnableVertexAttribArray(attrloc);
-    pglVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+    attrloc = glGetAttribLocation(program, "z");
+    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbo[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &map_vertices[2][0], GL_STATIC_DRAW);
+    glEnableVertexAttribArray(attrloc);
+    glVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
 
-    attrloc = pglGetAttribLocation(program, "y");
-    pglBindBuffer(GL_ARRAY_BUFFER, mesh_vbo[1]);
-    pglBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &map_vertices[1][0], GL_DYNAMIC_DRAW);
-    pglEnableVertexAttribArray(attrloc);
-    pglVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
+    attrloc = glGetAttribLocation(program, "y");
+    glBindBuffer(GL_ARRAY_BUFFER, mesh_vbo[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &map_vertices[1][0], GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(attrloc);
+    glVertexAttribPointer(attrloc, 1, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
 /* Update VBO vertices from source data
  */
 static void update_mesh(void)
 {
-    pglBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &map_vertices[1][0]);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GLfloat) * MAP_NUM_TOTAL_VERTICES, &map_vertices[1][0]);
 }
 
 /**********************************************************************
@@ -483,103 +388,44 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     {
         case GLFW_KEY_ESCAPE:
             /* Exit program on Escape */
-            glfwSetWindowShouldClose(window, GL_TRUE);
+            glfwSetWindowShouldClose(window, GLFW_TRUE);
             break;
     }
 }
 
-/* Print usage information */
-static void usage(void)
+static void error_callback(int error, const char* description)
 {
-    printf("Usage: heightmap [-v <vertex_shader_path>] [-f <fragment_shader_path>]\n");
-    printf("       heightmap [-h]\n");
+    fprintf(stderr, "Error: %s\n", description);
 }
 
 int main(int argc, char** argv)
 {
     GLFWwindow* window;
-    int ch, iter;
+    int iter;
     double dt;
     double last_update_time;
     int frame;
     float f;
     GLint uloc_modelview;
     GLint uloc_project;
+    int width, height;
 
-    char* vertex_shader_path = NULL;
-    char* fragment_shader_path = NULL;
-    char* vertex_shader_src = NULL;
-    char* fragment_shader_src = NULL;
     GLuint shader_program;
 
-    while ((ch = getopt(argc, argv, "f:v:h")) != -1)
-    {
-        switch (ch)
-        {
-            case 'f':
-                fragment_shader_path = optarg;
-                break;
-            case 'v':
-                vertex_shader_path = optarg;
-                break;
-            case 'h':
-                usage();
-                exit(EXIT_SUCCESS);
-            default:
-                usage();
-                exit(EXIT_FAILURE);
-        }
-    }
-
-    if (fragment_shader_path)
-    {
-        vertex_shader_src = read_file_content(fragment_shader_path);
-        if (!fragment_shader_src)
-        {
-            fprintf(stderr,
-                    "ERROR: unable to load fragment shader from '%s'\n",
-                    fragment_shader_path);
-            exit(EXIT_FAILURE);
-        }
-    }
-
-    if (vertex_shader_path)
-    {
-        vertex_shader_src = read_file_content(vertex_shader_path);
-        if (!vertex_shader_src)
-        {
-            fprintf(stderr,
-                    "ERROR: unable to load vertex shader from '%s'\n",
-                    fragment_shader_path);
-            exit(EXIT_FAILURE);
-        }
-    }
+    glfwSetErrorCallback(error_callback);
 
     if (!glfwInit())
-    {
-        fprintf(stderr, "ERROR: Unable to initialize GLFW\n");
-        usage();
-
-        free(vertex_shader_src);
-        free(fragment_shader_src);
         exit(EXIT_FAILURE);
-    }
 
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_FALSE);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
     window = glfwCreateWindow(800, 600, "GLFW OpenGL3 Heightmap demo", NULL, NULL);
     if (! window )
     {
-        fprintf(stderr, "ERROR: Unable to create the OpenGL context and associated window\n");
-        usage();
-
-        free(vertex_shader_src);
-        free(fragment_shader_src);
-
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
@@ -588,32 +434,20 @@ int main(int argc, char** argv)
     glfwSetKeyCallback(window, key_callback);
 
     glfwMakeContextCurrent(window);
-    if (GL_TRUE != init_opengl())
-    {
-        fprintf(stderr, "ERROR: unable to resolve OpenGL function pointers\n");
-        free(vertex_shader_src);
-        free(fragment_shader_src);
+    gladLoadGL(glfwGetProcAddress);
 
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
     /* Prepare opengl resources for rendering */
-    shader_program = make_shader_program(vertex_shader_src , fragment_shader_src);
-    free(vertex_shader_src);
-    free(fragment_shader_src);
+    shader_program = make_shader_program(vertex_shader_text, fragment_shader_text);
 
     if (shader_program == 0u)
     {
-        fprintf(stderr, "ERROR: during creation of the shader program\n");
-        usage();
-
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    pglUseProgram(shader_program);
-    uloc_project   = pglGetUniformLocation(shader_program, "project");
-    uloc_modelview = pglGetUniformLocation(shader_program, "modelview");
+    glUseProgram(shader_program);
+    uloc_project   = glGetUniformLocation(shader_program, "project");
+    uloc_modelview = glGetUniformLocation(shader_program, "modelview");
 
     /* Compute the projection matrix */
     f = 1.0f / tanf(view_angle / 2.0f);
@@ -622,13 +456,13 @@ int main(int argc, char** argv)
     projection_matrix[10] = (z_far + z_near)/ (z_near - z_far);
     projection_matrix[11] = -1.0f;
     projection_matrix[14] = 2.0f * (z_far * z_near) / (z_near - z_far);
-    pglUniformMatrix4fv(uloc_project, 1, GL_FALSE, projection_matrix);
+    glUniformMatrix4fv(uloc_project, 1, GL_FALSE, projection_matrix);
 
     /* Set the camera position */
     modelview_matrix[12]  = -5.0f;
     modelview_matrix[13]  = -5.0f;
     modelview_matrix[14]  = -20.0f;
-    pglUniformMatrix4fv(uloc_modelview, 1, GL_FALSE, modelview_matrix);
+    glUniformMatrix4fv(uloc_modelview, 1, GL_FALSE, modelview_matrix);
 
     /* Create mesh data */
     init_map();
@@ -638,13 +472,14 @@ int main(int argc, char** argv)
     /* Create the vbo to store all the information for the grid and the height */
 
     /* setup the scene ready for rendering */
-    glViewport(0, 0, 800, 600);
+    glfwGetFramebufferSize(window, &width, &height);
+    glViewport(0, 0, width, height);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     /* main loop */
     frame = 0;
     iter = 0;
-    dt = last_update_time = glfwGetTime();
+    last_update_time = glfwGetTime();
 
     while (!glfwWindowShouldClose(window))
     {
