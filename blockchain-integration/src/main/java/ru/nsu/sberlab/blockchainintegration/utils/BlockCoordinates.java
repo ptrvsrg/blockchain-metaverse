@@ -7,7 +7,7 @@ import java.util.Objects;
  * Класс для представления координат блока в Майнкрафте.
  */
 public class BlockCoordinates
-    extends Coordinates {
+        extends Coordinates {
 
     public static final int BLOCK_COORDINATES_SIZE = COORDINATES_BYTE_SIZE + 4 * 2;
 
@@ -20,7 +20,7 @@ public class BlockCoordinates
      * @throws Exception если массив некорректного размера
      */
     public BlockCoordinates(byte[] serializedObject)
-        throws Exception {
+            throws Exception {
         super(Arrays.copyOfRange(serializedObject, 4 * 2, 4 * 2 + COORDINATES_BYTE_SIZE));
 
         if (serializedObject.length != BLOCK_COORDINATES_SIZE) {
@@ -35,6 +35,17 @@ public class BlockCoordinates
         super(x, y, z);
         this.chunkX = chunkX;
         this.chunkY = chunkY;
+    }
+
+    @Override
+    public String toString() {
+        return "BlockCoordinates{" +
+                "chunkX=" + chunkX +
+                ", chunkY=" + chunkY +
+                ", X=" + getX() +
+                ", Y=" + getY() +
+                ", Z=" + getZ() +
+                '}';
     }
 
     /**
