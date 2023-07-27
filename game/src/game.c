@@ -1939,15 +1939,15 @@ int run(State state) {
         handle_clicks();
 
         // HANDLE DATA FROM SERVER //
-        char *buffer = client_recv();
-        if (buffer) {
-            parse_buffer(buffer);
-            free(buffer);
-        }
+        // char *buffer = client_recv();
+        // if (buffer) {
+        //     parse_buffer(buffer);
+        //     free(buffer);
+        // }
 
         // HANDLE DATA FROM JAVA //
         sync_queue_entry_t entry;
-        while (try_dequeue(&out_blockchain_queue, &entry) != QUEUE_FAILURE) {
+        if (try_dequeue(&out_blockchain_queue, &entry) != QUEUE_FAILURE) {
             set_block(
                 entry.m_block_x, entry.m_block_y, entry.m_block_z, entry.m_block_id
             );
@@ -2095,6 +2095,7 @@ int run(State state) {
 
     // SHUTDOWN //
     db_save_state(s->x, s->y, s->z, s->rx, s->ry);
+    db_delete_all_blocks();
     db_close();
     glfwTerminate();
     client_stop();

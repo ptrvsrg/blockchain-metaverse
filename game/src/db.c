@@ -373,3 +373,10 @@ int db_worker_run(void *arg) {
     }
     return 0;
 }
+
+void db_delete_all_blocks(void) {
+    if (!db_enabled) {
+        return;
+    }
+    sqlite3_exec(db, "delete from block;", NULL, NULL, NULL);
+}

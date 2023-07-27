@@ -26,4 +26,6 @@ void db_worker_start();
 void db_worker_stop();
 int db_worker_run(void *arg);
 
+void db_delete_all_blocks(void);
+
 #endif
