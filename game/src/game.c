@@ -2,6 +2,7 @@
     #include <windows.h>
 #endif
 
+#include "lodepng.h"
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <math.h>
@@ -1464,6 +1465,10 @@ void create_window() {
     }
     window = glfwCreateWindow(
         window_width, window_height, "Craft", monitor, NULL);
+    
+    GLFWimage icon;
+    lodepng_decode32_file(&icon.pixels, &icon.width, &icon.height, TEXTURES_DIRECTORY ICON_FILE);
+    glfwSetWindowIcon(window, 1, &icon);
 }
 
 void handle_mouse_input() {

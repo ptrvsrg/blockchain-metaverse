@@ -64,6 +64,7 @@
 #define FONT_FILE "font.png"
 #define SIGN_FILE "sign.png"
 #define SKY_FILE "sky.png"
+#define ICON_FILE "icon.png"
 #define TEXTURES_DIRECTORY "${TEXTURES_DIRECTORY}/"
 
 #define BLOCK_VERTEX "block_vertex.glsl"
