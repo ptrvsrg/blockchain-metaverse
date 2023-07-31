@@ -9,7 +9,7 @@ mvn install -f ../ -Dmaven.test.skip=true
 mkdir release-win64-%1
 cp ../start-menu/target/start-menu-1.0.0-jar-with-dependencies.jar release-win64-%1
 cp -r ../game/build/lib release-win64-%1
-cp -r ../game/texture release-win64-%1
+cp -r ../game/textures release-win64-%1
 cp -r ../game/shaders release-win64-%1
 echo java -D"java.library.path=lib" -jar start-menu-1.0.0-jar-with-dependencies.jar > release-win64-%1/launch.bat
 
